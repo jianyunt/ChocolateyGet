@@ -20,6 +20,7 @@ $script:ChocoExePath = $null
 $script:PackageRegex = "(?<name>[^\s]*)(\s*)(?<version>[^\s]*)"
 $script:PackageReportRegex="^[0-9]*(\s*)(packages installed)"
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)"
+function IsCoreCLR { $PSVariable = Get-Variable -Name IsCoreCLR -ErrorAction Ignore; return ($PSVariable -and $PSVariable.Value) }
 
 # Check if this is nano server. [System.Runtime.Loader.AssemblyLoadContext] is only available on NanoServer
 try {
@@ -705,9 +706,9 @@ function Install-ChocoBinaries
         $Force
     )
 
-    if ($script:isNanoServer)
+    if($script:isNanoServer -or (IsCoreCLR))
     {
-        Write-Error ($LocalizedData.ChocoUnSupportedOnNano -f $script:ProviderName)
+        Write-Error ($LocalizedData.ChocoUnSupportedOnCoreCLR -f $script:ProviderName)
         return $false
     }
   

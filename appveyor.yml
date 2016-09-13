@@ -1,0 +1,20 @@
+version: 1.0.{build}
+os:
+- WMF 5
+configuration: Release
+platform: Any CPU
+# Install Pester
+install: 
+    - cinst -y pester
+clone_folder: c:\projects\chocolateyget
+#build_script:
+#- ps: git submodule update --init; cd .\src; .\bootstrap.ps1; .\build.ps1 -framework "net451";
+#after_build:
+#- ps: >-
+#    Get-ChildItem "C:\projects\oneget\src\out\PackageManagement\net451" -Recurse | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releasebits -Type Auto }
+
+before_test:
+- ps: >-
+    Copy-Item -Recurse "c:\projects\chocolateyget\" "$Env:ProgramFiles\WindowsPowerShell\Modules\" -Force -Verbose
+
+    & "c:\projects\chocolateyget\Test\ChocolateyGet.tests.ps1"
