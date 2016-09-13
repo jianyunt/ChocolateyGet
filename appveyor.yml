@@ -2,6 +2,9 @@ version: 1.0.{build}
 os:
 - WMF 5
 configuration: Release
+
+build: false
+
 platform: Any CPU
 # Install Pester
 install: 
