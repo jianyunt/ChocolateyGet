@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/vxbk2jqy0r6y7cem/branch/master?svg=true)](https://ci.appveyor.com/project/jianyunt/chocolateyget/branch/master)
+
 # ChocolateyGet
 ChocolateyGet provider allows to download packages from Chocolatey.org repository via OneGet.
 
