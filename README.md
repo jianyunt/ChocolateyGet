@@ -54,4 +54,4 @@ The primarily reason is that the current version of choco.exe does not seem to s
 
 ## Legal and Licensing
 
-ChocolateyGet is licensed under the [MIT license](.\LICENSE.txt).
+ChocolateyGet is licensed under the [MIT license](./LICENSE.txt).
