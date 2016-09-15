@@ -20,6 +20,100 @@ if($provider.Name -notcontains $ChocolateyGet)
 
 Import-PackageProvider $ChocolateyGet -force
 
+Describe "ChocolateyGet Version testing" -Tags @('BVT', 'DRT') {
+    BeforeAll { 
+        Import-Module ChocolateyGet
+    }
+    AfterAll {
+        #reset the environment variable
+       $env:BootstrapProviderTestfeedUrl=""
+    }
+    It "SemVer testing" {
+        $version1="0.9.9 "
+        $version2="0.9.9"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 0
+
+        $version1="0.9.9-rc2"
+        $version2="0.9.9-rc2"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 0
+
+        $version1="1.0.0-beta-exp.sha.5114f85"
+        $version2="1.0.0-beta-exp.sha.5114f85"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 0
+
+
+        $version1="1.0.0-alpha-exp.sha.5114f85"
+        $version2="1.0.0-beta-exp.sha.5114f85"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+
+        $version1="1.0.0-alpha-exp.sha.5114f86"
+        $version2="1.0.0-alpha-exp.sha.5114f85"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 0
+   
+        $version1="1.0.0-alpha-exp.sha1.5114f85"
+        $version2="1.0.0-alpha-exp.sha.5114f85"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 0
+
+        $version1="0.9.9 "
+        $version2="0.9.9-rc2"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 1
+
+        $Version1 = "1.1"
+        $version2="1.1.1"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+        $Version1 = "1.2.5"
+        $version2="1.2.3.4"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 1
+
+        $version1="1.0.0-alpha.1"
+        $version2="1.0.0-alpha.beta"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+        $version1="1.0.0-alpha.beta"
+        $version2="1.0.0-rc.1"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+        $version1="1.0.0"
+        $version2="1.0.0-rc.11"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 1
+
+        $version1="1.0.0-rc.1"
+        $version2="2.0.0"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+        $version1="1.0.0-beta.2"
+        $version2="1.0.0-beta.11"
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+        $version1="0.9.10-rc1" 
+        $version2="0.9.10" 
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be -1
+
+        $Version1= "0.9.10-beta-20160528" 
+        $Version2= "0.9.10-alpha-20160528" 
+        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
+        $a | should be 1
+    }
+}
+
+
 Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
     AfterAll {
         #reset the environment variable

@@ -15,6 +15,7 @@ $script:AllVersions = "AllVersions"
 # Define choco related variables
 $script:ChocoExeName = 'choco.exe'
 $script:ChocoExePath = $null
+$script:firstTime = $true
 
 # Utility variables 
 $script:PackageRegex = "(?<name>[^\s]*)(\s*)(?<version>[^\s]*)"
@@ -31,6 +32,12 @@ catch
 {
     $script:isNanoServer = $false
 }
+
+$script:FindPackageId = 10 
+$script:InstallPackageId = 11
+$script:UnInstallPackageId = 12
+$script:InstalledPackageId = 15 
+$script:InstallChocoId = 16 
 
 #endregion
 
@@ -129,8 +136,7 @@ function Find-Package {
     # For some reason, we have to convert it to array to make the following choco.exe cmd to work
     $additionalArgs = Get-AdditionalArguments
     $args = if($additionalArgs) {$additionalArgs.Split(' ')}
-    $nameContainWildCard = $false
-    $FindPackageParentId = 10       
+    $nameContainWildCard = $false      
     $filterRequired = $false
     $options = $request.Options
     foreach( $o in $options.Keys )
@@ -148,7 +154,7 @@ function Find-Package {
     
     # a user specifies -Name
     $progress = 5
-    Write-Progress -Activity $LocalizedData.SearchingForPackage -PercentComplete $progress -Id $FindPackageParentId
+    Write-Progress -Activity $LocalizedData.SearchingForPackage -PercentComplete $progress -Id $script:FindPackageId
                  
     if(Test-WildcardPattern -Name $Name)
     {
@@ -186,7 +192,7 @@ function Find-Package {
         $progress += 5
         $progress= [System.Math]::Min(100, $progress)
 
-        Write-Progress -Activity $LocalizedData.ProcessingPackage -PercentComplete $progress -Id $FindPackageParentId
+        Write-Progress -Activity $LocalizedData.ProcessingPackage -PercentComplete $progress -Id $script:FindPackageId
         
         if($request.IsCanceled) { return }     
         $Matches = $null             
@@ -228,7 +234,7 @@ function Find-Package {
         }
     }
     
-    Write-Progress -Activity $LocalizedData.Complete -PercentComplete 100 -Completed -Id $FindPackageParentId               
+    Write-Progress -Activity $LocalizedData.Complete -PercentComplete 100 -Completed -Id $script:FindPackageId               
 }                    
   
 
@@ -270,7 +276,6 @@ function Install-Package
     Write-Debug -Message ($LocalizedData.FastPackageReference -f $fastPackageReference)
 
     $force = Get-ForceProperty
-    $InstallPackageId = 11
 
     # Check the source location
     if(-Not $fastPackageReference)
@@ -303,8 +308,8 @@ function Install-Package
         return
     }
                  
-    $shouldContinueQueryMessage = "Installing package '{0}'. By installing you accept licenses for the package(s). The package possibly needs to run 'chocolateyInstall.ps1'" -f $fastPackageReference  
-    $shouldContinueCaption = "Are you sure you want to perform this action?"
+    $shouldContinueQueryMessage = ($LocalizedData.InstallPackageQuery -f "Installing", $name)  
+    $shouldContinueCaption = $LocalizedData.InstallPackageCaption
     
 
     if(-not ($Force -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption)))
@@ -330,12 +335,12 @@ function Install-Package
            & $args[0] $args[1] $args[2]
        } -ArgumentList @($script:ChocoExePath, $installCmd, $additionalArgs)
 
-    Show-Progress -ProgressMessage $LocalizedData.InstallingPackage  -PercentComplete $progress -ProgressId $InstallPackageId 
+    Show-Progress -ProgressMessage $LocalizedData.InstallingPackage  -PercentComplete $progress -ProgressId $script:InstallPackageId 
     $packages= $job | Receive-Job -Wait   
     Process-Package -Name $name `
                      -RequiredVersion $version `
                      -OperationMessage $LocalizedData.InstallingPackage `
-                     -ProgressId $InstallPackageId `
+                     -ProgressId $script:InstallPackageId `
                      -PercentComplete $progress `
                      -Packages $packages  
  }
@@ -355,7 +360,6 @@ function UnInstall-Package
     Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Uninstall-Package'))
     Write-Debug -Message ($LocalizedData.FastPackageReference -f $FastPackageReference)
       
-    $UnInstallPackageId = 12
     $force = Get-ForceProperty
     $Matches = $null
     $isMatch = $FastPackageReference -match $script:FastReferenceRegex
@@ -397,14 +401,14 @@ function UnInstall-Package
            & $args[0] $args[1] $args[2]
        } -ArgumentList @($script:ChocoExePath, $unInstallCmd, $args)
 
-    Show-Progress -ProgressMessage $LocalizedData.UnInstallingPackage  -PercentComplete $progress -ProgressId $UnInstallPackageId 
+    Show-Progress -ProgressMessage $LocalizedData.UnInstallingPackage  -PercentComplete $progress -ProgressId $script:UnInstallPackageId 
     $packages= $job | Receive-Job -Wait   
     Write-debug  ("Completed calling $script:ChocoExePath $unInstallCmd")   
     
     Process-Package -Name $name `
                     -RequiredVersion $version `
                     -OperationMessage $LocalizedData.UnInstallingPackage `
-                    -ProgressId $UnInstallPackageId `
+                    -ProgressId $script:UnInstallPackageId `
                     -PercentComplete $progress -Packages $packages `
                     -NameContainsWildCard $true   # pass in $true so that we do not exact name match because choco returns different sometimes.
         
@@ -447,14 +451,13 @@ function Get-InstalledPackage
         return
     } 
 
-    $installedPackageId = 15 
     $force = Get-ForceProperty
     if(-not (Install-ChocoBinaries -Force $force)) { return }    
     $nameContainsWildCard = $false
     $additionalArgs = Get-AdditionalArguments
     $args = if($additionalArgs) {$additionalArgs.Split(' ')}
 
-    Write-Progress -Activity $LocalizedData.FindingLocalPackage -PercentComplete 30  -Id $installedPackageId 
+    Write-Progress -Activity $LocalizedData.FindingLocalPackage -PercentComplete 30  -Id $script:InstalledPackageId 
 
     # If a user does not provide name or name contains wildcard, search all.
     # Choco does not support wildcard if searching local only 
@@ -470,14 +473,14 @@ function Get-InstalledPackage
         $packages = & $script:ChocoExePath search $Name --local-only --allversions $args
     }
    
-    Process-Package -Name $Name -ProgressId $installedPackageId `
+    Process-Package -Name $Name -ProgressId $script:InstalledPackageId `
                     -RequiredVersion $RequiredVersion `
                     -MinimumVersion $MinimumVersion `
                     -MaximumVersion $MaximumVersion `
                     -PercentComplete 20 `
                     -Packages $packages `
                     -NameContainsWildCard $nameContainsWildCard
-    Write-Progress -Activity $LocalizedData.Complete -PercentComplete 100 -Completed -Id $installedPackageId    
+    Write-Progress -Activity $LocalizedData.Complete -PercentComplete 100 -Completed -Id $script:InstalledPackageId    
 }
 
 #endregion
@@ -719,23 +722,124 @@ function Install-ChocoBinaries
     }
    
     # Setup $script:ChocoExePath
-    if (Get-ChocoPath)
+    if ((Get-ChocoPath) -and $script:ChocoExePath)
     {
         Write-Debug ("Choco already installed in '{0}'" -f $script:ChocoExePath)
+        
+        if(-not $script:firstTime) 
+        {
+            $script:firstTime = $false
+            return $true
+        }
+
+        $progress = 5
+        Write-Progress -Activity $LocalizedData.CheckingChoco -PercentComplete $progress -Id $script:InstallChocoId
+        
+        # For the first time in the current PowerShell Session, we check choco version to see if upgrade is needed 
+        $name = "Chocolatey"  
+        Write-Debug ("$script:ChocoExePath search $name")      
+        $packages = & $script:ChocoExePath search $name
+        
+        $progress += 5  
+        Write-Progress -Activity $LocalizedData.CheckingChoco -PercentComplete $progress -Id $script:InstallChocoId 
+
+                     
+        foreach ($pkg in $packages)
+        {
+            if($request.IsCanceled) { return } 
+                      
+            $Matches = $null
+            if (($pkg -match $script:PackageRegex) -and ($pkg -notmatch $script:PackageReportRegex))
+            {           
+                $pkgname = $Matches.name
+                $pkgversion = $Matches.version
+
+                Write-Debug ("Choco message: '{0}'" -f $pkg)
+
+                # check name match
+                if(-not (Test-Name -Name $name -PackageName $pkgname))
+                {
+                    Write-Debug ("Skipping processing: '{0}'" -f $pkg)
+                    continue
+                }
+             
+                if ($pkgname -and $pkgversion)
+                {
+                    $installedVersion = Get-InstalledChocoVersion
+                    
+                    $progress += 5    
+                    Write-Progress -Activity $LocalizedData.CheckingChoco -PercentComplete $progress -Id $script:InstallChocoId 
+
+                    if((Compare-SemVer -Version1 $pkgversion.Trim('v') -Version2 $installedVersion) -eq 1)
+                    {
+                        # There is a newer version of Chocolatey available
+                        Write-Verbose ($LocalizedData.FoundNewerChocolatey -f $pkgversion, $installedVersion) 
+
+                        # Should continue message for upgrading Choco.exe
+                        $shouldContinueQueryMessageUpgrade = ($LocalizedData.UpgradePackageQuery -f $pkgversion)
+                        $shouldContinueCaptionUpgrade = ($LocalizedData.InstallPackageQuery -f "Upgrading", $name)  
+
+                        if($Force -or $request.ShouldContinue($shouldContinueQueryMessageUpgrade, $shouldContinueCaptionUpgrade))
+                        {
+                            Write-Progress -Activity $LocalizedData.UpgradingChoco -PercentComplete $progress -Id $script:InstallChocoId 
+
+                            Write-Debug ("Calling $script:ChocoExePath upgrade chocolatey")                               
+                            $job=Start-Job -ScriptBlock {
+                                   & $args[0] upgrade chocolatey -y
+                               } -ArgumentList @($script:ChocoExePath)
+
+                            Show-Progress -ProgressMessage $LocalizedData.UpgradingChoco `
+                                          -PercentComplete $progress `
+                                          -ProgressId $script:InstallChocoId 
+
+                            $packages= $job | Receive-Job -Wait   
+                            Process-Package -Name $name `
+                                             -RequiredVersion $pkgversion `
+                                             -OperationMessage $LocalizedData.UpgradingChoco `
+                                             -ProgressId $script:InstallChocoId `
+                                             -PercentComplete $progress `
+                                             -Packages $packages     
+                        }
+                    }
+                    else
+                    {
+                        Write-Debug ("Current version of chocolatey is up to date")
+                    }
+                    
+                    break                  
+                }               
+            }
+        } # foreach
+
+        Write-Progress -Activity $LocalizedData.Complete -PercentComplete 100 -Completed -Id $script:InstallChocoId 
         return $true
-    }
+    }                    
      
-    # Should continue message for bootstrapping only NuGet.exe
+    # Should continue message for installing Choco.exe
     $shouldContinueQueryMessage = $LocalizedData.InstallChocoExeShouldContinueQuery
     $shouldContinueCaption = $LocalizedData.InstallChocoExeShouldContinueCaption
-    
-
-    if($Force -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))
+         
+    if(-not $Force)
     {
-        # install choco based on https://chocolatey.org/install#before-you-install
-        Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression        
+        $continue = $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption)
+        if(-not $continue)
+        {
+            Write-Error ($LocalizedData.UserDeclined -f "install")
+            return $false
+        }
     }
 
+    # install choco based on https://chocolatey.org/install#before-you-install
+    try{
+        Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression  > $null
+    } 
+    catch
+    {
+        if($error[0])
+        {
+            Write-Error $error[0]
+        }
+    } 
 
     if (Get-ChocoPath)
     {
@@ -743,13 +847,7 @@ function Install-ChocoBinaries
     }
     else
     {
-        # Throw the error message if one of the above conditions are not met
-        ThrowError -ExceptionName "System.InvalidOperationException" `
-                    -ExceptionMessage $LocalizedData.FailToInstallChoco `
-                    -ErrorId $errorId `
-                    -CallerPSCmdlet $PSCmdlet `
-                    -ErrorCategory InvalidOperation
-
+        Write-Error ($LocalizedData.FailToInstallChoco)         
     }
 
     return $false
@@ -786,6 +884,44 @@ function Get-ChocoPath
 
     return $chocoCmd.Path
 }
+
+function Get-InstalledChocoVersion
+{
+    $name = "Chocolatey"
+    $installedChocoVersion = $null
+
+    Write-Debug ("Calling $script:ChocoExePath search chocolatey --local-only")  
+    $packages = & $script:ChocoExePath search chocolatey --local-only 
+    
+    foreach ($pkg in $packages)
+    {
+        if($request.IsCanceled) { return } 
+                      
+        $Matches = $null
+        if (($pkg -match $script:PackageRegex) -and ($pkg -notmatch $script:PackageReportRegex))
+        {           
+            $pkgname = $Matches.name
+            $pkgversion = $Matches.version
+
+            Write-Debug ("Choco message: '{0}'" -f $pkg)
+
+            # check name match
+            if(-not (Test-Name -Name $name -PackageName $pkgname))
+            {
+                Write-Debug ("Skipping processing: '{0}'" -f $pkg)
+                continue
+            }
+             
+            if ($pkgname -and $pkgversion)
+            {
+                $installedChocoVersion = $pkgversion.Trim('v')                  
+                break                  
+            }               
+        }
+    } # foreach
+
+    return $installedChocoVersion   
+ }
 
 # Check whether $version meets the criteria defined in $RequiredVersion, $MinimumVersion and $MaximumVersion
 function Test-Version
@@ -962,4 +1098,236 @@ function ThrowError
     $CallerPSCmdlet.ThrowTerminatingError($errorRecord)
 }
 
+
+#region Semversion variables
+$AllowFourPartsVersion = "(?<Version>\d+(\s*\.\s*\d+){0,3})";
+$ThreePartsVersion = "(?<Version>\d+(\.\d+){2})";
+# the pre-release regex is of the form -<pre-release version> where <pre-release> version is set of identifier 
+# delimited by ".". Each identifer can be any characters in [A-z0-9a-z-]
+$ReleasePattern = "(?<Release>-[A-Z0-9a-z\-]+(\.[A-Z0-9a-z\-]+)*)?";
+
+# The build regex is of the same form except with a + instead of -
+$BuildPattern = "(?<Build>\+[A-Z0-9a-z\-]+(\.[A-Z0-9a-z\-]+)*)?";
+ 
+# For some reason Chocolatey version uses "-" instead of "+" for the build metadata. Here change it to "-"       
+$ReleasePatternDash = "(?<Release>-[A-Z0-9a-z]+(\.[A-Z0-9a-z]+)*)?";
+$BuildPatternDash = "(?<Build>\-[A-Z0-9a-z\-]+(\.[A-Z0-9a-z\-]+)*)?";
+
+# Purposely this should be the regex
+$SemanticVersionPattern = "^" + $AllowFourPartsVersion + $ReleasePattern +$BuildPattern + "$"
+
+# But we use this one because Chocolatey uses <version>-<release>-<build> format
+$SemanticVersionPatternDash = "^" + $AllowFourPartsVersion + $ReleasePatternDash + $BuildPatternDash + "$"
+
 #endregion
+
+# Compare two sematic verions
+# -1 if $Version1 < $Version2
+# 0  if $Version1 = $Version2
+# 1  if $Version1 > $Version2
+function Compare-SemVer
+{
+    [CmdletBinding()]
+    [OutputType([int])]
+
+    param(
+    [string]
+    $Version1,
+    [string]
+    $Version2
+    )
+
+    $versionObject1 = Get-VersionPSObject $Version1
+    $versionObject2 = Get-VersionPSObject $Version2
+
+    if((-not $versionObject1) -and (-not $versionObject2))
+    {
+        return 0
+    }
+
+    if((-not $versionObject1) -and ($versionObject2))
+    {
+        return -1
+    }
+
+    if(($versionObject1) -and (-not $versionObject2))
+    {
+        return 1
+    }
+
+    $VersionResult = ([Version]$versionObject1.Version).CompareTo([Version]$versionObject2.Version)
+    if($VersionResult -ne 0)
+    {
+        return $VersionResult
+    }
+
+    if($versionObject1.Release -and (-not $versionObject2.Release))
+    {
+        return -1
+    }
+
+    if(-not $versionObject1.Release -and $versionObject2.Release)
+    {
+        return 1
+    }
+
+
+    $ReleaseResult = Compare-ReleaseMetadata -Version1Metadata $versionObject1.Release  -Version2Metadata $versionObject2.Release    
+    return $ReleaseResult
+    
+    # Based on http://semver.org/, Build metadata SHOULD be ignored when determining version precedence    
+ }
+
+
+function Get-VersionPSObject
+{
+    param(
+    [Parameter(Mandatory=$true)]
+    [string]
+    $Version
+    )
+
+    $isMatch=$Version.Trim() -match $SemanticVersionPatternDash 
+    if($isMatch)
+    {            
+        if ($Matches.Version) {$v = $Matches.Version.Trim()} else {$v = $Matches.Version}
+        if ($Matches.Release) {$r = $Matches.Release.Trim("-, +")} else {$r = $Matches.Release} 
+        if ($Matches.Build) {$b = $Matches.Build.Trim("-, +")} else {$b = $Matches.Build}  
+
+        return New-Object PSObject -Property @{ 
+            Version = $v
+            Release = $r
+            Build = $b
+        }
+    }
+    else
+    {
+        ThrowError -ExceptionName "System.InvalidOperationException" `
+                    -ExceptionMessage ($LocalizedData.InvalidVersionFormat -f $Version, $SemanticVersionPatternDash) `
+                    -ErrorId "InvalidVersionFormat" `
+                    -CallerPSCmdlet $PSCmdlet `
+                    -ErrorCategory InvalidOperation
+    }   
+ }
+
+ 
+ function Compare-ReleaseMetadata
+ {
+    [CmdletBinding()]
+    [OutputType([int])]
+
+    param(
+    [string]
+    $Version1Metadata,
+    [string]
+    $Version2Metadata
+    )
+
+    if((-not $Version1Metadata) -and (-not $Version2Metadata))
+    {
+        return 0
+    }
+
+    # For release part, 1.0.0 is newer/greater then 1.0.0-alpha. So return 1 here.
+    if((-not $Version1Metadata) -and $Version2Metadata)
+    {
+        return 1
+    }
+
+    if(($Version1Metadata) -and (-not $Version2Metadata))
+    {
+        return -1
+    }
+
+    $version1Parts=$Version1Metadata.Trim('-').Split('.')
+    $version2Parts=$Version2Metadata.Trim('-').Split('.')
+
+    $length = [System.Math]::Min($version1Parts.Length, $version2Parts.Length)
+
+    for ($i = 0; ($i -lt $length); $i++)
+    {
+        $result = Compare-MetadataPart -Version1Part $version1Parts[$i] -Version2Part $version2Parts[$i]
+
+        if ($result -ne 0)
+        {
+            return $result
+        }
+    }
+
+    # so far we found two versions are the same. If length is the same, we think two version are indeed the same
+    if($version1Parts.Length -eq $version1Parts.Length)
+    {
+        return 0
+    }
+
+    # 1.0.0-alpha < 1.0.0-alpha.1
+    if($version1Parts.Length -lt $length)
+    {
+        return -1
+    }
+    else
+    {
+        return 1
+    }
+ }
+
+
+ function Compare-MetadataPart
+ {
+    [CmdletBinding()]
+    [OutputType([int])]
+
+    param(
+    [string]
+    $Version1Part,
+    [string]
+    $Version2Part
+    )
+
+    if((-not $Version1Part) -and (-not $Version2Part))
+    {
+        return 0
+    }
+
+    # For release part, 1.0.0 is newer/greater then 1.0.0-alpha. So return 1 here.
+    if((-not $Version1Part) -and $Version2Part)
+    {
+        return 1
+    }
+
+    if(($Version1Part) -and (-not $Version2Part))
+    {
+        return -1
+    }
+
+    $version1Num = 0
+    $version2Num = 0
+
+    $v1IsNumeric = [System.Int32]::TryParse($Version1Part, [ref] $version1Num);
+    $v2IsNumeric = [System.Int32]::TryParse($Version2Part, [ref] $version2Num);
+
+    $result = 0
+    # if both are numeric compare them as numbers
+    if ($v1IsNumeric -and $v2IsNumeric)
+    {
+       $result = $version1Num.CompareTo($version2Num);
+    }   
+    elseif ($v1IsNumeric -or $v2IsNumeric)
+    {
+        # numeric numbers come before alpha chars
+        if ($v1IsNumeric) { return -1 }
+        else { return 1 }
+    }
+    else
+    {
+         $result = [string]::Compare($Version1Part, $Version2Part)
+    }
+
+    return $result
+ }
+
+
+#endregion
+
+
+#Export-ModuleMember -Function Compare-SemVer

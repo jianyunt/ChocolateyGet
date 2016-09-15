@@ -7,7 +7,7 @@ Author = 'Jianyun'
 Copyright = ''
 Description = 'An PowerShell OneGet provider that discovers packages from https://www.chocolatey.org.'
 PowerShellVersion = '3.0'
-FunctionsToExport = @()
+FunctionsToExport = @('Compare-SemVer')
 RequiredModules = @('PackageManagement')
 PrivateData = @{"PackageManagementProviders" = 'ChocolateyGet.psm1'
 
