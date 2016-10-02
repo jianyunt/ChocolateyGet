@@ -2,6 +2,7 @@
 
 RootModule = 'ChocolateyGet.psm1'
 ModuleVersion = '1.0.0'
+CompatiblePSEditions = @(Desktop)
 GUID = 'c1735ed7-8b2f-426a-8cbc-b7feb6b8288d'
 Author = 'Jianyun'
 Copyright = ''
