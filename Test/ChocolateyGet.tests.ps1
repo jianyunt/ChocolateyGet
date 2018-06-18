@@ -164,4 +164,49 @@ Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
         $a=get-package $package -provider $ChocolateyGet -verbose | uninstall-package -AdditionalArguments '-y --remove-dependencies' -Verbose
         $a.Name -contains $package | Should Be $true
     }        
- }
+}
+
+Describe "ChocolateyGet multi-source testing" -Tags @('BVT', 'DRT') {
+    $altSourceName = "bob"
+
+    #Feel free to replace with valid external non-dot-org URI
+    $altSourceLocation = "https://chocolatey.org/api/v2/"
+
+    It "registers and unregisters alternative package sources" {
+
+        $a = Register-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -Location $altSourceLocation
+        $a.Name -eq $altSourceName | Should Be $true
+
+        Unregister-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet
+        $e = Get-PackageSource -ProviderName $ChocolateyGet
+        $e.Name -eq $altSourceName | Should Be $false
+    }        
+
+    It "installs and uninstalls from an alternative alternative package sources" {
+        
+        $package = "nodejs"
+
+        $a = Register-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -Location $altSourceLocation
+        $a.Name -eq $altSourceName | Should Be $true
+
+        $b=find-package $package -verbose -provider $ChocolateyGet -source $altSourceName -AdditionalArguments --exact | install-package -force
+        $b.Name -contains $package | Should Be $true
+
+        $c = get-package $package -verbose -provider $ChocolateyGet
+        $c.Name -contains $package | Should Be $true
+
+        $d= Uninstall-package $package -verbose -ProviderName $ChocolateyGet -AdditionalArguments '-y --remove-dependencies'
+        $d.Name -contains $package | Should Be $true
+
+        Unregister-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet
+        $e = Get-PackageSource -ProviderName $ChocolateyGet
+        $e.Name -eq $altSourceName | Should Be $false
+    }        
+
+    BeforeEach {
+        Unregister-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -ErrorAction SilentlyContinue
+    }
+    AfterEach {
+        Unregister-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -ErrorAction SilentlyContinue
+    }
+}

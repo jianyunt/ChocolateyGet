@@ -20,7 +20,7 @@ $script:firstTime = $true
 # Utility variables 
 $script:PackageRegex = "(?<name>[^\s]*)(\s*)(?<version>[^\s]*)"
 $script:PackageReportRegex="^[0-9]*(\s*)(packages installed)"
-$script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)"
+$script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
 
 $script:FindPackageId = 10 
 $script:InstallPackageId = 11
@@ -71,26 +71,44 @@ function Get-DynamicOptions
 }
 
 
+# Wildcard pattern matching configuration
+$script:wildcardOptions = [System.Management.Automation.WildcardOptions]::CultureInvariant -bor `
+                          [System.Management.Automation.WildcardOptions]::IgnoreCase
 
 # This function gets called during find-package, install-package, get-packagesource etc.
 # OneGet uses this method to identify which provider can handle the packages from a particular source location.
 function Resolve-PackageSource { 
 
     Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Resolve-PackageSource')) 
-    
-    $isTrusted    = $false
-    $isRegistered = $false
-    $isValidated  = $true
-    $location     = $script:PackageSource
-    
- 
-    foreach($Name in @($request.PackageSources)) {
+    $SourceName = $request.PackageSources
 
-        if($Name -eq $script:PackageSourceName)
+    # get Sources from the registered config file
+    [array]$RegisteredPackageSources = Get-PackageSources
+
+    if(-not $SourceName)
+    {
+        $SourceName = "*"
+    }
+
+    foreach($src in $SourceName)
+    {
+        if($request.IsCanceled) { return }
+
+        # Get the sources that registered before
+        $sourceFound = $false
+
+        $RegisteredPackageSources | Where-Object {$_.Name -like $src -and $_.Disabled -eq 'False'} |
+            ForEach-Object {
+                $packageSource = New-PackageSourceAndYield -Source $_
+                Write-Output -InputObject $packageSource
+                $sourceFound = $true
+            }
+
+        # If a user does specify -Source but not registered
+        if(-not $sourceFound)
         {
-    	    write-debug ($LocalizedData.ProviderDebugMessage -f ('Resolve-PackageSources to $location'))
-
-            New-PackageSource $Name $location $isTrusted $isRegistered $isValidated
+            Write-Error -Message "Package source not found" -ErrorId "PackageSourceNotFound" -Category InvalidOperation -TargetObject $src
+            break
         }
     }        
 }
@@ -124,13 +142,13 @@ function Find-Package {
     
     # For some reason, we have to convert it to array to make the following choco.exe cmd to work
     $additionalArgs = Get-AdditionalArguments
-    $args = if($additionalArgs) {$additionalArgs.Split(' ')}
+
     $nameContainWildCard = $false      
     $filterRequired = $false
     $options = $request.Options
     foreach( $o in $options.Keys )
     {
-        Write-Debug ( "$script:PackageSourceName - OPTION: {0} => {1}" -f ($o, $options[$o]) )
+        Write-Debug ( "OPTION: {0} => {1}" -f ($o, $options[$o]) )
     }
 
     if (-not $name)
@@ -139,7 +157,38 @@ function Find-Package {
         Write-Error ( $LocalizedData.SearchingEntireRepo)
         return
     }
-    
+
+    [array]$RegisteredPackageSources = Get-PackageSources    
+        
+    if($options -and $options.ContainsKey('Source'))
+    {        
+        # Finding the matched package sources from the registered ones
+        $sourceName = $options['Source']
+        Write-Verbose ($LocalizedData.SpecifiedSourceName -f ($sourceName))        
+        
+        if($RegisteredPackageSources.Name -eq $sourceName)
+        {
+            # Found the matched registered source
+            $selectedSource = $sourceName              
+        }
+        else
+        {
+            $message = $LocalizedData.PackageSourceNotFound -f ($sourceName)
+            ThrowError -ExceptionName "System.ArgumentException" `
+                -ExceptionMessage $message `
+                -ErrorId "PackageSourceNotFound" `
+                -CallerPSCmdlet $PSCmdlet `
+                -ErrorCategory InvalidArgument `
+                -ExceptionObject $sourceName
+        }
+    }
+    else {
+        $selectedSource = $script:PackageSourceName
+    }
+
+    $additionalArgs += " --source='$selectedSource'"
+
+    $args = if($additionalArgs) {$additionalArgs.Split(' ')}
     
     # a user specifies -Name
     $progress = 5
@@ -209,11 +258,11 @@ function Find-Package {
                                                 -MaximumVersion $maximumVersion ))
                  {                                  
                     $swidObject = @{
-                        FastPackageReference = $pkgname+"#" + $pkgversion;
+                        FastPackageReference = $pkgname+"#"+ $pkgversion+"#"+$script:PackageSourceName;
                         Name = $pkgname;
                         Version = $pkgversion;
                         versionScheme  = "MultiPartNumeric";
-                        Source = $script:PackageSource;              
+                        Source = $script:PackageSourceName;    
                         }
 
                     $sid = New-SoftwareIdentity @swidObject              
@@ -290,6 +339,7 @@ function Install-Package
 
     $name =$matches.name
     $version = $Matches.version
+    $source = $Matches.source
 
     if (-not ($name -and $version))
     {
@@ -311,11 +361,11 @@ function Install-Package
  
     if($force)
     {
-        $installCmd=@("install", $name, "--version", $version,  "-y",  "-force")
+        $installCmd=@("install", $name, "--version", $version, "--source", $source, "-y",  "-force")
     }
     else
     {
-        $installCmd=@("install", $name, "--version", $version,  "-y")
+        $installCmd=@("install", $name, "--version", $version, "--source", $source, "-y")
     }
 
     Write-debug  ("Calling $installCmd $additionalArgs")
@@ -529,18 +579,23 @@ function Process-Package
         [Parameter()]
         [string]
         $MaximumVersion,
+
         [parameter()]
         [string]
         $OperationMessage,
+
         [parameter()]
         [int]
         $ProgressId,
+
         [parameter()]
         [int]
         $PercentComplete,
+
         [parameter()]
         [string[]]
         $Packages,
+
         [parameter()]
         [bool]
         $NameContainsWildCard = $false
@@ -581,11 +636,11 @@ function Process-Package
                                      -MaximumVersion $maximumVersion ))
                     {                                  
                         $swidObject = @{
-                            FastPackageReference = $pkgname+"#" + $pkgversion;
+                            FastPackageReference = $pkgname+"#"+ $pkgversion.TrimStart('v')+"#"+$script:PackageSourceName;
                             Name = $pkgname;
                             Version = $pkgversion;
                             versionScheme  = "MultiPartNumeric";
-                            Source = $script:PackageSource;              
+                            Source = $script:PackageSourceName;    
                             }
 
                         $sid = New-SoftwareIdentity @swidObject              
@@ -1318,5 +1373,114 @@ function Get-VersionPSObject
 
 #endregion
 
-
 #Export-ModuleMember -Function Compare-SemVer
+
+
+# Utility function - Read the registered package sources from its configuration file
+function Get-PackageSources
+{
+    $ChocoSourcePropertyNames = @(
+        'Name',
+        'Location',
+        'Disabled',
+        'UserName',
+        'Certificate',
+        'Priority',
+        'Bypass Proxy',
+        'Allow Self Service',
+        'Visibile to Admins Only'
+    )
+
+    if(-not (Get-ChocoPath)) { return }    
+    
+    # $sources = & $script:ChocoExePath source -r
+    # $sources2 = @()
+
+    # foreach ($source in $sources) {
+    #     Write-Debug $source
+    #     $sourcetemp = ConvertFrom-String -InputObject $source -Delimiter "\|" -PropertyNames $ChocoSourcePropertyNames
+    #     Write-Debug ("temp:$sourceTemp")
+    #     $sources2 += $sourcetemp
+    # }
+    
+    return (& $script:ChocoExePath source -r) | 
+            ConvertFrom-String -Delimiter "\|" -PropertyNames $ChocoSourcePropertyNames
+
+}
+
+# Utility function - Yield the package source to OneGet
+function New-PackageSourceAndYield
+{
+    param
+    (
+        [Parameter(Mandatory)]
+        $Source
+    )
+
+    # create a new package source
+    $src =  New-PackageSource -Name $Source.Name `
+                              -Location $Source.Location `
+                              -Trusted $true `
+                              -Registered $true `
+                              -Debug
+
+    # return the package source object.
+    Write-Output -InputObject $src
+}
+
+
+function Add-PackageSource
+{
+    [CmdletBinding()]
+    param
+    (
+        [string]
+        $Name,
+
+        [string]
+        $Location,
+
+        [bool]
+        $Trusted
+    )     
+
+    Write-Debug ("Add-PackageSource")  
+
+    # Add new package source
+    $packageSource = Microsoft.PowerShell.Utility\New-Object PSCustomObject -Property ([ordered]@{
+            Name = $Name
+            Location = $Location.TrimEnd("\")
+            Trusted=$Trusted
+            Registered= $true          
+        })     
+
+    & $script:ChocoExePath source add -r -n="$Name" -s="$Location"
+
+    # yield the package source to OneGet
+    Write-Verbose "$packageSource"
+
+    # yield the package source to OneGet
+    Write-Output -InputObject (New-PackageSourceAndYield -Source $packageSource)
+}
+
+function Remove-PackageSource
+{
+    param
+    (
+        [string]
+        $Name
+    )
+
+    Write-Debug ('Remove-PackageSource')
+
+    [array]$RegisteredPackageSources = Get-PackageSources
+
+    if (-not ($RegisteredPackageSources.Name -eq $Name))
+    {
+        Write-Error -Message "Package source $Name not found" -ErrorId "PackageSourceNotFound" -Category InvalidOperation -TargetObject $Name
+        return
+    }
+
+    #Remove it from the provider configuration
+    & $script:ChocoExePath source remove -r -n="$Name"
+}
