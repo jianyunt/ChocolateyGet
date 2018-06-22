@@ -138,7 +138,7 @@ function Find-Package {
     }    
     
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { return }    
+    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
     
     # For some reason, we have to convert it to array to make the following choco.exe cmd to work
     $additionalArgs = Get-AdditionalArguments
@@ -491,7 +491,7 @@ function Get-InstalledPackage
     } 
 
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { return }    
+    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
     $nameContainsWildCard = $false
     $additionalArgs = Get-AdditionalArguments
     $args = if($additionalArgs) {$additionalArgs.Split(' ')}
@@ -1391,18 +1391,9 @@ function Get-PackageSources
         'Visibile to Admins Only'
     )
 
-    if(-not (Get-ChocoPath)) { return }    
-    
-    # $sources = & $script:ChocoExePath source -r
-    # $sources2 = @()
-
-    # foreach ($source in $sources) {
-    #     Write-Debug $source
-    #     $sourcetemp = ConvertFrom-String -InputObject $source -Delimiter "\|" -PropertyNames $ChocoSourcePropertyNames
-    #     Write-Debug ("temp:$sourceTemp")
-    #     $sources2 += $sourcetemp
-    # }
-    
+    $force = Get-ForceProperty
+    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
+        
     return (& $script:ChocoExePath source -r) | 
             ConvertFrom-String -Delimiter "\|" -PropertyNames $ChocoSourcePropertyNames
 
@@ -1442,9 +1433,12 @@ function Add-PackageSource
 
         [bool]
         $Trusted
-    )     
+    )
 
-    Write-Debug ("Add-PackageSource")  
+    Write-Debug ("Add-PackageSource")
+
+    $force = Get-ForceProperty
+    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
 
     # Add new package source
     $packageSource = Microsoft.PowerShell.Utility\New-Object PSCustomObject -Property ([ordered]@{
@@ -1472,6 +1466,9 @@ function Remove-PackageSource
     )
 
     Write-Debug ('Remove-PackageSource')
+
+    $force = Get-ForceProperty
+    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
 
     [array]$RegisteredPackageSources = Get-PackageSources
 
