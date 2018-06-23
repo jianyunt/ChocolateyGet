@@ -235,7 +235,7 @@ function Find-Package {
         if($request.IsCanceled) { return }     
         $Matches = $null             
 
-        if (((($selectedSource -eq $script:PackageSourceName) -and ($pkg -like "*Approved*")) -or ($selectedSource -ne 'Chocolatey')) -and ($pkg -match $script:PackageRegex))
+        if (((($selectedSource -eq $script:PackageSourceName) -and ($pkg -like "*Approved*")) -or ($selectedSource -ne $script:PackageSourceName)) -and ($pkg -match $script:PackageRegex))
         {
             Write-Debug ("Found a package '{0}'" -f $pkg)
 
