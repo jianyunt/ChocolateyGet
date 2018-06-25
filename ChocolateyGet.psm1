@@ -258,11 +258,11 @@ function Find-Package {
                                                 -MaximumVersion $maximumVersion ))
                  {                                  
                     $swidObject = @{
-                        FastPackageReference = $pkgname+"#"+ $pkgversion+"#"+$script:PackageSourceName;
+                        FastPackageReference = $pkgname+"#"+ $pkgversion+"#"+$selectedSource;
                         Name = $pkgname;
                         Version = $pkgversion;
                         versionScheme  = "MultiPartNumeric";
-                        Source = $script:PackageSourceName;    
+                        Source = $selectedSource;    
                         }
 
                     $sid = New-SoftwareIdentity @swidObject              
@@ -371,18 +371,32 @@ function Install-Package
     Write-debug  ("Calling $installCmd $additionalArgs")
     $progress = 1         
     $job=Start-Job -ScriptBlock {
-           & $args[0] $args[1] $args[2]
-       } -ArgumentList @($script:ChocoExePath, $installCmd, $additionalArgs)
+        & $args[0] $args[1] $args[2];
+        if ($LASTEXITCODE -ne 0) {
+            Throw "Choco.exe failed with exit code $LASTEXITCODE"
+        }
+    } -ArgumentList @($script:ChocoExePath, $installCmd, $additionalArgs)
 
     Show-Progress -ProgressMessage $LocalizedData.InstallingPackage  -PercentComplete $progress -ProgressId $script:InstallPackageId 
-    $packages= $job | Receive-Job -Wait   
+    $packages= $job | Receive-Job -Wait
+
     Process-Package -Name $name `
                      -RequiredVersion $version `
                      -OperationMessage $LocalizedData.InstallingPackage `
                      -ProgressId $script:InstallPackageId `
                      -PercentComplete $progress `
-                     -Packages $packages  
- }
+                     -Packages $packages `
+                     -Source $source
+                     
+    if ($job.State -eq 'Failed') {
+    ThrowError -ExceptionName 'System.OperationCanceledException' `
+                -ExceptionMessage ($LocalizedData.OperationFailed -f "Install",$fastPackageReference) `
+                -ErrorID 'JobFailure' `
+                -CallerPSCmdlet $PSCmdlet `
+                -ErrorCategory InvalidOperation `
+                -ExceptionObject $job
+    }
+}
 
 # It is required to implement this function for the providers that support UnInstall-Package. 
 function UnInstall-Package
@@ -411,6 +425,7 @@ function UnInstall-Package
 
     $name =$matches.name
     $version = $Matches.version
+    $source = $Matches.source
 
     if (-not ($name -and $version))
     {
@@ -437,11 +452,15 @@ function UnInstall-Package
     Write-debug  ("calling $script:ChocoExePath $unInstallCmd $additionalArgs")       
     $progress = 1         
     $job=Start-Job -ScriptBlock {
-           & $args[0] $args[1] $args[2]
-       } -ArgumentList @($script:ChocoExePath, $unInstallCmd, $args)
+        & $args[0] $args[1] $args[2];
+        if ($LASTEXITCODE -ne 0) {
+            Throw "Choco.exe failed with exit code $LASTEXITCODE"
+        }
+    } -ArgumentList @($script:ChocoExePath, $unInstallCmd, $args)
 
     Show-Progress -ProgressMessage $LocalizedData.UnInstallingPackage  -PercentComplete $progress -ProgressId $script:UnInstallPackageId 
-    $packages= $job | Receive-Job -Wait   
+    $packages= $job | Receive-Job -Wait
+
     Write-debug  ("Completed calling $script:ChocoExePath $unInstallCmd")   
     
     Process-Package -Name $name `
@@ -449,8 +468,17 @@ function UnInstall-Package
                     -OperationMessage $LocalizedData.UnInstallingPackage `
                     -ProgressId $script:UnInstallPackageId `
                     -PercentComplete $progress -Packages $packages `
-                    -NameContainsWildCard $true   # pass in $true so that we do not exact name match because choco returns different sometimes.
-        
+                    -Source $source `
+                    -NameContainsWildCard $true  # pass in $true so that we do not exact name match because choco returns different sometimes.
+
+    if ($job.State -eq 'Failed') {
+        ThrowError -ExceptionName 'System.OperationCanceledException' `
+                    -ExceptionMessage ($LocalizedData.OperationFailed -f "Uninstall",$fastPackageReference) `
+                    -ErrorID 'JobFailure' `
+                    -CallerPSCmdlet $PSCmdlet `
+                    -ErrorCategory InvalidOperation `
+                    -ExceptionObject $job
+    }
 }
 
 
@@ -568,6 +596,7 @@ function Process-Package
         [parameter()]
         [string]
         $Name,
+
         [Parameter()]
         [string]
         $RequiredVersion,
@@ -598,7 +627,11 @@ function Process-Package
 
         [parameter()]
         [bool]
-        $NameContainsWildCard = $false
+        $NameContainsWildCard = $false,
+
+        [parameter()]
+        [string]
+        $Source = $script:PackageSourceName
     )
   
 
@@ -626,30 +659,29 @@ function Process-Package
                 Write-Debug ("Skipping processing: '{0}'" -f $pkg)
                 continue
             }
-             
+
             if ($pkgname -and $pkgversion)
             {
-                    # filter on version
-                    if((Test-Version -Version $pkgversion.TrimStart('v') `
-                                     -RequiredVersion $requiredVersion `
-                                     -MinimumVersion $minimumVersion `
-                                     -MaximumVersion $maximumVersion ))
-                    {                                  
-                        $swidObject = @{
-                            FastPackageReference = $pkgname+"#"+ $pkgversion.TrimStart('v')+"#"+$script:PackageSourceName;
-                            Name = $pkgname;
-                            Version = $pkgversion;
-                            versionScheme  = "MultiPartNumeric";
-                            Source = $script:PackageSourceName;    
-                            }
+                # filter on version
+                if((Test-Version -Version $pkgversion.TrimStart('v') `
+                                    -RequiredVersion $requiredVersion `
+                                    -MinimumVersion $minimumVersion `
+                                    -MaximumVersion $maximumVersion ))
+                {                                  
+                    $swidObject = @{
+                        FastPackageReference = $pkgname+"#"+ $pkgversion.TrimStart('v')+"#"+$Source;
+                        Name = $pkgname;
+                        Version = $pkgversion;
+                        versionScheme  = "MultiPartNumeric";
+                        Source = $Source;    
+                        }
 
-                        $sid = New-SoftwareIdentity @swidObject              
-                        Write-Output -InputObject $sid   
-                        if(-Not $actionTaken) {$actionTaken = $true}
-                    } 
+                    $sid = New-SoftwareIdentity @swidObject              
+                    Write-Output -InputObject $sid   
+                    if(-Not $actionTaken) {$actionTaken = $true}
+                } 
             }
         }
-
     }
     
     if ($OperationMessage)
@@ -829,20 +861,33 @@ function Install-ChocoBinaries
 
                             Write-Debug ("Calling $script:ChocoExePath upgrade chocolatey")                               
                             $job=Start-Job -ScriptBlock {
-                                   & $args[0] upgrade chocolatey -y
-                               } -ArgumentList @($script:ChocoExePath)
+                                & $args[0] upgrade chocolatey -y;
+                                if ($LASTEXITCODE -ne 0) {
+                                    Throw "Choco.exe failed with exit code $LASTEXITCODE"
+                                }
+                            } -ArgumentList @($script:ChocoExePath)
 
                             Show-Progress -ProgressMessage $LocalizedData.UpgradingChoco `
                                           -PercentComplete $progress `
                                           -ProgressId $script:InstallChocoId 
 
-                            $packages= $job | Receive-Job -Wait   
+                            $packages= $job | Receive-Job -Wait
+
                             Process-Package -Name $name `
                                              -RequiredVersion $pkgversion `
                                              -OperationMessage $LocalizedData.UpgradingChoco `
                                              -ProgressId $script:InstallChocoId `
                                              -PercentComplete $progress `
                                              -Packages $packages     
+
+                            if ($job.State -eq 'Failed') {
+                            ThrowError -ExceptionName 'System.OperationCanceledException' `
+                                        -ExceptionMessage ($LocalizedData.OperationFailed -f "Install",$name) `
+                                        -ErrorID 'JobFailure' `
+                                        -CallerPSCmdlet $PSCmdlet `
+                                        -ErrorCategory InvalidOperation `
+                                        -ExceptionObject $job
+                            }
                         }
                     }
                     else

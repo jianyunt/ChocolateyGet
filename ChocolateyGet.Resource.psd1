@@ -25,7 +25,7 @@ ConvertFrom-StringData @'
         NotInstalled=Package '{0}' is not installed.
         FailToInstall=Failed to install the package because the fast reference '{0}' is incorrect.
         FailToInstallChoco=choco installed failed. You may relaunch PowerShell as elevated mode and try again.
-        OperationFailed='{0}' '{1}' Failed. You may relaunch PowerShell as elevated mode and try again with -Verbose -Debug to get more information.
+        OperationFailed='{0}' '{1}' Failed. You may relaunch PowerShell as elevated mode or try again with -Verbose -Debug to get more information.
         FoundNewerChocolatey=Found Chocolatey version '{0}' is greater than the installed one '{1}'
         InvalidVersionFormat=Version '{0}' does not match the regex '{1}'
 
