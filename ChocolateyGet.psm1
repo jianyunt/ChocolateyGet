@@ -382,11 +382,11 @@ function Install-Package
  
     if($force)
     {
-        $installCmd=@("install", $name, "--version", $version, "--source", $source, "-y",  "-force")
+        $installCmd=@("install", $name, "--version", $version, "--source", $source, "-y", "--no-progress", "-force")
     }
     else
     {
-        $installCmd=@("install", $name, "--version", $version, "--source", $source, "-y")
+        $installCmd=@("install", $name, "--version", $version, "--source", $source, "-y", "--no-progress")
     }
 
     Write-debug  ("Calling $installCmd $additionalArgs")
