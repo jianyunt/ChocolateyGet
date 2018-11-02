@@ -180,9 +180,14 @@ Describe "ChocolateyGet multi-source testing" -Tags @('BVT', 'DRT') {
         Unregister-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -ErrorAction SilentlyContinue
     }
 
+    It "refuses to register a source with no location" {
+        $a = Register-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -Verbose -ErrorAction SilentlyContinue
+        $a.Name -eq $altSourceName | Should Be $false
+    }
+
     It "installs and uninstalls from an alternative package source" {
         
-        $a = Register-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -Location $altSourceLocation
+        $a = Register-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -Location $altSourceLocation -Verbose
         $a.Name -eq $altSourceName | Should Be $true
 
         $b=find-package $package -verbose -provider $ChocolateyGet -source $altSourceName -AdditionalArguments --exact | install-package -force
@@ -197,5 +202,25 @@ Describe "ChocolateyGet multi-source testing" -Tags @('BVT', 'DRT') {
         Unregister-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet
         $e = Get-PackageSource -ProviderName $ChocolateyGet
         $e.Name -eq $altSourceName | Should Be $false
+    }
+}
+
+Describe "ChocolateyGet DSC integration with args/params support" -Tags @('BVT', 'DRT') {
+    $package = "sysinternals"
+    
+    $argsAndParams = "--paramsglobal --params ""/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false"" -y --installargs MaintenanceService=false"
+    
+    It "finds, installs and uninstalls packages when given installation arguments parameters that would otherwise cause search to fail" {
+
+        $a = find-package $package -verbose -provider $ChocolateyGet -AdditionalArguments $argsAndParams
+        $a = install-package $a -force -AdditionalArguments $argsAndParams -Verbose
+        $a.Name -contains $package | Should Be $true
+
+        $b = get-package $package -verbose -provider $ChocolateyGet -AdditionalArguments $argsAndParams
+        $b.Name -contains $package | Should Be $true
+
+        $c = Uninstall-package $package -verbose -ProviderName $ChocolateyGet -AdditionalArguments $argsAndParams
+        $c.Name -contains $package | Should Be $true
+
     }        
 }
