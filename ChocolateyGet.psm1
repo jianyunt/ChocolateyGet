@@ -140,7 +140,22 @@ function Find-Package {
     }    
     
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
+    # Setup $script:ChocoExePath
+    if ((Get-ChocoPath) -and $script:ChocoExePath)
+    {
+        Write-Debug ("Choco already installed in '{0}'" -f $script:ChocoExePath)
+    }
+    else
+    {
+        if(-not (Install-ChocoBinaries -Force $force)) { 
+            ThrowError  -ExceptionName "System.ArgumentException" `
+                        -ExceptionMessage ($LocalizedData.PathNotFound -f ($script:ChocoExeName)) `
+                        -ErrorId "PathNotFound" `
+                        -CallerPSCmdlet $PSCmdlet `
+                        -ErrorCategory InvalidArgument `
+                        -ExceptionObject $fastPackageReference
+         }
+    }
     
     # For some reason, we have to convert it to array to make the following choco.exe cmd to work
     $additionalArgs = Get-AdditionalArguments
@@ -386,6 +401,15 @@ function Install-Package
     Show-Progress -ProgressMessage $LocalizedData.InstallingPackage  -PercentComplete $progress -ProgressId $script:InstallPackageId 
     $packages= $job | Receive-Job -Wait
 
+    if ($job.State -eq 'Failed') {
+        ThrowError -ExceptionName 'System.OperationCanceledException' `
+                    -ExceptionMessage $($packages | Out-String) `
+                    -ErrorID 'JobFailure' `
+                    -CallerPSCmdlet $PSCmdlet `
+                    -ErrorCategory InvalidOperation `
+                    -ExceptionObject $job
+    }
+
     Process-Package -Name $name `
                      -RequiredVersion $version `
                      -OperationMessage $LocalizedData.InstallingPackage `
@@ -394,14 +418,6 @@ function Install-Package
                      -Packages $packages `
                      -Source $source
                      
-    if ($job.State -eq 'Failed') {
-    ThrowError -ExceptionName 'System.OperationCanceledException' `
-                -ExceptionMessage ($LocalizedData.OperationFailed -f "Install",$fastPackageReference) `
-                -ErrorID 'JobFailure' `
-                -CallerPSCmdlet $PSCmdlet `
-                -ErrorCategory InvalidOperation `
-                -ExceptionObject $job
-    }
 }
 
 # It is required to implement this function for the providers that support UnInstall-Package. 
@@ -531,7 +547,22 @@ function Get-InstalledPackage
     } 
 
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
+    # Setup $script:ChocoExePath
+    if ((Get-ChocoPath) -and $script:ChocoExePath)
+    {
+        Write-Debug ("Choco already installed in '{0}'" -f $script:ChocoExePath)
+    }
+    else
+    {
+        if(-not (Install-ChocoBinaries -Force $force)) { 
+            ThrowError  -ExceptionName "System.ArgumentException" `
+                        -ExceptionMessage ($LocalizedData.PathNotFound -f ($script:ChocoExeName)) `
+                        -ErrorId "PathNotFound" `
+                        -CallerPSCmdlet $PSCmdlet `
+                        -ErrorCategory InvalidArgument `
+                        -ExceptionObject $fastPackageReference
+         }
+    }
     $nameContainsWildCard = $false
     $additionalArgs = Get-AdditionalArguments
 
@@ -711,7 +742,7 @@ function Process-Package
         }
         else
         {
-            Write-Error ($LocalizedData.OperationFailed -f $OperationMessage, $FastPackageReference)             
+            Throw ($LocalizedData.OperationFailed -f $OperationMessage, $FastPackageReference)             
         }
     }   
     
@@ -1457,7 +1488,22 @@ function Get-PackageSources
     )
 
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
+    # Setup $script:ChocoExePath
+    if ((Get-ChocoPath) -and $script:ChocoExePath)
+    {
+        Write-Debug ("Choco already installed in '{0}'" -f $script:ChocoExePath)
+    }
+    else
+    {
+        if(-not (Install-ChocoBinaries -Force $force)) { 
+            ThrowError  -ExceptionName "System.ArgumentException" `
+                        -ExceptionMessage ($LocalizedData.PathNotFound -f ($script:ChocoExeName)) `
+                        -ErrorId "PathNotFound" `
+                        -CallerPSCmdlet $PSCmdlet `
+                        -ErrorCategory InvalidArgument `
+                        -ExceptionObject $fastPackageReference
+         }
+    }
         
     return (& $script:ChocoExePath source -r) | 
             ConvertFrom-String -Delimiter "\|" -PropertyNames $ChocoSourcePropertyNames
@@ -1475,10 +1521,10 @@ function New-PackageSourceAndYield
 
     # create a new package source
     $src =  New-PackageSource -Name $Source.Name `
-                              -Location $Source.Location `
-                              -Trusted $true `
-                              -Registered $true `
-                              -Debug
+                            -Location $Source.Location `
+                            -Trusted $true `
+                            -Registered $true `
+                            -Debug
 
     # return the package source object.
     Write-Output -InputObject $src
@@ -1503,7 +1549,25 @@ function Add-PackageSource
     Write-Debug ("Add-PackageSource")
 
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
+    # Setup $script:ChocoExePath
+    if ((Get-ChocoPath) -and $script:ChocoExePath)
+    {
+        Write-Debug ("Choco already installed in '{0}'" -f $script:ChocoExePath)
+    }
+    else
+    {
+        if(-not (Install-ChocoBinaries -Force $force)) { 
+            ThrowError  -ExceptionName "System.ArgumentException" `
+                        -ExceptionMessage ($LocalizedData.PathNotFound -f ($script:ChocoExeName)) `
+                        -ErrorId "PathNotFound" `
+                        -CallerPSCmdlet $PSCmdlet `
+                        -ErrorCategory InvalidArgument `
+                        -ExceptionObject $fastPackageReference
+         }
+    }
+
+    Write-Verbose "Name: $Name"
+    Write-Verbose "Name: $Location"
 
     # Add new package source
     $packageSource = Microsoft.PowerShell.Utility\New-Object PSCustomObject -Property ([ordered]@{
@@ -1533,7 +1597,22 @@ function Remove-PackageSource
     Write-Debug ('Remove-PackageSource')
 
     $force = Get-ForceProperty
-    if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
+    # Setup $script:ChocoExePath
+    if ((Get-ChocoPath) -and $script:ChocoExePath)
+    {
+        Write-Debug ("Choco already installed in '{0}'" -f $script:ChocoExePath)
+    }
+    else
+    {
+        if(-not (Install-ChocoBinaries -Force $force)) { 
+            ThrowError  -ExceptionName "System.ArgumentException" `
+                        -ExceptionMessage ($LocalizedData.PathNotFound -f ($script:ChocoExeName)) `
+                        -ErrorId "PathNotFound" `
+                        -CallerPSCmdlet $PSCmdlet `
+                        -ErrorCategory InvalidArgument `
+                        -ExceptionObject $fastPackageReference
+         }
+    }
 
     [array]$RegisteredPackageSources = Get-PackageSources
 
