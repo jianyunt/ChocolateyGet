@@ -283,8 +283,9 @@ function Find-Package {
                         Name = $pkgname;
                         Version = $pkgversion;
                         versionScheme  = "MultiPartNumeric";
-                        Source = $selectedSource;    
-                        }
+                        Source = $selectedSource;
+                        FromTrustedSource = $true;
+                    }
 
                     $sid = New-SoftwareIdentity @swidObject              
                     Write-Output -InputObject $sid   
@@ -724,6 +725,7 @@ function Process-Package
                         Version = $pkgversion;
                         versionScheme  = "MultiPartNumeric";
                         Source = $Source;    
+                        FromTrustedSource = $true;
                         }
 
                     $sid = New-SoftwareIdentity @swidObject              
@@ -1019,6 +1021,7 @@ function Get-ChocoPath
     }
     else
     {
+        Write-Verbose ($LocalizedData.ChocoNotFound)
         return $null
     }
 
@@ -1536,9 +1539,13 @@ function Add-PackageSource
     [CmdletBinding()]
     param
     (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Name,
 
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Location,
 
