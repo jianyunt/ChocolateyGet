@@ -21,6 +21,8 @@ $script:firstTime = $true
 $script:PackageRegex = "(?<name>[^\s]*)(\s*)(?<version>[^\s]*)"
 $script:PackageReportRegex="^[0-9]*(\s*)(packages installed)"
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
+$script:ArgSplitRegex = '\B-(?:-|)'
+$script:ArgFilterRegex = '\w*(?:param|arg)\w*'
 
 $script:FindPackageId = 10 
 $script:InstallPackageId = 11
@@ -185,6 +187,10 @@ function Find-Package {
     else {
         $selectedSource = $script:PackageSourceName
     }
+
+    # Filter out install arg arguments, then join for the rest of the script
+    $splitArgs = [regex]::Split($additionalArgs,$script:ArgSplitRegex)
+    $additionalArgs = $($splitArgs | Where-Object -FilterScript {$_ -notmatch $ArgFilterRegex}) -join ' -'
 
     $additionalArgs += " --source='$selectedSource'"
 
@@ -437,8 +443,14 @@ function UnInstall-Package
     # a user can pass in  -y --remove-dependencies  option to avoid hanging
     # only provides '--yes' does not suppress prompts
     $additionalArgs = Get-AdditionalArguments
+
     $args = $additionalArgs
-    if($args) {$args = $additionalArgs.Split(' ')}
+    if($args) {
+        # Filter out install arg arguments, then join for the rest of the script
+        $splitArgs = [regex]::Split($additionalArgs,$script:ArgSplitRegex)
+        $additionalArgs = $($splitArgs | Where-Object -FilterScript {$_ -notmatch $ArgFilterRegex}) -join ' -'
+        $args = $additionalArgs.Split(' ')
+    }
     
     if($request.Options.ContainsKey($script:AllVersions))
     {
@@ -522,7 +534,14 @@ function Get-InstalledPackage
     if(-not (Install-ChocoBinaries -Force $force)) { ThrowError }    
     $nameContainsWildCard = $false
     $additionalArgs = Get-AdditionalArguments
-    $args = if($additionalArgs) {$additionalArgs.Split(' ')}
+
+    $args = if($additionalArgs) {
+        # Filter out install arg arguments, then join for the rest of the script
+        $splitArgs = [regex]::Split($additionalArgs,$script:ArgSplitRegex)
+        $additionalArgs = $($splitArgs | Where-Object -FilterScript {$_ -notmatch $ArgFilterRegex}) -join ' -'
+    
+        $additionalArgs.Split(' ')
+    }
 
     Write-Progress -Activity $LocalizedData.FindingLocalPackage -PercentComplete 30  -Id $script:InstalledPackageId 
 
@@ -888,6 +907,7 @@ function Install-ChocoBinaries
                                         -ErrorCategory InvalidOperation `
                                         -ExceptionObject $job
                             }
+                
                         }
                     }
                     else
