@@ -1,7 +1,7 @@
 @{
 
 RootModule = 'ChocolateyGet.psm1'
-ModuleVersion = '1.0.1'
+ModuleVersion = '1.0.1.0'
 GUID = 'c1735ed7-8b2f-426a-8cbc-b7feb6b8288d'
 Author = 'Jianyun'
 Copyright = ''
