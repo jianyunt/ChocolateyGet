@@ -31,6 +31,7 @@ ConvertFrom-StringData @'
 
         OperationSucceed='{0}' '{1}' Successfully.
         ChocoFound=Found choco.exe in '{0}'.
+        ChocoNotFound=Unable to find choco.exe under $PATH.
         InstallPackageQuery={0} package '{1}'. By {0} you accept licenses for the package(s). The package possibly needs to run 'chocolateyInstall.ps1'. 
         InstallPackageCaption=Are you sure you want to perform this action?
         UpgradePackageQuery=There is a newer version '{0}' of Chocolatey available. Do you want to upgrade?
