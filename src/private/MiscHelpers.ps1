@@ -37,11 +37,6 @@ function ThrowError {
 	param (
 		[parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
-		[System.Management.Automation.PSCmdlet]
-		$CallerPSCmdlet,
-
-		[parameter(Mandatory = $true)]
-		[ValidateNotNullOrEmpty()]
 		[System.String]
 		$ExceptionName,
 
@@ -64,7 +59,10 @@ function ThrowError {
 		$ErrorCategory
 	)
 
-	$exception = New-Object $ExceptionName $ExceptionMessage;
+	# We need to grab and use the 'parent' (parent = 1) scope to properly return output to the user
+	$CallerPSCmdlet = (Get-Variable -Scope 1 'PSCmdlet').Value
+
+	$exception = New-Object $ExceptionName $ExceptionMessage
 	$errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $ErrorCategory, $ExceptionObject
 	$CallerPSCmdlet.ThrowTerminatingError($errorRecord)
 }

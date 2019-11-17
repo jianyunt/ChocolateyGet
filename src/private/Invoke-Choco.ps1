@@ -152,5 +152,16 @@ function Invoke-Choco {
 	Write-Debug ("Calling $ChocoExePath $cmdString")
 	$cmdString = $cmdString.Split(' ')
 
-	& $ChocoExePath $cmdString
+	# Save the output to a variable so we can inspect the exit code before submitting the output to the pipeline
+	$output = & $ChocoExePath $cmdString
+		
+	if ($LASTEXITCODE -ne 0) {
+		ThrowError -ExceptionName 'System.OperationCanceledException' `
+                    -ExceptionMessage $($output | Out-String) `
+					-ErrorID 'JobFailure' `
+					-ErrorCategory InvalidOperation `
+					-ExceptionObject $job	
+	} else {
+		$output
+	}
 }

@@ -45,7 +45,6 @@ function Find-ChocoPackage {
 			ThrowError -ExceptionName "System.ArgumentException" `
 				-ExceptionMessage $message `
 				-ErrorId "PackageSourceNotFound" `
-				-CallerPSCmdlet $PSCmdlet `
 				-ErrorCategory InvalidArgument `
 				-ExceptionObject $sourceName
 		}
@@ -62,7 +61,6 @@ function Find-ChocoPackage {
 			ThrowError -ExceptionName "System.ArgumentException" `
 				-ExceptionMessage $LocalizedData.UnspecifiedSource `
 				-ErrorId 'UnspecifiedSource' `
-				-CallerPSCmdlet $PSCmdlet `
 				-ErrorCategory InvalidArgument
 		}
 	}
@@ -83,7 +81,7 @@ function Find-ChocoPackage {
 	}
 
 	Invoke-Choco @chocoParams | 
-			ConvertTo-SoftwareIdentity -RequestedName $Name -Verbose | 
-				Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
+		ConvertTo-SoftwareIdentity -RequestedName $Name -Source $selectedSource -Verbose | 
+			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 
 }
