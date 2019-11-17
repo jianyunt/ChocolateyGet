@@ -1,52 +1,41 @@
 function Find-ChocoPackage {
 	param (
-		[string] $Name,
-		[string] $RequiredVersion,
-		[string] $MinimumVersion,
-		[string] $MaximumVersion
+		[Parameter(Mandatory=$true)]
+		[string]
+		$Name,
+
+		[string]
+		$RequiredVersion,
+
+		[string]
+		$MinimumVersion,
+
+		[string]
+		$MaximumVersion
 	)
 
-
-	$ValidationResult = Confirm-VersionParameters -Name $Name `
-							-MinimumVersion $MinimumVersion `
-							-MaximumVersion $MaximumVersion `
-							-RequiredVersion $RequiredVersion `
-							-AllVersions:$request.Options.ContainsKey($script:AllVersions)
-
-	if (-not $ValidationResult)
-	{
-		# Return now as the version validation failed already
-		return
-	}
+	Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	$options = $request.Options
 	foreach( $o in $options.Keys ) {
 		Write-Debug ( "OPTION: {0} => {1}" -f ($o, $options[$o]) )
 	}
 
-	if (-not $name) {
-		# No name provided, which is not allowed
-		Write-Error ( $LocalizedData.SearchingEntireRepo)
-		return
-	}
-
 	[array]$RegisteredPackageSources = Get-PackageSources
 
 	if ($options -and $options.ContainsKey('Source')) {
 		# Finding the matched package sources from the registered ones
-		$sourceName = $options['Source']
-		Write-Verbose ($LocalizedData.SpecifiedSourceName -f ($sourceName))
+		Write-Verbose ($LocalizedData.SpecifiedSourceName -f ($options['Source']))
 
-		if ($RegisteredPackageSources.Name -eq $sourceName) {
+		if ($RegisteredPackageSources.Name -eq $options['Source']) {
 			# Found the matched registered source
-			$selectedSource = $sourceName
+			$selectedSource = $options['Source']
 		} else {
-			$message = $LocalizedData.PackageSourceNotFound -f ($sourceName)
-			ThrowError -ExceptionName "System.ArgumentException" `
-				-ExceptionMessage $message `
-				-ErrorId "PackageSourceNotFound" `
+			ThrowError -ExceptionName 'System.ArgumentException' `
+				-ExceptionMessage ($LocalizedData.PackageSourceNotFound -f ($options['Source'])) `
+				-ErrorId 'PackageSourceNotFound' `
 				-ErrorCategory InvalidArgument `
-				-ExceptionObject $sourceName
+				-ExceptionObject $options['Source']
 		}
 	} else {
 		# User did not specify a source. Now what?
@@ -58,7 +47,7 @@ function Find-ChocoPackage {
 			$selectedSource = $script:PackageSourceName
 		} else {
 			# If Chocoately.org is not present and no source specified, throw an exception
-			ThrowError -ExceptionName "System.ArgumentException" `
+			ThrowError -ExceptionName 'System.ArgumentException' `
 				-ExceptionMessage $LocalizedData.UnspecifiedSource `
 				-ErrorId 'UnspecifiedSource' `
 				-ErrorCategory InvalidArgument
@@ -83,5 +72,4 @@ function Find-ChocoPackage {
 	Invoke-Choco @chocoParams | 
 		ConvertTo-SoftwareIdentity -RequestedName $Name -Source $selectedSource -Verbose | 
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
-
 }

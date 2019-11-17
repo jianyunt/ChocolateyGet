@@ -12,8 +12,10 @@ function Install-Package {
 	Write-Debug -Message ($LocalizedData.FastPackageReference -f $FastPackageReference)
 
 	if ((-not ($FastPackageReference -match $script:FastReferenceRegex)) -or (-not ($Matches.name -and $Matches.version))) {
-		write-error ($LocalizedData.FailToInstall -f $FastPackageReference)
-		return
+		ThrowError -ExceptionName "System.ArgumentException" `
+			-ExceptionMessage ($LocalizedData.FailToInstall -f $FastPackageReference) `
+			-ErrorId 'FailToInstall' `
+			-ErrorCategory InvalidArgument
 	}
 
 	$force = Get-ForceProperty

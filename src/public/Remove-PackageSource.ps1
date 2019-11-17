@@ -11,8 +11,10 @@ function Remove-PackageSource {
 	[array]$RegisteredPackageSources = Get-PackageSources
 
 	if (-not ($RegisteredPackageSources.Name -eq $Name)) {
-		Write-Error -Message "Package source $Name not found" -ErrorId "PackageSourceNotFound" -Category InvalidOperation -TargetObject $Name
-		return
+		ThrowError -ExceptionName "System.ArgumentException" `
+			-ExceptionMessage ($LocalizedData.PackageSourceNotFound -f $Name) `
+			-ErrorId 'PackageSourceNotFound' `
+			-ErrorCategory InvalidArgument
 	}
 
 	Invoke-Choco -SourceRemove -SourceName $Name

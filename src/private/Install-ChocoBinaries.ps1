@@ -6,13 +6,19 @@ function Install-ChocoBinaries {
 	)
 
 	if ($PSEdition -Match 'Core') {
-		Write-Error ($LocalizedData.ChocoUnSupportedOnCoreCLR -f $script:ProviderName)
-		return $false
+		ThrowError -ExceptionName 'System.NotSupportedException' `
+			-ExceptionMessage ($LocalizedData.ChocoUnSupportedOnCoreCLR -f $script:ProviderName) `
+			-ErrorId 'ChocoUnSupportedOnCoreCLR' `
+			-ErrorCategory NotImplemented `
+			-ExceptionObject $PSEdition
 	}
 
 	if (-not $request.ShouldContinue($LocalizedData.InstallChocoExeShouldContinueQuery, $LocalizedData.InstallChocoExeShouldContinueCaption)) {
-		Write-Error ($LocalizedData.UserDeclined -f "install")
-		return $false
+		ThrowError -ExceptionName 'System.OperationCanceledException' `
+			-ExceptionMessage ($LocalizedData.UserDeclined -f "install") `
+			-ErrorId 'UserDeclined' `
+			-ErrorCategory InvalidOperationException `
+			-ExceptionObject $PSEdition
 	}
 
 	# install choco based on https://chocolatey.org/install#before-you-install
@@ -20,7 +26,11 @@ function Install-ChocoBinaries {
 		Write-Verbose 'Installing Chocolatey'
 		Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression  > $null
 	} catch {
-		Throw $error[0]
+		ThrowError -ExceptionName 'System.OperationCanceledException' `
+			-ExceptionMessage $LocalizedData.SearchingEntireRepo `
+			-ErrorID 'JobFailure' `
+			-ErrorCategory InvalidOperation `
+			-ExceptionObject $job
 	}
 
 	Get-ChocoPath

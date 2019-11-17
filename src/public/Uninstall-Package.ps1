@@ -12,8 +12,10 @@ function Uninstall-Package {
 	Write-Debug -Message ($LocalizedData.FastPackageReference -f $FastPackageReference)
 
 	if ((-not ($FastPackageReference -match $script:FastReferenceRegex)) -or (-not ($Matches.name -and $Matches.version))) {
-		write-error ($LocalizedData.FailToUninstall -f $fastPackageReference)
-		return
+		ThrowError -ExceptionName "System.ArgumentException" `
+			-ExceptionMessage ($LocalizedData.FailToUninstall -f $FastPackageReference) `
+			-ErrorId 'FailToUninstall' `
+			-ErrorCategory InvalidArgument
 	}
 
 	$chocoParams = @{

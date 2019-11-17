@@ -74,7 +74,7 @@ function Confirm-VersionParameters
 
 		[Parameter()]
 		[Switch]
-		$AllVersions
+		$AllVersions = ($request.Options.ContainsKey($script:AllVersions))
 	)
 
 	if ($AllVersions -and ($RequiredVersion -or $MinimumVersion -or $MaximumVersion)) {
