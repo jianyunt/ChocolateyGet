@@ -24,12 +24,10 @@ function Test-PackageName {
 		$RequestedName
 	)
 
-	$nameRegex=$RequestedName.TrimStart('*')
-	$nameRegex=$nameRegex.TrimEnd('.')
-	$nameRegex="^.*$nameRegex.*$"
+	$nameRegex='^.*'+($RequestedName.TrimStart('*')).TrimEnd('.')+'.*$'
 
 	# Return true if the package name returned from choco matched what we were expecting
-	($PackageName -match "$nameRegex") -and (
+	($PackageName -match $nameRegex) -and (
 		($RequestedName -eq $PackageName) -or (Test-WildcardPattern -name $RequestedName)
 	)
 }

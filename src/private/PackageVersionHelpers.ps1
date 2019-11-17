@@ -89,9 +89,8 @@ function Confirm-VersionParameters
 					-ErrorId "VersionRangeAndRequiredVersionCannotBeSpecifiedTogether" `
 					-ErrorCategory InvalidArgument
 	} elseif ($MinimumVersion -and $MaximumVersion -and ($MinimumVersion -gt $MaximumVersion)) {
-		$Message = $LocalizedData.MinimumVersionIsGreaterThanMaximumVersion -f ($MinimumVersion, $MaximumVersion)
 		ThrowError -ExceptionName "System.ArgumentException" `
-					-ExceptionMessage $Message `
+					-ExceptionMessage ($LocalizedData.MinimumVersionIsGreaterThanMaximumVersion -f ($MinimumVersion, $MaximumVersion)) `
 					-ErrorId "MinimumVersionIsGreaterThanMaximumVersion" `
 					-ErrorCategory InvalidArgument
 	} elseif ($AllVersions -or $RequiredVersion -or $MinimumVersion -or $MaximumVersion) {

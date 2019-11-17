@@ -64,7 +64,6 @@ function ThrowError {
 		$ErrorCategory
 	)
 
-	$exception = New-Object $ExceptionName $ExceptionMessage
-	$errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $ErrorCategory, $ExceptionObject
+	$errorRecord = New-Object System.Management.Automation.ErrorRecord (New-Object $ExceptionName $ExceptionMessage), $ErrorId, $ErrorCategory, $ExceptionObject
 	$CallerPSCmdlet.ThrowTerminatingError($errorRecord)
 }

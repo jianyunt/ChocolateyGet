@@ -27,8 +27,8 @@ function Install-ChocoBinaries {
 		Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression > $null
 	} catch {
 		ThrowError -ExceptionName 'System.OperationCanceledException' `
-			-ExceptionMessage $LocalizedData.SearchingEntireRepo `
-			-ErrorID 'JobFailure' `
+			-ExceptionMessage $LocalizedData.FailToInstallChoco `
+			-ErrorID 'FailToInstallChoco' `
 			-ErrorCategory InvalidOperation `
 			-ExceptionObject $job
 	}
