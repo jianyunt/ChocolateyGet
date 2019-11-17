@@ -11,6 +11,7 @@ function Uninstall-Package {
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Uninstall-Package'))
 	Write-Debug -Message ($LocalizedData.FastPackageReference -f $FastPackageReference)
 
+	# If the fast package preference doesnt match the pattern we expect, throw an exception
 	if ((-not ($FastPackageReference -match $script:FastReferenceRegex)) -or (-not ($Matches.name -and $Matches.version))) {
 		ThrowError -ExceptionName "System.ArgumentException" `
 			-ExceptionMessage ($LocalizedData.FailToUninstall -f $FastPackageReference) `
@@ -29,5 +30,13 @@ function Uninstall-Package {
 		$chocoParams.Add('Version',$Matches.version)
 	}
 
-	Invoke-Choco @chocoParams | ConvertTo-SoftwareIdentity -RequestedName $Matches.name -Source $Matches.source -Verbose
+	$swid = Invoke-Choco @chocoParams | ConvertTo-SoftwareIdentity -RequestedName $Matches.name -Source $Matches.source
+
+	if (-not $swid) {
+		# Invoke-Choco didn't throw an exception but we couldn't pull a Software Identity from the output.
+		# The output format Choco.exe may have changed from what our regex pattern was expecting.
+		Write-Warning ($LocalizedData.UnexpectedChocoResponse -f $FastPackageReference)
+	}
+
+	$swid
 }

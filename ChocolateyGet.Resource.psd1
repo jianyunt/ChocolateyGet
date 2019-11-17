@@ -29,6 +29,7 @@ ConvertFrom-StringData @'
 	OperationFailed='{0}' '{1}' Failed. You may relaunch PowerShell as elevated mode or try again with -Verbose -Debug to get more information.
 	FoundNewerChocolatey=Found Chocolatey version '{0}' is greater than the installed one '{1}'
 	InvalidVersionFormat=Version '{0}' does not match the regex '{1}'
+	UnexpectedChocoResponse=Successful output from choco.exe for fast reference '{0}' did not match the exepected format. Please review Chocolatey logs for more information.
 
 	OperationSucceed='{0}' '{1}' Successfully.
 	ChocoFound=Found choco.exe in '{0}'.
