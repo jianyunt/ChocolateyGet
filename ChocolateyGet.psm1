@@ -13,8 +13,6 @@ $script:ChocoExeName = 'choco.exe'
 $script:firstTime = $true
 
 # Utility variables
-$script:packageRegex = "^(?<name>[\S]+)[\|\s](?<version>[\S]+)"
-$script:packageReportRegex="^[0-9]*(\s*)(packages installed)"
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
 
 Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -filename 'ChocolateyGet.Resource.psd1'

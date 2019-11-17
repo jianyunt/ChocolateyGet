@@ -21,7 +21,7 @@ function ConvertTo-SoftwareIdentity {
 
 	process {
 		foreach ($package in $Packages) {
-			if (($package -Match $script:packageRegex) -and ($package -notmatch $packageReportRegex) -and $Matches.name -and $Matches.version) {
+			if (($package -Match $packageRegex) -and ($package -notmatch $packageReportRegex) -and $Matches.name -and $Matches.version) {
 				# If a particular package name wasnt queried for by the user, return everything that choco does
 				if (-not ($RequestedName) -or (Test-PackageName -RequestedName $RequestedName -PackageName $Matches.name)) {
 					# Return a new SWID based on the output from choco
