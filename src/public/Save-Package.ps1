@@ -17,4 +17,3 @@ function Download-Package {
 
 	Write-Warning $LocalizedData.SavePackageNotSupported -f $script:ProviderName
 }
-

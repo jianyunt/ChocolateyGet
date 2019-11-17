@@ -19,17 +19,13 @@ function Get-InstalledPackage {
 		$MaximumVersion
 	)
 
-	$ValidationResult = Confirm-VersionParameters -Name $Name `
-							-MinimumVersion $MinimumVersion `
-							-MaximumVersion $MaximumVersion `
-							-RequiredVersion $RequiredVersion `
-							-AllVersions:$request.Options.ContainsKey($script:AllVersions)
+	$ValidationResult = Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	if (-not $ValidationResult) {
 		# Return now as the version validation failed already
 		return
 	}
-	
+
 	# If a user wants to check whether the latest version is installed, first check the repo for what the latest version is
 	if ($RequiredVersion -eq 'latest') {
 		$sid = Find-ChocoPackage -Name $Name
@@ -47,7 +43,7 @@ function Get-InstalledPackage {
 		$chocoParams.Add('Package',$Name)
 	}
 
-	Invoke-Choco @chocoParams | 
-		ConvertTo-SoftwareIdentity -RequestedName $Name -Verbose | 
+	Invoke-Choco @chocoParams |
+		ConvertTo-SoftwareIdentity -RequestedName $Name -Verbose |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

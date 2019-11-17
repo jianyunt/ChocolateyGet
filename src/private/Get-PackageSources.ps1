@@ -13,5 +13,4 @@ function Get-PackageSources {
 	)
 
 	Invoke-Choco -SourceList | ConvertFrom-String -Delimiter "\|" -PropertyNames $ChocoSourcePropertyNames
-
 }

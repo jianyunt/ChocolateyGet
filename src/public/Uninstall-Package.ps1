@@ -31,4 +31,3 @@ function Uninstall-Package {
 
 	Invoke-Choco @chocoParams | ConvertTo-SoftwareIdentity -RequestedName $Matches.name -Source $Matches.source -Verbose
 }
-

@@ -19,4 +19,3 @@ function Remove-PackageSource {
 
 	Invoke-Choco -SourceRemove -SourceName $Name
 }
-

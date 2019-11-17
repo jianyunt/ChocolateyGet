@@ -147,7 +147,6 @@ function Get-VersionPSObject {
 	}
 }
 
-
  function Compare-ReleaseMetadata {
 	[CmdletBinding()]
 	[OutputType([int])]

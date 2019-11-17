@@ -1,3 +1,4 @@
+# Based on http://semver.org/, Build metadata SHOULD be ignored when determining version precedence
 # Compare two sematic verions
 # -1 if $Version1 < $Version2
 # 0  if $Version1 = $Version2
@@ -44,6 +45,4 @@ function Compare-SemVer {
 	}
 
 	Compare-ReleaseMetadata -Version1Metadata $versionObject1.Release -Version2Metadata $versionObject2.Release
-
-	# Based on http://semver.org/, Build metadata SHOULD be ignored when determining version precedence
- }
+}

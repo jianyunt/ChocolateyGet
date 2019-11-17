@@ -1,6 +1,5 @@
 # Builds a command optimized for a package provider and sends to choco.exe
 function Invoke-Choco {
-
 	[CmdletBinding()]
 	param (
 		[string]
@@ -47,7 +46,7 @@ function Invoke-Choco {
 		[Parameter(ParameterSetName='Upgrade')]
 		[string]
 		$Version,
-		
+
 		[Parameter(ParameterSetName='Search')]
 		[Parameter(ParameterSetName='Uninstall')]
 		[switch]
@@ -64,11 +63,11 @@ function Invoke-Choco {
 		[Parameter(Mandatory=$true, ParameterSetName='SourceRemove')]
 		[string]
 		$SourceName,
-		
+
 		[Parameter(Mandatory=$true, ParameterSetName='SourceAdd')]
 		[string]
 		$SourceLocation,
-		
+
 		[string]
 		$AdditionalArgs = (Get-AdditionalArguments)
 	)
@@ -97,7 +96,7 @@ function Invoke-Choco {
 		}
 
 		# If neither add or remote actions specified, list sources
-		
+
 		$cmdString += '--limit-output '
 	} else {
 		# Package Management
@@ -115,7 +114,7 @@ function Invoke-Choco {
 			} elseif ($Uninstall) {
 				$cmdString = 'uninstall '
 			} elseif ($Upgrade) {
-				$cmdString = 'upgrade '		
+				$cmdString = 'upgrade '
 			}
 		}
 
@@ -124,7 +123,7 @@ function Invoke-Choco {
 		if ($Package) {
 			$cmdString += "$Package "
 		}
-	
+
 		if ($Version) {
 			$cmdString += "--version $version "
 		}
@@ -132,11 +131,11 @@ function Invoke-Choco {
 		if ($SourceName) {
 			$cmdString += "--source $SourceName "
 		}
-	
+
 		if ($AllVersions) {
 			$cmdString += "--all-versions "
 		}
-	
+
 		if ($LocalOnly) {
 			$cmdString += "--local-only "
 		}
@@ -154,13 +153,13 @@ function Invoke-Choco {
 
 	# Save the output to a variable so we can inspect the exit code before submitting the output to the pipeline
 	$output = & $ChocoExePath $cmdString
-		
+
 	if ($LASTEXITCODE -ne 0) {
 		ThrowError -ExceptionName 'System.OperationCanceledException' `
-                    -ExceptionMessage $($output | Out-String) `
+					-ExceptionMessage $($output | Out-String) `
 					-ErrorID 'JobFailure' `
 					-ErrorCategory InvalidOperation `
-					-ExceptionObject $job	
+					-ExceptionObject $job
 	} else {
 		$output
 	}

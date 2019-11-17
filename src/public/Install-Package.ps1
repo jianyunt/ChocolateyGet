@@ -28,8 +28,7 @@ function Install-Package {
 		return
 	}
 
-	Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source | 
-		ConvertTo-SoftwareIdentity -RequestedName $Matches.name -Source $Matches.source -Verbose | 
+	Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source |
+		ConvertTo-SoftwareIdentity -RequestedName $Matches.name -Source $Matches.source -Verbose |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version}
-
 }

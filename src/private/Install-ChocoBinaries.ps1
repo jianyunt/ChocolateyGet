@@ -24,7 +24,7 @@ function Install-ChocoBinaries {
 	# install choco based on https://chocolatey.org/install#before-you-install
 	try {
 		Write-Verbose 'Installing Chocolatey'
-		Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression  > $null
+		Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression > $null
 	} catch {
 		ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage $LocalizedData.SearchingEntireRepo `
