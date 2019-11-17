@@ -81,27 +81,23 @@ function Confirm-VersionParameters
 		ThrowError -ExceptionName "System.ArgumentException" `
 					-ExceptionMessage $LocalizedData.AllVersionsCannotBeUsedWithOtherVersionParameters `
 					-ErrorId 'AllVersionsCannotBeUsedWithOtherVersionParameters' `
-					-CallerPSCmdlet $PSCmdlet `
 					-ErrorCategory InvalidArgument
 	} elseif ($RequiredVersion -and ($MinimumVersion -or $MaximumVersion)) {
 		ThrowError -ExceptionName "System.ArgumentException" `
 					-ExceptionMessage $LocalizedData.VersionRangeAndRequiredVersionCannotBeSpecifiedTogether `
 					-ErrorId "VersionRangeAndRequiredVersionCannotBeSpecifiedTogether" `
-					-CallerPSCmdlet $PSCmdlet `
 					-ErrorCategory InvalidArgument
 	} elseif ($MinimumVersion -and $MaximumVersion -and ($MinimumVersion -gt $MaximumVersion)) {
 		$Message = $LocalizedData.MinimumVersionIsGreaterThanMaximumVersion -f ($MinimumVersion, $MaximumVersion)
 		ThrowError -ExceptionName "System.ArgumentException" `
 					-ExceptionMessage $Message `
 					-ErrorId "MinimumVersionIsGreaterThanMaximumVersion" `
-					-CallerPSCmdlet $PSCmdlet `
 					-ErrorCategory InvalidArgument
 	} elseif ($AllVersions -or $RequiredVersion -or $MinimumVersion -or $MaximumVersion) {
 		if (-not $Name -or $Name.Count -ne 1 -or (Test-WildcardPattern -Name $Name[0])) {
 			ThrowError -ExceptionName "System.ArgumentException" `
 					-ExceptionMessage $LocalizedData.VersionParametersAreAllowedOnlyWithSingleName `
 					-ErrorId "VersionParametersAreAllowedOnlyWithSingleName" `
-					-CallerPSCmdlet $PSCmdlet `
 					-ErrorCategory InvalidArgument
 		}
 	}
@@ -147,7 +143,6 @@ function Get-VersionPSObject {
 		ThrowError -ExceptionName "System.InvalidOperationException" `
 					-ExceptionMessage ($LocalizedData.InvalidVersionFormat -f $Version, $SemanticVersionPattern) `
 					-ErrorId "InvalidVersionFormat" `
-					-CallerPSCmdlet $PSCmdlet `
 					-ErrorCategory InvalidOperation
 	}
 }
