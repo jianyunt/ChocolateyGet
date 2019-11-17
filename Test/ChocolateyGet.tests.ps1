@@ -20,100 +20,6 @@ if($provider.Name -notcontains $ChocolateyGet)
 
 Import-PackageProvider $ChocolateyGet -force
 
-Describe "ChocolateyGet Version testing" -Tags @('BVT', 'DRT') {
-	BeforeAll { 
-		Import-Module ChocolateyGet
-	}
-	AfterAll {
-		#reset the environment variable
-	   $env:BootstrapProviderTestfeedUrl=""
-	}
-	It "SemVer testing" {
-		$version1="0.9.9 "
-		$version2="0.9.9"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 0
-
-		$version1="0.9.9-rc2"
-		$version2="0.9.9-rc2"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 0
-
-		$version1="1.0.0-beta-exp.sha.5114f85"
-		$version2="1.0.0-beta-exp.sha.5114f85"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 0
-
-
-		$version1="1.0.0-alpha-exp.sha.5114f85"
-		$version2="1.0.0-beta-exp.sha.5114f85"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-
-		$version1="1.0.0-alpha-exp.sha.5114f86"
-		$version2="1.0.0-alpha-exp.sha.5114f85"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 0
-   
-		$version1="1.0.0-alpha-exp.sha1.5114f85"
-		$version2="1.0.0-alpha-exp.sha.5114f85"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 0
-
-		$version1="0.9.9 "
-		$version2="0.9.9-rc2"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 1
-
-		$Version1 = "1.1"
-		$version2="1.1.1"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-		$Version1 = "1.2.5"
-		$version2="1.2.3.4"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 1
-
-		$version1="1.0.0-alpha.1"
-		$version2="1.0.0-alpha.beta"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-		$version1="1.0.0-alpha.beta"
-		$version2="1.0.0-rc.1"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-		$version1="1.0.0"
-		$version2="1.0.0-rc.11"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 1
-
-		$version1="1.0.0-rc.1"
-		$version2="2.0.0"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-		$version1="1.0.0-beta.2"
-		$version2="1.0.0-beta.11"
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-		$version1="0.9.10-rc1" 
-		$version2="0.9.10" 
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be -1
-
-		$Version1= "0.9.10-beta-20160528" 
-		$Version2= "0.9.10-alpha-20160528" 
-		$a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-		$a | should be 1
-	}
-}
-
-
 Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
 	AfterAll {
 		#reset the environment variable
@@ -123,7 +29,7 @@ Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
 	It "get-package" {
 		$a=get-package -ProviderName $ChocolateyGet -verbose
 		$a | should not BeNullOrEmpty
-		
+
 		$b=get-package -ProviderName $ChocolateyGet -name chocolatey -allversions -verbose
 		$b | ?{ $_.name -eq "chocolatey" } | should not BeNullOrEmpty
 	}
@@ -132,7 +38,7 @@ Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
 
 		$a=find-package -ProviderName $ChocolateyGet -name  nodejs -ForceBootstrap -force
 		$a | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
-		
+
 		$b=find-package -ProviderName $ChocolateyGet -name  nodejs -allversions -verbose
 		$b | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
 
@@ -144,7 +50,7 @@ Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
 
 		$d=find-package -ProviderName $ChocolateyGet -name *firefox* -Verbose
 		$d | ?{ $_.name -eq "firefox" } | should not BeNullOrEmpty
-		
+
 	}
 
 	It "find-install-package nodejs" {
@@ -192,7 +98,7 @@ Describe "ChocolateyGet multi-source testing" -Tags @('BVT', 'DRT') {
 	}
 
 	It "installs and uninstalls from an alternative package source" {
-		
+
 		$a = Register-PackageSource -Name $altSourceName -ProviderName $ChocolateyGet -Location $altSourceLocation -Verbose
 		$a.Name -eq $altSourceName | Should Be $true
 
@@ -213,9 +119,9 @@ Describe "ChocolateyGet multi-source testing" -Tags @('BVT', 'DRT') {
 
 Describe "ChocolateyGet DSC integration with args/params support" -Tags @('BVT', 'DRT') {
 	$package = "sysinternals"
-	
+
 	$argsAndParams = "--paramsglobal --params ""/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false"" -y --installargs MaintenanceService=false"
-	
+
 	It "finds, installs and uninstalls packages when given installation arguments parameters that would otherwise cause search to fail" {
 
 		$a = find-package $package -verbose -provider $ChocolateyGet -AdditionalArguments $argsAndParams
@@ -228,17 +134,17 @@ Describe "ChocolateyGet DSC integration with args/params support" -Tags @('BVT',
 		$c = Uninstall-package $package -verbose -ProviderName $ChocolateyGet -AdditionalArguments $argsAndParams
 		$c.Name -contains $package | Should Be $true
 
-	}        
+	}
 }
 Describe "ChocolateyGet support for 'latest' RequiredVersion value with DSC support" -Tags @('BVT', 'DRT') {
-	
+
 	$package = "curl"
 	$version = "7.60.0"
 
 	AfterEach {
 		Uninstall-Package -Name $package -Verbose -ProviderName $ChocolateyGet -Force -ErrorAction SilentlyContinue
 	}
-	
+
 	It "does not find the 'latest' locally installed version if an outdated version is installed" {
 		$a = install-package -name $package -requiredVersion $version -verbose -ProviderName $ChocolateyGet -Force
 		$a.Name -contains $package | Should Be $true

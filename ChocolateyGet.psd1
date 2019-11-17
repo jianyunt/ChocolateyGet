@@ -6,7 +6,6 @@
 	Copyright = ''
 	Description = 'A PowerShell OneGet provider that discovers Chocolatey packages from NuGet repositories'
 	PowerShellVersion = '3.0'
-	FunctionsToExport = @('Compare-SemVer')
 	RequiredModules = @('PackageManagement')
 	PrivateData = @{"PackageManagementProviders" = 'ChocolateyGet.psm1'
 	PSData = @{
