@@ -69,7 +69,7 @@ function Find-ChocoPackage {
 		$chocoParams.Add('AllVersions',$true)
 	}
 
-	Invoke-Choco @chocoParams | 
-		ConvertTo-SoftwareIdentity -RequestedName $Name -Source $selectedSource -Verbose | 
+	Invoke-Choco @chocoParams |
+		ConvertTo-SoftwareIdentity -RequestedName $Name -Source $selectedSource -Verbose |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }
