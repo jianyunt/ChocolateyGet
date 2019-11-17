@@ -6,18 +6,21 @@ function Resolve-PackageSource {
 
 	$SourceNames = $request.PackageSources
 
+	# No source name pattern specified, so return everything
 	if (-not $SourceNames) {
 		$SourceNames = "*"
 	}
-	
-	# get Sources from the registered config file
+
+	# Get sources from Chocolatey
 	[array]$RegisteredPackageSources = Get-PackageSources
 
+	# Filter sources by whether they're disabled in Chocolatey
 	$RegisteredPackageSources | Where-Object {$_.Disabled -eq 'False'} | Where-Object {
 		$src = $_.Name
 		Write-Debug "Source $src is registred"
+		# Pass the source on only if it matches the provided name pattern
 		$SourceNames | Where-Object { $src -like $_ }
-	} | ForEach-Object { 
-		New-PackageSource -Name $_.Name -Location $_.Location -Trusted $true -Registered $true 
+	} | ForEach-Object {
+		New-PackageSource -Name $_.Name -Location $_.Location -Trusted $true -Registered $true
 	}
 }

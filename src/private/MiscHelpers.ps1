@@ -35,6 +35,11 @@ function Get-ForceProperty {
 # Utility to throw an errorrecord
 function ThrowError {
 	param (
+		# We need to grab and use the 'parent' (parent = 1) scope to properly return output to the user
+		[parameter()]
+		[System.Management.Automation.PSCmdlet]
+		$CallerPSCmdlet = ((Get-Variable -Scope 1 'PSCmdlet').Value),
+
 		[parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
 		[System.String]
@@ -58,9 +63,6 @@ function ThrowError {
 		[System.Management.Automation.ErrorCategory]
 		$ErrorCategory
 	)
-
-	# We need to grab and use the 'parent' (parent = 1) scope to properly return output to the user
-	$CallerPSCmdlet = (Get-Variable -Scope 1 'PSCmdlet').Value
 
 	$exception = New-Object $ExceptionName $ExceptionMessage
 	$errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $ErrorId, $ErrorCategory, $ExceptionObject

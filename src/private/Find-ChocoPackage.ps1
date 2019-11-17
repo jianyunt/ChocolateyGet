@@ -14,6 +14,7 @@ function Find-ChocoPackage {
 		$MaximumVersion
 	)
 
+	# Throw an error if provided version arguments don't make sense
 	Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	$options = $request.Options
@@ -69,7 +70,9 @@ function Find-ChocoPackage {
 		$chocoParams.Add('AllVersions',$true)
 	}
 
+	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
+	# Will only terminate if Invoke-Choco fails to call choco.exe
 	Invoke-Choco @chocoParams |
-		ConvertTo-SoftwareIdentity -RequestedName $Name -Source $selectedSource -Verbose |
+		ConvertTo-SoftwareIdentity -RequestedName $Name -Source $selectedSource |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }
