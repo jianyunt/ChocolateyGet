@@ -39,8 +39,8 @@ Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
 		$a=find-package -ProviderName $ChocolateyGet -name  nodejs -ForceBootstrap -force
 		$a | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
 
-		$b=find-package -ProviderName $ChocolateyGet -name  nodejs -allversions -verbose
-		$b | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
+		$b=find-package -ProviderName $ChocolateyGet -name  cpu-z -allversions -verbose
+		$b | ?{ $_.name -eq "cpu-z" } | should not BeNullOrEmpty
 
 		$c=find-package -ProviderName $ChocolateyGet -name nodejs -AdditionalArguments --exact -verbose
 		$c | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
