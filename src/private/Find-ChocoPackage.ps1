@@ -27,7 +27,6 @@ function Find-ChocoPackage {
 	if ($options -and $options.ContainsKey('Source')) {
 		# Finding the matched package sources from the registered ones
 		Write-Verbose ($LocalizedData.SpecifiedSourceName -f ($options['Source']))
-
 		if ($RegisteredPackageSources.Name -eq $options['Source']) {
 			# Found the matched registered source
 			$selectedSource = $options['Source']

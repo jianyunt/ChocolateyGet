@@ -125,7 +125,7 @@ function Invoke-Choco {
 		}
 
 		if ($Version) {
-			$cmdString += "--version $version "
+			$cmdString += "--version $Version "
 		}
 
 		if ($SourceName) {

@@ -22,14 +22,14 @@ Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -filename 'Choco
 #region Methods
 
 # Dot sourcing private script files
-Get-ChildItem $ScriptPath/src/private -Recurse -Filter "*.ps1" -File | ForEach-Object { 
+Get-ChildItem $ScriptPath/src/private -Recurse -Filter "*.ps1" -File | ForEach-Object {
 	. $_.FullName
 }
 
 # Load and export methods
 
 # Dot sourcing public function files
-Get-ChildItem $ScriptPath/src/public -Recurse -Filter "*.ps1" -File | ForEach-Object { 
+Get-ChildItem $ScriptPath/src/public -Recurse -Filter "*.ps1" -File | ForEach-Object {
 	. $_.FullName
 
 	# Find all the functions defined no deeper than the first level deep and export it.
