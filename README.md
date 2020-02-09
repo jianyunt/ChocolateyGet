@@ -78,6 +78,77 @@ Configuration ChocoNodeJS {
 }
 ```
 
+## Keep packages up to date
+A common complaint of PackageManagement/OneGet is it doesn't allow for updating installed packages, while Chocolatey does.
+In order to reconile the two, ChocolateyGet has a reserved keyword 'latest' that when passed as a Required Version can compare the version of what's currently installed against what's in the repository.
+```PowerShell
+PS C:\Users\ethan> Install-Package curl -RequiredVersion 7.60.0 -ProviderName ChocolateyGet -Force
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           v7.60.0          chocolatey
+
+
+PS C:\Users\ethan> Get-Package curl -ProviderName ChocolateyGet
+
+Name                           Version          Source                           ProviderName
+----                           -------          ------                           ------------
+curl                           7.60.0           Chocolatey                       ChocolateyGet
+
+
+PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
+Get-Package : No package found for 'curl'.
+At line:1 char:1
++ Get-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Microsoft.Power...lets.GetPackage:GetPackage) [Get-Package], Exception
+    + FullyQualifiedErrorId : NoMatchFound,Microsoft.PowerShell.PackageManagement.Cmdlets.GetPackage
+
+PS C:\Users\ethan> Find-Package curl -ProviderName ChocolateyGet
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           7.68.0           chocolatey
+
+
+PS C:\Users\ethan> Find-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           7.68.0           chocolatey
+
+
+PS C:\Users\ethan> Find-Package curl -RequiredVersion latest -ProviderName ChocolateyGet | Install-Package -Force
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           v7.68.0          chocolatey
+
+
+PS C:\Users\ethan> Get-Package curl -ProviderName ChocolateyGet
+
+Name                           Version          Source                           ProviderName
+----                           -------          ------                           ------------
+curl                           7.68.0           Chocolatey                       ChocolateyGet
+
+
+PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
+
+Name                           Version          Source                           ProviderName
+----                           -------          ------                           ------------
+curl                           7.68.0           Chocolatey                       ChocolateyGet
+
+```
+
+This feature can be combined with a PackageManagement-compatible configuration management system (ex: PowerShell DSC) to regularly keep certain packages up to date:
+```PowerShell
+	PackageManagement SysInternals {
+		Name = 'sysinternals'
+		RequiredVersion = 'latest'
+		ProviderName = 'ChocolateyGet'
+	}
+```
+
 ## Known Issues
 Currently ChocolateyGet works on Full CLR.
 It is not supported on CoreClr.
