@@ -55,8 +55,8 @@ OneGet integrates with Chocolatey sources to manage source information
 ## Pass in choco arguments
 If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-package cmdlets, you can use AdditionalArguments PowerShell property.
 
-## DSC Compatability
-Fully compatable with the PackageManagement DSC resources
+## DSC Compatibility
+Fully compatible with the PackageManagement DSC resources
 ```PowerShell
 Configuration ChocoNodeJS {
 	PackageManagement ChocolateyGet {
