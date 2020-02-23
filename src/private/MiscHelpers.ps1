@@ -32,6 +32,23 @@ function Get-ForceProperty {
 	$force
 }
 
+# Find whether a user specifies -AcceptLicense
+function Get-AcceptLicenseProperty {
+	[CmdletBinding()]
+	[OutputType([bool])]
+	param (
+	)
+
+	$acceptLicense = $false
+	$options = $request.Options
+
+	if ($options.ContainsKey($script:AcceptLicense)) {
+		$acceptLicense = (-not [System.String]::IsNullOrWhiteSpace($options[$script:AcceptLicense]))
+	}
+
+	$acceptLicense
+}
+
 # Utility to throw an errorrecord
 function ThrowError {
 	param (

@@ -23,7 +23,7 @@ function Install-Package {
 	$shouldContinueCaption = $LocalizedData.InstallPackageCaption
 
 	# If the user opts not to install the package, exit from the script
-	if (-not ((Get-ForceProperty) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
+	if (-not (((Get-ForceProperty) -or (Get-AcceptLicenseProperty)) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
 		Write-Warning ($LocalizedData.NotInstalled -f $FastPackageReference)
 		return
 	}

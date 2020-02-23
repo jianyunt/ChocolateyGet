@@ -7,6 +7,7 @@ $script:ProviderName = "ChocolateyGet"
 $script:PackageSourceName = "Chocolatey"
 $script:additionalArguments = "AdditionalArguments"
 $script:AllVersions = "AllVersions"
+$script:AcceptLicense = "AcceptLicense"
 
 # Define choco related variables
 $script:ChocoExeName = 'choco.exe'
