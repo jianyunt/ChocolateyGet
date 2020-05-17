@@ -217,8 +217,7 @@ function Invoke-Choco {
 		if ($ChocoExePath) {
 			Write-Debug ("Choco already installed")
 		} else {
-			# Using Out-Null to 'eat' the output so it doesn't contaminate the pipeline
-			Install-ChocoBinaries | Out-Null
+			$ChocoExePath = Install-ChocoBinaries
 		}
 
 		# Source Management
