@@ -11,16 +11,16 @@ Install-PackageProvider ChocolateyGet -Force
 ## Sample usages
 ### Search for a package
 ```PowerShell
-Find-Package -ProviderName ChocolateyGet -Name nodejs
+Find-Package -Provider ChocolateyGet -Name nodejs
 
-Find-Package -ProviderName ChocolateyGet -Name firefox*
+Find-Package -Provider ChocolateyGet -Name firefox*
 ```
 
 ### Install a package
 ```PowerShell
 Find-Package nodejs -Verbose -Provider ChocolateyGet -AdditionalArguments --Exact | Install-Package
 
-Install-Package -Name 7zip -Verbose -ProviderName ChocolateyGet
+Install-Package -Name 7zip -Verbose -Provider ChocolateyGet
 ```
 ### Get list of installed packages
 ```PowerShell
@@ -44,7 +44,7 @@ ChocolateyGet integrates with Choco.exe to manage and store source information
 If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-Package cmdlets, you can use AdditionalArguments PowerShell property.
 
 ```powershell
-Install-Package sysinternals -ProviderName ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false' -Verbose
+Install-Package sysinternals -Provider ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false' -Verbose
 ```
 
 ## DSC Compatibility
@@ -76,33 +76,33 @@ A common complaint of PackageManagement/OneGet is it doesn't allow for updating 
 In order to reconcile the two, ChocolateyGet has a reserved keyword 'latest' that when passed as a Required Version can compare the version of what's currently installed against what's in the repository.
 ```PowerShell
 
-PS C:\Users\ethan> Find-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
+PS C:\Users\ethan> Find-Package curl -RequiredVersion latest -Provider ChocolateyGet
 
 Name                           Version          Source           Summary
 ----                           -------          ------           -------
 curl                           7.68.0           chocolatey
 
-PS C:\Users\ethan> Install-Package curl -RequiredVersion 7.60.0 -ProviderName ChocolateyGet -Force
+PS C:\Users\ethan> Install-Package curl -RequiredVersion 7.60.0 -Provider ChocolateyGet -Force
 
 Name                           Version          Source           Summary
 ----                           -------          ------           -------
 curl                           v7.60.0          chocolatey
 
-PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
+PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
 Get-Package : No package found for 'curl'.
 At line:1 char:1
-+ Get-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
++ Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : ObjectNotFound: (Microsoft.Power...lets.GetPackage:GetPackage) [Get-Package], Exception
     + FullyQualifiedErrorId : NoMatchFound,Microsoft.PowerShell.PackageManagement.Cmdlets.GetPackage
 
-PS C:\Users\ethan> Install-Package curl -RequiredVersion latest -ProviderName ChocolateyGet -Force
+PS C:\Users\ethan> Install-Package curl -RequiredVersion latest -Provider ChocolateyGet -Force
 
 Name                           Version          Source           Summary
 ----                           -------          ------           -------
 curl                           v7.68.0          chocolatey
 
-PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -ProviderName ChocolateyGet
+PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
 
 Name                           Version          Source                           ProviderName
 ----                           -------          ------                           ------------
@@ -176,7 +176,7 @@ The provider's standard battery of tests run about **36% faster** under the nati
 By default, Chocolatey will continue to use CLI output (for now), but native API support can be enabled in PowerShell 5.1 and below sessions before the provider is first invoked:
 ```PowerShell
 $env:CHOCO_NATIVEAPI = $true
-Find-Package -ProviderName ChocolateyGet -Name nodejs
+Find-Package -Provider ChocolateyGet -Name nodejs
 ```
 
 If Choco.exe is already installed, the Native API will detect the existing Chocolatey installation path and leverage it for maintaining local package and source metadata.
