@@ -11,26 +11,52 @@ $script:AcceptLicense = "AcceptLicense"
 
 # Define choco related variables
 $script:ChocoExeName = 'choco.exe'
-$script:firstTime = $true
+
+# Only allow the native Chocolatey .NET library with FullCLR
+if ($PSEdition -eq 'Desktop' -and $env:CHOCO_NATIVEAPI) {
+	$script:NativeAPI = $true
+	# If Choco.exe isn't already installed, try to guess where the API files should get extracted
+	if (-not $env:ChocolateyInstall) {
+		$env:ChocolateyInstall = "$($env:ProgramData)\chocolatey"
+	}
+}
 
 # Utility variables
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
+$script:ChocoSourcePropertyNames = @(
+	'Name',
+	'Location',
+	'Disabled',
+	'UserName',
+	'Certificate',
+	'Priority',
+	'Bypass Proxy',
+	'Allow Self Service',
+	'Visibile to Admins Only'
+)
 
-Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -filename 'ChocolateyGet.Resource.psd1'
+Import-LocalizedData LocalizedData -filename "$script:ProviderName.Resource.psd1"
 
 #endregion Private Variables
 
 #region Methods
 
+# Load included libraries, since the manifest wont handle that for package providers
+if ($script:NativeAPI) {
+	Get-ChildItem $ScriptPath/lib/ -Filter 'chocolatey.dll' -File | ForEach-Object {
+		Add-Type -Path $_.FullName
+	}
+}
+
 # Dot sourcing private script files
-Get-ChildItem $ScriptPath/src/private -Recurse -Filter "*.ps1" -File | ForEach-Object {
+Get-ChildItem $ScriptPath/src/private -Recurse -Filter '*.ps1' -File | ForEach-Object {
 	. $_.FullName
 }
 
 # Load and export methods
 
 # Dot sourcing public function files
-Get-ChildItem $ScriptPath/src/public -Recurse -Filter "*.ps1" -File | ForEach-Object {
+Get-ChildItem $ScriptPath/src/public -Recurse -Filter '*.ps1' -File | ForEach-Object {
 	. $_.FullName
 
 	# Find all the functions defined no deeper than the first level deep and export it.

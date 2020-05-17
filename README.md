@@ -5,50 +5,47 @@ ChocolateyGet is Package Management (OneGet) provider that facilitates installin
 
 ## Install ChocolateyGet
 ```PowerShell
-Find-PackageProvider ChocolateyGet -verbose
-
-Install-PackageProvider ChocolateyGet -verbose
-
-Import-PackageProvider ChocolateyGet
-
-# Run Get-PackageProvider to check if the ChocolateyGet provider is imported
-Get-PackageProvider -verbose
+Install-PackageProvider ChocolateyGet -Force
 ```
 
 ## Sample usages
 ### Search for a package
 ```PowerShell
-Find-Package -ProviderName ChocolateyGet -name  nodejs
+Find-Package -ProviderName ChocolateyGet -Name nodejs
 
-Find-Package -ProviderName ChocolateyGet -name firefox*
+Find-Package -ProviderName ChocolateyGet -Name firefox*
 ```
 
 ### Install a package
 ```PowerShell
-Find-Package nodejs -verbose -provider ChocolateyGet -AdditionalArguments --exact | Install-Package
+Find-Package nodejs -Verbose -Provider ChocolateyGet -AdditionalArguments --Exact | Install-Package
 
-Install-Package -name 7zip -verbose -ProviderName ChocolateyGet
+Install-Package -Name 7zip -Verbose -ProviderName ChocolateyGet
 ```
 ### Get list of installed packages
 ```PowerShell
-Get-Package nodejs -verbose -provider ChocolateyGet
+Get-Package nodejs -Verbose -Provider ChocolateyGet
 ```
 ### Uninstall a package
 ```PowerShell
-Get-Package nodejs -provider ChocolateyGet -verbose | Uninstall-Package -AdditionalArguments '-y --remove-dependencies' -Verbose
+Get-Package nodejs -Provider ChocolateyGet -Verbose | Uninstall-Package -Verbose
 ```
 
 ### Manage package sources
 ```PowerShell
-Register-PackageSource privateRepo -provider ChocolateyGet -location 'https://somewhere/out/there/api/v2/'
-Find-Package nodejs -verbose -provider ChocolateyGet -source privateRepo -AdditionalArguments --exact | Install-Package
-Unregister-PackageSource privateRepo -provider ChocolateyGet
+Register-PackageSource privateRepo -Provider ChocolateyGet -Location 'https://somewhere/out/there/api/v2/'
+Find-Package nodejs -Verbose -Provider ChocolateyGet -Source privateRepo -AdditionalArguments --exact | Install-Package
+Unregister-PackageSource privateRepo -Provider ChocolateyGet
 ```
 
 ChocolateyGet integrates with Choco.exe to manage and store source information
 
 ## Pass in choco arguments
-If you need to pass in some of choco arguments to the Find, Install, Get and UnInstall-Package cmdlets, you can use AdditionalArguments PowerShell property.
+If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-Package cmdlets, you can use AdditionalArguments PowerShell property.
+
+```powershell
+Install-Package sysinternals -ProviderName ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false' -Verbose
+```
 
 ## DSC Compatibility
 Fully compatible with the PackageManagement DSC resources
@@ -170,11 +167,27 @@ If using the 'latest' functionality, best practice is to either:
 * use the default Chocolatey.org source
 * unregister the default Chocolatey.org source in favor of a **single** custom source
 
+## Experimental features
+### API integration
+ChocolateyGet can invoke Chocolatey through it's native API rather than through interpreting CLI output, which does not require a local installation of Choco.exe
+
+The provider's standard battery of tests run about **36% faster** under the native API versus using the CLI interpreter, with operations that don't invoke a package (searching for packages, registering sources, etc.) running about **10x faster**.
+
+By default, Chocolatey will continue to use CLI output (for now), but native API support can be enabled in PowerShell 5.1 and below sessions before the provider is first invoked:
+```PowerShell
+$env:CHOCO_NATIVEAPI = $true
+Find-Package -ProviderName ChocolateyGet -Name nodejs
+```
+
+If Choco.exe is already installed, the Native API will detect the existing Chocolatey installation path and leverage it for maintaining local package and source metadata.
+
+Invoking the provider with the Native API is the first use of Chocolatey on your system, the provider will instruct the Native API to align where it extracts its files with the standard used by Choco.exe (%ProgramData%/Chocolatey) to avoid diverging locations of package and source metadata.
+
 ## Known Issues
-Currently ChocolateyGet works on Full CLR.
-It is not supported on CoreClr.
-This means ChocolateyGet provider is not supported on Nano server or Linux OSs.
-The primarily reason is that the current version of choco.exe does not seem to support on CoreClr yet.
+### Compatibility
+ChocolateyGet works with PowerShell for both FullCLR/'Desktop' (ex 5.1) and CoreCLR (ex: 7.0.1), though Chocolatey itself still requires FullCLR.
+
+When used with CoreCLR, PowerShell 7.0.1 is a minimum requirement due to [a compatibility issue in PowerShell 7.0](https://github.com/PowerShell/PowerShell/pull/12203).
 
 ### Save a package
 Save-Package is not supported with the ChocolateyGet provider, due to Chocolatey not supporting package downloads without special licensing.

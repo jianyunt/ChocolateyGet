@@ -1,0 +1,5 @@
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    chocolatey.lib (0.10.15)
+      log4net (>= 2.0.3)
+    log4net (2.0.3)

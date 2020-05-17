@@ -1,23 +1,25 @@
 version: 1.0.{build}
-os:
-- WMF 5
-configuration: Release
 
-build: false
+image: Visual Studio 2019
 
-platform: Any CPU
-# Install Pester
-install: 
-    - cinst -y pester
-clone_folder: c:\projects\chocolateyget
-#build_script:
-#- ps: git submodule update --init; cd .\src; .\bootstrap.ps1; .\build.ps1 -framework "net451";
-#after_build:
-#- ps: >-
-#    Get-ChildItem "C:\projects\oneget\src\out\PackageManagement\net451" -Recurse | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName releasebits -Type Auto }
+install:
+  - dotnet tool restore
+  - dotnet paket restore
+  - cinst pester
 
-before_test:
-- ps: >-
-    Copy-Item -Recurse "c:\projects\chocolateyget\" "$Env:ProgramFiles\WindowsPowerShell\Modules\" -Force -Verbose
+build_script:
+  - ps: |
+      New-Item -ItemType Directory -Name lib
+      Copy-Item .\packages\chocolatey.lib\lib\chocolatey.dll .\lib\
+      Copy-Item .\packages\log4net\lib\net40-full\log4net.dll .\lib\
+      Remove-Item @('.git*','appveyor.yml','paket*','packages') -Force -Recurse
+      Copy-Item ..\Chocolatier ~\Documents\WindowsPowerShell\Modules -Recurse
 
-    & "c:\projects\chocolateyget\Test\ChocolateyGet.tests.ps1"
+test_script:
+  - ps: |
+      Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.CLI.xml
+      (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.CLI.xml))
+  - ps: |
+      $env:CHOCO_NATIVEAPI = $true
+      Invoke-Pester -OutputFormat NUnitXml -OutputFile TestsResults.NativeAPI.xml
+      (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.NativeAPI.xml))

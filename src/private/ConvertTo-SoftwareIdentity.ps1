@@ -34,7 +34,7 @@ function ConvertTo-SoftwareIdentity {
 					$swid = @{
 						FastPackageReference = $Matches.name+"#"+ $Matches.version.TrimStart('v')+"#"+$Source
 						Name = $Matches.name
-						Version = $Matches.version
+						Version = $Matches.version.TrimStart('v')
 						versionScheme = "MultiPartNumeric"
 						FromTrustedSource = $true
 						Source = $Source
