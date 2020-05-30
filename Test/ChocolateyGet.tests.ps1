@@ -2,7 +2,7 @@
 
 Import-PackageProvider $ChocolateyGet -Force
 
-if ($PSEdition -eq 'Desktop' -and $env:CHOCO_NATIVEAPI) {
+if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
 	$platform = 'API'
 } else {
 	$platform = 'CLI'
@@ -129,8 +129,8 @@ Describe "$platform multi-source support" {
 }
 
 Describe "$platform version filters" {
-	$package = "cpu-z"
-	$version = "1.77"
+	$package = 'cpu-z'
+	$version = '1.87'
 
 	AfterAll {
 		Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue

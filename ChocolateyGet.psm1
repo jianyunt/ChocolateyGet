@@ -13,7 +13,7 @@ $script:AcceptLicense = "AcceptLicense"
 $script:ChocoExeName = 'choco.exe'
 
 # Only allow the native Chocolatey .NET library with FullCLR
-if ($PSEdition -eq 'Desktop' -and $env:CHOCO_NATIVEAPI) {
+if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
 	$script:NativeAPI = $true
 	# If Choco.exe isn't already installed, try to guess where the API files should get extracted
 	if (-not $env:ChocolateyInstall) {

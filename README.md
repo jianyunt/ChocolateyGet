@@ -167,15 +167,14 @@ If using the 'latest' functionality, best practice is to either:
 * use the default Chocolatey.org source
 * unregister the default Chocolatey.org source in favor of a **single** custom source
 
-## Experimental features
-### API integration
-ChocolateyGet can invoke Chocolatey through it's native API rather than through interpreting CLI output, which does not require a local installation of Choco.exe
+## API integration
+Under PowerShell 5.1 and below ChocolateyGet invokes Chocolatey through it's native API by default rather than through interpreting CLI output. As a result, ChocolateyGet can operate without a local installation of Choco.exe.
 
 The provider's standard battery of tests run about **36% faster** under the native API versus using the CLI interpreter, with operations that don't invoke a package (searching for packages, registering sources, etc.) running about **10x faster**.
 
-By default, Chocolatey will continue to use CLI output (for now), but native API support can be enabled in PowerShell 5.1 and below sessions before the provider is first invoked:
+By default, ChocolateyGet uses the API when invoked with PowerShell 5.1 and below, but can revert to using the CLI in the environment entries before the provider is first invoked:
 ```PowerShell
-$env:CHOCO_NATIVEAPI = $true
+$env:CHOCO_CLI = $true
 Find-Package -Provider ChocolateyGet -Name nodejs
 ```
 
