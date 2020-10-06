@@ -12,7 +12,7 @@ build_script:
       New-Item -ItemType Directory -Name lib
       Copy-Item .\packages\chocolatey.lib\lib\chocolatey.dll .\lib\
       Copy-Item .\packages\log4net\lib\net40-full\log4net.dll .\lib\
-      Remove-Item @('.config','.git*','appveyor.yml','.packet*','paket*','packages') -Force -Recurse
+      Remove-Item @('.config','.git*','appveyor.yml','.paket*','paket*','packages') -Force -Recurse
       Copy-Item ..\chocolateyget ~\Documents\WindowsPowerShell\Modules -Recurse
 
 test_script:
