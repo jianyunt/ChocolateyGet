@@ -1,167 +1,178 @@
-﻿
-$ChocolateyGet = "ChocolateyGet"
+﻿$ChocolateyGet = 'ChocolateyGet'
 
-import-module packagemanagement
-Get-Packageprovider -verbose
-$provider = Get-PackageProvider -verbose -ListAvailable
-if($provider.Name -notcontains $ChocolateyGet)
-{
-    $a= Find-PackageProvider -Name $ChocolateyGet -verbose -ForceBootstrap
+Import-PackageProvider $ChocolateyGet -Force
 
-    if($a.Name -eq $ChocolateyGet)
-    {
-        Install-PackageProvider $ChocolateyGet -verbose -force
-    }
-    else
-    {
-        Write-Error "Fail to find $ChocolateyGet provider"
-    }
+if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
+	$platform = 'API'
+} else {
+	$platform = 'CLI'
 }
 
-Import-PackageProvider $ChocolateyGet -force
+Describe "$platform basic package search operations" {
+	Context 'without additional arguments' {
+		$package = 'cpu-z'
 
-Describe "ChocolateyGet Version testing" -Tags @('BVT', 'DRT') {
-    BeforeAll { 
-        Import-Module ChocolateyGet
-    }
-    AfterAll {
-        #reset the environment variable
-       $env:BootstrapProviderTestfeedUrl=""
-    }
-    It "SemVer testing" {
-        $version1="0.9.9 "
-        $version2="0.9.9"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 0
+		It 'gets a list of latest installed packages' {
+			Get-Package -Provider $ChocolateyGet | Where-Object {$_.Name -contains 'chocolatey'} | Should Not BeNullOrEmpty
+		}
+		It 'searches for the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package}  | Should Not BeNullOrEmpty
+		}
+		It 'searches for all versions of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package -AllVersions | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'searches for the latest version of a package with a wildcard pattern' {
+			Find-Package -Provider $ChocolateyGet -Name "$package*" | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+	}
+	Context 'with additional arguments' {
+		$package = 'cpu-z'
+		$argsAndParams = '--exact'
 
-        $version1="0.9.9-rc2"
-        $version2="0.9.9-rc2"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 0
-
-        $version1="1.0.0-beta-exp.sha.5114f85"
-        $version2="1.0.0-beta-exp.sha.5114f85"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 0
-
-
-        $version1="1.0.0-alpha-exp.sha.5114f85"
-        $version2="1.0.0-beta-exp.sha.5114f85"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-
-        $version1="1.0.0-alpha-exp.sha.5114f86"
-        $version2="1.0.0-alpha-exp.sha.5114f85"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 0
-   
-        $version1="1.0.0-alpha-exp.sha1.5114f85"
-        $version2="1.0.0-alpha-exp.sha.5114f85"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 0
-
-        $version1="0.9.9 "
-        $version2="0.9.9-rc2"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 1
-
-        $Version1 = "1.1"
-        $version2="1.1.1"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-        $Version1 = "1.2.5"
-        $version2="1.2.3.4"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 1
-
-        $version1="1.0.0-alpha.1"
-        $version2="1.0.0-alpha.beta"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-        $version1="1.0.0-alpha.beta"
-        $version2="1.0.0-rc.1"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-        $version1="1.0.0"
-        $version2="1.0.0-rc.11"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 1
-
-        $version1="1.0.0-rc.1"
-        $version2="2.0.0"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-        $version1="1.0.0-beta.2"
-        $version2="1.0.0-beta.11"
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-        $version1="0.9.10-rc1" 
-        $version2="0.9.10" 
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be -1
-
-        $Version1= "0.9.10-beta-20160528" 
-        $Version2= "0.9.10-alpha-20160528" 
-        $a= ChocolateyGet\Compare-SemVer -Version1  $Version1  -Version2  $Version2
-        $a | should be 1
-    }
+		It 'searches for the exact package name' {
+			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Should Not BeNullOrEmpty
+		}
+	}
 }
 
+Describe "$platform DSC-compliant package installation and uninstallation" {
+	Context 'without additional arguments' {
+		$package = 'cpu-z'
 
-Describe "ChocolateyGet testing" -Tags @('BVT', 'DRT') {
-    AfterAll {
-        #reset the environment variable
-       $env:BootstrapProviderTestfeedUrl=""
-    }
+		It 'searches for the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'silently installs the latest version of a package' {
+			Install-Package -Provider $ChocolateyGet -Name $package -Force | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'finds the locally installed package just installed' {
+			Get-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'silently uninstalls the locally installed package just installed' {
+			Uninstall-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+	}
+	Context 'with additional arguments' {
+		$package = 'sysinternals'
+		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
-    It "find-package" {
+		It 'searches for the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'silently installs the latest version of a package' {
+			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'finds the locally installed package just installed' {
+			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'silently uninstalls the locally installed package just installed' {
+			Uninstall-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+	}
+}
 
-        $a=find-package -ProviderName $ChocolateyGet -name  nodejs -ForceBootstrap -force
-        $a | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
-        
-        $b=find-package -ProviderName $ChocolateyGet -name  nodejs -allversions
-        $b | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty
+Describe "$platform pipline-based package installation and uninstallation" {
+	Context 'without additional arguments' {
+		$package = 'cpu-z'
 
+		It 'searches for and silently installs the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+		It 'finds and silently uninstalls the locally installed package just installed' {
+			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+	}
+	Context 'with additional arguments' {
+		$package = 'sysinternals'
+		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
-        $c=find-package -ProviderName $ChocolateyGet -name nodejs -AdditionalArguments --exact
-        $c | ?{ $_.name -eq "nodejs" } | should not BeNullOrEmpty        
-    }
+		It 'searches for and silently installs the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
 
-    It "find-package with wildcard search" {
+		It 'finds and silently uninstalls the locally installed package just installed' {
+			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		}
+	}
+}
 
-        $d=find-package -ProviderName $ChocolateyGet -name *firefox*
-        $d | ?{ $_.name -eq "firefox" } | should not BeNullOrEmpty
-        
-    }
+Describe "$platform multi-source support" {
+	BeforeAll {
+		$altSourceName = 'LocalChocoSource'
+		$altSourceLocation = $PSScriptRoot
+		$package = 'cpu-z'
 
-    It "find-install-package nodejs" {
+		Save-Package $package -Source 'http://chocolatey.org/api/v2' -Path $altSourceLocation
+		Unregister-PackageSource -Name $altSourceName -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+	}
+	AfterAll {
+		Remove-Item "$altSourceLocation\*.nupkg" -Force -ErrorAction SilentlyContinue
+		Unregister-PackageSource -Name $altSourceName -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+	}
 
-        $package = "nodejs"
-        $a=find-package $package -verbose -provider $ChocolateyGet  -AdditionalArguments --exact | install-package -force
-        $a.Name -contains $package | Should Be $true
+	It 'refuses to register a source with no location' {
+		Register-PackageSource -Name $altSourceName -Provider $ChocolateyGet -ErrorAction SilentlyContinue | Where-Object {$_.Name -eq $altSourceName} | Should BeNullOrEmpty
+	}
+	It 'registers an alternative package source' {
+		Register-PackageSource -Name $altSourceName -Provider $ChocolateyGet -Location $altSourceLocation | Where-Object {$_.Name -eq $altSourceName} | Should Not BeNullOrEmpty
+	}
+	It 'searches for and installs the latest version of a package from an alternate source' {
+		Find-Package -Provider $ChocolateyGet -Name $package -source $altSourceName | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+	}
+	It 'finds and uninstalls a package installed from an alternate source' {
+		Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+	}
+	It 'unregisters an alternative package source' {
+		Unregister-PackageSource -Name $altSourceName -Provider $ChocolateyGet
+		Get-PackageSource -Provider $ChocolateyGet | Where-Object {$_.Name -eq $altSourceName} | Should BeNullOrEmpty
+	}
+}
 
+Describe "$platform version filters" {
+	$package = 'cpu-z'
+	$version = '1.87'
 
-        $b = get-package $package -verbose -provider $ChocolateyGet
-        $b.Name -contains $package | Should Be $true
+	AfterAll {
+		Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+	}
 
-        $c= Uninstall-package $package -verbose  -ProviderName $ChocolateyGet -AdditionalArguments '-y --remove-dependencies'
-        $c.Name -contains $package | Should Be $true
-   }
+	Context 'required version' {
+		It 'searches for and silently installs a specific package version' {
+			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -eq $version} | Should Not BeNullOrEmpty
+		}
+		It 'finds and silently uninstalls a specific package version' {
+			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -eq $version} | Should Not BeNullOrEmpty
+		}
+	}
 
-   It "install-package with zip, get-uninstall-package" {
+	Context 'minimum version' {
+		It 'searches for and silently installs a minimum package version' {
+			Find-Package -Provider $ChocolateyGet -Name $package -MinimumVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -ge $version} | Should Not BeNullOrEmpty
+		}
+		It 'finds and silently uninstalls a minimum package version' {
+			Get-Package -Provider $ChocolateyGet -Name $package -MinimumVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -ge $version} | Should Not BeNullOrEmpty
+		}
+	}
 
-        $package = "7zip"
+	Context 'maximum version' {
+		It 'searches for and silently installs a maximum package version' {
+			Find-Package -Provider $ChocolateyGet -Name $package -MaximumVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -le $version} | Should Not BeNullOrEmpty
+		}
+		It 'finds and silently uninstalls a maximum package version' {
+			Get-Package -Provider $ChocolateyGet -Name $package -MaximumVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -le $version} | Should Not BeNullOrEmpty
+		}
+	}
 
-        $a= install-package -name $package -verbose -ProviderName $ChocolateyGet  -force
-        $a.Name -contains $package | Should Be $true
-
-        $a=get-package $package -provider $ChocolateyGet -verbose | uninstall-package -AdditionalArguments '-y --remove-dependencies' -Verbose
-        $a.Name -contains $package | Should Be $true
-    }        
- }
+	Context '"latest" version' {
+		It 'does not find the "latest" locally installed version if an outdated version is installed' {
+			Install-Package -name $package -requiredVersion $version -Provider $ChocolateyGet -Force
+			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' -ErrorAction SilentlyContinue | Where-Object {$_.Name -contains $package} | Should BeNullOrEmpty
+		}
+		It 'searches for and silently installs the latest package version' {
+			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -gt $version} | Should Not BeNullOrEmpty
+		}
+		It 'finds and silently uninstalls a specific package version' {
+			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -gt $version} | Should Not BeNullOrEmpty
+		}
+	}
+}

@@ -1,57 +1,195 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/vxbk2jqy0r6y7cem/branch/master?svg=true)](https://ci.appveyor.com/project/jianyunt/chocolateyget/branch/master)
 
 # ChocolateyGet
-ChocolateyGet provider allows to download packages from Chocolatey.org repository via OneGet.
+ChocolateyGet is Package Management (OneGet) provider that facilitates installing Chocolatey packages from any NuGet repository.
 
-
-## Get the ChocolateyGet installed
+## Install ChocolateyGet
 ```PowerShell
-Find-PackageProvider ChocolateyGet -verbose
-
-Install-PackageProvider ChocolateyGet -verbose
-
-Import-PackageProvider ChocolateyGet
-
-# Run Get-Packageprovider to check if the ChocolateyGet provider is imported
-Get-Packageprovider -verbose
+Install-PackageProvider ChocolateyGet -Force
 ```
 
 ## Sample usages
-### find-packages
+### Search for a package
 ```PowerShell
-find-package -ProviderName ChocolateyGet -name  nodejs
+Find-Package -Provider ChocolateyGet -Name nodejs
 
-find-package -ProviderName ChocolateyGet -name firefox*
+Find-Package -Provider ChocolateyGet -Name firefox*
 ```
 
-### install-packages
+### Install a package
 ```PowerShell
-find-package nodejs -verbose -provider ChocolateyGet -AdditionalArguments --exact | install-package
+Find-Package nodejs -Verbose -Provider ChocolateyGet -AdditionalArguments --Exact | Install-Package
 
-install-package -name 7zip -verbose -ProviderName ChocolateyGet
+Install-Package -Name 7zip -Verbose -Provider ChocolateyGet
 ```
-### get-packages
+### Get list of installed packages
 ```PowerShell
-get-package nodejs -verbose -provider ChocolateyGet
+Get-Package nodejs -Verbose -Provider ChocolateyGet
 ```
-### uninstall-package
+### Uninstall a package
 ```PowerShell
-get-package nodejs -provider ChocolateyGet -verbose | uninstall-package -AdditionalArguments '-y --remove-dependencies' -Verbose
+Get-Package nodejs -Provider ChocolateyGet -Verbose | Uninstall-Package -Verbose
 ```
-### save-package
 
-save-package is not supported for ChocolateyGet provider.
-It is because ChocolateyGet is a wrapper of choco.exe which currently does not support down packages only.
+### Manage package sources
+```PowerShell
+Register-PackageSource privateRepo -Provider ChocolateyGet -Location 'https://somewhere/out/there/api/v2/'
+Find-Package nodejs -Verbose -Provider ChocolateyGet -Source privateRepo -AdditionalArguments --exact | Install-Package
+Unregister-PackageSource privateRepo -Provider ChocolateyGet
+```
+
+ChocolateyGet integrates with Choco.exe to manage and store source information
 
 ## Pass in choco arguments
-If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-package cmdlets, you can use AdditionalArguments PowerShell property.
+If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-Package cmdlets, you can use AdditionalArguments PowerShell property.
+
+```powershell
+Install-Package sysinternals -Provider ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false' -Verbose
+```
+
+## DSC Compatibility
+Fully compatible with the PackageManagement DSC resources
+```PowerShell
+Configuration MyNode {
+	Import-DscResource -Name PackageManagement,PackageManagementSource
+	PackageManagement ChocolateyGet {
+		Name = 'ChocolateyGet'
+		Source = 'PSGallery'
+	}
+	PackageManagementSource ChocoPrivateRepo {
+		Name = 'privateRepo'
+		ProviderName = 'ChocolateyGet'
+		SourceLocation = 'https://somewhere/out/there/api/v2/'
+		InstallationPolicy = 'Trusted'
+		DependsOn = '[PackageManagement]ChocolateyGet'
+	}
+	PackageManagement NodeJS {
+		Name = 'nodejs'
+		Source = 'privateRepo'
+		DependsOn = '[PackageManagementSource]ChocoPrivateRepo'
+	}
+}
+```
+
+## Keep packages up to date
+A common complaint of PackageManagement/OneGet is it doesn't allow for updating installed packages, while Chocolatey does.
+In order to reconcile the two, ChocolateyGet has a reserved keyword 'latest' that when passed as a Required Version can compare the version of what's currently installed against what's in the repository.
+```PowerShell
+
+PS C:\Users\ethan> Find-Package curl -RequiredVersion latest -Provider ChocolateyGet
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           7.68.0           chocolatey
+
+PS C:\Users\ethan> Install-Package curl -RequiredVersion 7.60.0 -Provider ChocolateyGet -Force
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           v7.60.0          chocolatey
+
+PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
+Get-Package : No package found for 'curl'.
+At line:1 char:1
++ Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Microsoft.Power...lets.GetPackage:GetPackage) [Get-Package], Exception
+    + FullyQualifiedErrorId : NoMatchFound,Microsoft.PowerShell.PackageManagement.Cmdlets.GetPackage
+
+PS C:\Users\ethan> Install-Package curl -RequiredVersion latest -Provider ChocolateyGet -Force
+
+Name                           Version          Source           Summary
+----                           -------          ------           -------
+curl                           v7.68.0          chocolatey
+
+PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
+
+Name                           Version          Source                           ProviderName
+----                           -------          ------                           ------------
+curl                           7.68.0           Chocolatey                       ChocolateyGet
+
+```
+
+This feature can be combined with a PackageManagement-compatible configuration management system (ex: [PowerShell DSC LCM in 'ApplyAndAutoCorrect' mode](https://docs.microsoft.com/en-us/powershell/scripting/dsc/managing-nodes/metaconfig)) to regularly keep certain packages up to date:
+```PowerShell
+Configuration MyNode {
+	Import-DscResource -Name PackageManagement
+	PackageManagement ChocolateyGet {
+		Name = 'ChocolateyGet'
+		Source = 'PSGallery'
+	}
+	PackageManagement SysInternals {
+		Name = 'sysinternals'
+		RequiredVersion = 'latest'
+		ProviderName = 'ChocolateyGet'
+		DependsOn = '[PackageManagement]ChocolateyGet'
+	}
+}
+```
+
+**Please note** - Since Chocolatey doesn't track source information of installed packages, and since PackageManagement doesn't support passing source information when invoking `Get-Package`, the 'latest' functionality **will not work** if Chocolatey.org is removed as a source **and** multiple custom sources are defined.
+
+Furthermore, if both Chocolatey.org and a custom source are configured, the custom source **will be ignored** when the 'latest' required version is used with `Get-Package`.
+
+Example PowerShell DSC configuration using the 'latest' required version with a custom source:
+
+```PowerShell
+Configuration MyNode {
+	Import-DscResource -Name PackageManagement,PackageManagementSource
+	PackageManagement ChocolateyGet {
+		Name = 'ChocolateyGet'
+		Source = 'PSGallery'
+	}
+	PackageManagementSource ChocoPrivateRepo {
+		Name = 'privateRepo'
+		ProviderName = 'ChocolateyGet'
+		SourceLocation = 'https://somewhere/out/there/api/v2/'
+		InstallationPolicy = 'Trusted'
+		DependsOn = '[PackageManagement]ChocolateyGet'
+	}
+	PackageManagementSource ChocolateyRepo {
+		Name = 'Chocolatey'
+		ProviderName = 'ChocolateyGet'
+		Ensure = 'Absent'
+		DependsOn = '[PackageManagement]ChocolateyGet'
+	}
+	# The source information wont actually be used by the Get-Package step of the PackageManagement DSC resource check, but it helps make clear to the reader where the package should come from
+	PackageManagement NodeJS {
+		Name = 'nodejs'
+		Source = 'privateRepo'
+		RequiredVersion = 'latest'
+		DependsOn = @('[PackageManagementSource]ChocoPrivateRepo', '[PackageManagementSource]ChocolateyRepo')
+	}
+}
+```
+
+If using the 'latest' functionality, best practice is to either:
+* use the default Chocolatey.org source
+* unregister the default Chocolatey.org source in favor of a **single** custom source
+
+## API integration
+Under PowerShell 5.1 and below ChocolateyGet invokes Chocolatey through it's native API by default rather than through interpreting CLI output. As a result, ChocolateyGet can operate without a local installation of Choco.exe.
+
+The provider's standard battery of tests run about **36% faster** under the native API versus using the CLI interpreter, with operations that don't invoke a package (searching for packages, registering sources, etc.) running about **10x faster**.
+
+By default, ChocolateyGet uses the API when invoked with PowerShell 5.1 and below, but can revert to using the CLI in the environment entries before the provider is first invoked:
+```PowerShell
+$env:CHOCO_CLI = $true
+Find-Package -Provider ChocolateyGet -Name nodejs
+```
+
+If Choco.exe is already installed, the Native API will detect the existing Chocolatey installation path and leverage it for maintaining local package and source metadata.
+
+Invoking the provider with the Native API is the first use of Chocolatey on your system, the provider will instruct the Native API to align where it extracts its files with the standard used by Choco.exe (%ProgramData%/Chocolatey) to avoid diverging locations of package and source metadata.
 
 ## Known Issues
-Currently ChocolateyGet works on Full CLR.
-It is not supported on CoreClr.
-This means ChocolateyGet provider is not supported on Nano server or Linux OSs.
-The primarily reason is that the current version of choco.exe does not seem to support on CoreClr yet.
+### Compatibility
+ChocolateyGet works with PowerShell for both FullCLR/'Desktop' (ex 5.1) and CoreCLR (ex: 7.0.1), though Chocolatey itself still requires FullCLR.
+
+When used with CoreCLR, PowerShell 7.0.1 is a minimum requirement due to [a compatibility issue in PowerShell 7.0](https://github.com/PowerShell/PowerShell/pull/12203).
+
+### Save a package
+Save-Package is not supported with the ChocolateyGet provider, due to Chocolatey not supporting package downloads without special licensing.
 
 ## Legal and Licensing
-
 ChocolateyGet is licensed under the [MIT license](./LICENSE.txt).
