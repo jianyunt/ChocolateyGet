@@ -9,7 +9,8 @@ install:
 
 build_script:
   - ps: |
-      Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Force -Recurse
+      New-Item -ItemType Directory -Name lib -Path ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\
+      Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
       Copy-Item .\packages\chocolatey.lib\lib\chocolatey.dll ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\lib\ -Force
       Copy-Item .\packages\log4net\lib\net40-full\log4net.dll ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\lib\ -Force
 
