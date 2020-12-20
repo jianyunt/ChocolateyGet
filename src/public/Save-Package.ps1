@@ -15,5 +15,5 @@ function Download-Package {
 
 	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Download-Package'))
 
-	Write-Warning $LocalizedData.SavePackageNotSupported -f $script:ProviderName
+	Write-Warning $LocalizedData.SavePackageNotSupported
 }

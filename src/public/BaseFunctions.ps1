@@ -1,6 +1,6 @@
 # Mandatory function for the PackageManagement providers. It returns the name of your provider.
 function Get-PackageProviderName {
-	return $script:ProviderName
+	return 'ChocolateyGet'
 }
 
 # Mandatory function for the PackageManagement providers. It initializes your provider before performing any actions.

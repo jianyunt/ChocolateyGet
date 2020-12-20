@@ -1,9 +1,7 @@
-#region Private Variables
 # Current script path
 [string]$ScriptPath = Split-Path (Get-Variable MyInvocation -Scope Script).Value.MyCommand.Definition -Parent
 
 # Define provider related variables
-$script:ProviderName = "ChocolateyGet"
 $script:PackageSourceName = "Chocolatey"
 $script:additionalArguments = "AdditionalArguments"
 $script:AllVersions = "AllVersions"
@@ -35,11 +33,7 @@ $script:ChocoSourcePropertyNames = @(
 	'Visibile to Admins Only'
 )
 
-Import-LocalizedData LocalizedData -filename "$script:ProviderName.Resource.psd1"
-
-#endregion Private Variables
-
-#region Methods
+Import-LocalizedData LocalizedData -filename "ChocolateyGet.Resource.psd1"
 
 # Load included libraries, since the manifest wont handle that for package providers
 if ($script:NativeAPI) {
@@ -47,16 +41,12 @@ if ($script:NativeAPI) {
 		Add-Type -Path $_.FullName
 	}
 }
-
 # Dot sourcing private script files
-Get-ChildItem $ScriptPath/src/private -Recurse -Filter '*.ps1' -File | ForEach-Object {
+Get-ChildItem $ScriptPath/private -Recurse -Filter '*.ps1' -File | ForEach-Object {
 	. $_.FullName
 }
-
-# Load and export methods
-
 # Dot sourcing public function files
-Get-ChildItem $ScriptPath/src/public -Recurse -Filter '*.ps1' -File | ForEach-Object {
+Get-ChildItem $ScriptPath/public -Recurse -Filter '*.ps1' -File | ForEach-Object {
 	. $_.FullName
 
 	# Find all the functions defined no deeper than the first level deep and export it.
@@ -65,10 +55,3 @@ Get-ChildItem $ScriptPath/src/public -Recurse -Filter '*.ps1' -File | ForEach-Ob
 		Export-ModuleMember $_.Name
 	}
 }
-#endregion Methods
-
-#region Module Cleanup
-$ExecutionContext.SessionState.Module.OnRemove = {
-	# cleanup when unloading module (if any)
-}
-#endregion Module Cleanup
