@@ -23,6 +23,9 @@ ConvertFrom-StringData @'
 	MinimumVersionIsGreaterThanMaximumVersion=The specified MinimumVersion '{0}' is greater than the specified MaximumVersion '{1}'.
 	VersionParametersAreAllowedOnlyWithSingleName=The RequiredVersion, MinimumVersion, MaximumVersion or AllVersions parameters are allowed only when you specify a single name as the value of the Name parameter, without any wildcard characters.
 
+	SourceRegistered=Successfully registered the package source '{0}' with location '{1}'.
+	PackageSourceDetails=Package source details, Name = '{0}', Location = '{1}'; IsTrusted = '{2}'; IsRegistered = '{3}'.
+	SpecifiedSourceName=Using the specified source names: '{0}'.
 	PackageSourceNotFound=No package source with the name '{0}' was found.
 	UnspecifiedSource=Multiple non-default sources are available, but the default source is not. A source name must be specified.
 ###PSLOC
