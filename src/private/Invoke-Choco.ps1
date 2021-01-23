@@ -302,7 +302,7 @@ function Invoke-Choco {
 		$output = & $ChocoExePath $cmdString
 
 		# Add support for Error Code 2 (no results) for baseic enhanced error code support
-		if ($LASTEXITCODE -ne 0,2) {
+		if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 2) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 				-ExceptionMessage "The following command $ChocoExePath $cmdString failed with error code $LASTEXITCODE" `
 				-ErrorID 'JobFailure' `
