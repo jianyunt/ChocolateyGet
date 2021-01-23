@@ -117,7 +117,7 @@ Describe "$platform multi-source support" {
 		Register-PackageSource -Name $altSourceName -Provider $ChocolateyGet -Location $altSourceLocation | Where-Object {$_.Name -eq $altSourceName} | Should Not BeNullOrEmpty
 	}
 	It 'searches for and installs the latest version of a package from an alternate source' {
-		Find-Package -Provider $ChocolateyGet -Name $package -Source $altSourceName | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+		Find-Package -Provider $ChocolateyGet -Name $package -source $altSourceName | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 	}
 	It 'finds and uninstalls a package installed from an alternate source' {
 		Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
