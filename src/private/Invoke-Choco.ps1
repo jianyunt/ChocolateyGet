@@ -301,17 +301,12 @@ function Invoke-Choco {
 		# Save the output to a variable so we can inspect the exit code before submitting the output to the pipeline
 		$output = & $ChocoExePath $cmdString
 
-		if ($LASTEXITCODE -ne 0) {
-			# ThrowError -ExceptionName 'System.OperationCanceledException' `
-			# 	-ExceptionMessage $($output | Out-String) `
-			# 	-ErrorID 'JobFailure' `
-			# 	-ErrorCategory InvalidOperation `
-			# 	-ExceptionObject $job
+		# Add support for Error Code 2 (no results) for baseic enhanced error code support
+		if ($LASTEXITCODE -ne 0,2) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 				-ExceptionMessage "The following command $ChocoExePath $cmdString failed with error code $LASTEXITCODE" `
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
-				-CallerPSCmdlet $PSCmdlet
 		} else {
 			if ($Install -or ($Search -and $SourceName)) {
 				$output | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
