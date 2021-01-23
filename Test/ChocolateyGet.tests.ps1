@@ -56,6 +56,7 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 	Context 'with additional arguments' {
 		$package = 'sysinternals'
 		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
+		$version = '2020.11.25'
 
 		It 'searches for the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
@@ -86,6 +87,7 @@ Describe "$platform pipline-based package installation and uninstallation" {
 	Context 'with additional arguments' {
 		$package = 'sysinternals'
 		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
+		$version = '2020.11.25'
 
 		It 'searches for and silently installs the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -RequiredVersion $version -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
