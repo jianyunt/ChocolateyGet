@@ -117,7 +117,7 @@ function Invoke-Choco {
 					$config.Input = $Package
 					if ($Version) {
 						# Limit NuGet API result set to just the specific package name if version is specified
-						$config.ListCommand.ByIdOnly = $true
+						$config.ListCommand.Exact = $true
 					}
 				}
 				$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::list
