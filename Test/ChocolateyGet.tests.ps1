@@ -129,8 +129,8 @@ Describe "$platform multi-source support" {
 }
 
 Describe "$platform version filters" {
-	$package = 'cpu-z'
-	$version = '1.87'
+	$package = 'ninja'
+	$version = '1.10.2'
 
 	AfterAll {
 		Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue

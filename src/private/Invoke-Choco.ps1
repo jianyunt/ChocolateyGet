@@ -115,6 +115,10 @@ function Invoke-Choco {
 				Invoke-Command $genericParams
 				if ($Package) {
 					$config.Input = $Package
+					if ($Version) {
+						# Limit NuGet API result set to just the specific package name if version is specified
+						$config.ListCommand.ByIdOnly = $true
+					}
 				}
 				$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::list
 			}) | Out-Null
@@ -263,6 +267,10 @@ function Invoke-Choco {
 
 			if ($Version) {
 				$cmdString += "--version $Version "
+				if ($Package) {
+					# Limit NuGet API result set to just the specific package name if version is specified
+					$cmdString += "--exact "
+				}
 			}
 
 			if ($SourceName) {
