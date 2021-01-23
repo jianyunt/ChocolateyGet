@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.0] - 2021-01-23
 #### Changed
 * Search repository by exact package name if both package name and required version are specified (#20)
+  * Requires downgrading the version of Chocolatey to 0.10.13 due to [a Chocolatey defect](https://github.com/chocolatey/choco/issues/1843) until 0.10.16 is released
 
 ## [2.0.0] - 2020-10-05
 #### Added
