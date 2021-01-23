@@ -115,7 +115,7 @@ function Invoke-Choco {
 				Invoke-Command $genericParams
 				if ($Package) {
 					$config.Input = $Package
-					if ($Version) {
+					if ($Version -or $AllVersions) {
 						# Limit NuGet API result set to just the specific package name if version is specified
 						$config.ListCommand.Exact = $true
 					}
@@ -263,14 +263,14 @@ function Invoke-Choco {
 
 			if ($Package) {
 				$cmdString += "$Package "
+				if ($Version -or $AllVersions) {
+					# Limit NuGet API result set to just the specific package name if version is specified
+					$cmdString += "--exact "
+				}
 			}
 
 			if ($Version) {
 				$cmdString += "--version $Version "
-				if ($Package) {
-					# Limit NuGet API result set to just the specific package name if version is specified
-					$cmdString += "--exact "
-				}
 			}
 
 			if ($SourceName) {
