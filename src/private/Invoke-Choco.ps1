@@ -307,9 +307,8 @@ function Invoke-Choco {
 			# 	-ErrorID 'JobFailure' `
 			# 	-ErrorCategory InvalidOperation `
 			# 	-ExceptionObject $job
-			Throw 'this is my throw record:'+$LASTEXITCODE
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage "Some output" `
+				-ExceptionMessage "Some output"+$LASTEXITCODE `
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
 				-ExceptionObject $job

@@ -55,7 +55,7 @@ function ThrowError {
 		# We need to grab and use the 'parent' (parent = 1) scope to properly return output to the user
 		[parameter()]
 		[System.Management.Automation.PSCmdlet]
-		$CallerPSCmdlet = ((Get-Variable -Scope 1 'PSCmdlet').Value),
+		$CallerPSCmdlet = ((Get-Variable -Scope Global 'PSCmdlet').Value),
 
 		[parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
