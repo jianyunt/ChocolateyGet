@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2021-01-23
+#### Changed
+* Change default search to use exact package name if both package name and required version are specified (#20)
+  * Requires downgrade to Chocolatey 0.10.13 due to [a Chocolatey defect](https://github.com/chocolatey/choco/issues/1843) until 0.10.16 is released
+
+#### Fixed
+* AppVeyor builds no longer fail due to change in build image permissions
+* Version min/max comparison should now work properly
+
 ## [2.0.0] - 2020-10-05
 #### Added
 * Searching/installing/managing multiple Chocolatey sources (#5)

@@ -54,7 +54,7 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 	}
 	Context 'with additional arguments' {
 		$package = 'sysinternals'
-		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
+		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
 		It 'searches for the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
@@ -84,7 +84,7 @@ Describe "$platform pipline-based package installation and uninstallation" {
 	}
 	Context 'with additional arguments' {
 		$package = 'sysinternals'
-		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
+		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
 		It 'searches for and silently installs the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
@@ -129,8 +129,9 @@ Describe "$platform multi-source support" {
 }
 
 Describe "$platform version filters" {
-	$package = 'cpu-z'
-	$version = '1.87'
+	$package = 'ninja'
+	# Keep at least one version back, to test the 'latest' feature
+	$version = '1.10.1'
 
 	AfterAll {
 		Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue

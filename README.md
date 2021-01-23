@@ -191,5 +191,27 @@ When used with CoreCLR, PowerShell 7.0.1 is a minimum requirement due to [a comp
 ### Save a package
 Save-Package is not supported with the ChocolateyGet provider, due to Chocolatey not supporting package downloads without special licensing.
 
+### CLI Package search with MaximumVersion / AllVersions return unexpected results
+Due to [a bug with Chocolatey](https://github.com/chocolatey/choco/issues/1843) versions 0.10.14 through 0.10.15, ChocolateyGet is unable to search packages by package range via command line as of version 2.1.0.
+
+Until [Chocolatey 0.10.16 is released](https://github.com/chocolatey/choco/milestone/43), the following workarounds are available:
+- Specify `RequiredVersion` if possible
+  ```PowerShell
+  Install-Package ninja -RequiredVersion 1.9.0 -Provider ChocolateyGet
+  ```
+- Downgrade Chocolatey to 0.10.13 until 0.10.16 is released (ChocolateyGet installs 0.10.13 by default)
+  ```PowerShell
+  Install-Package chocolatey -RequiredVersion 0.10.13 -Provider ChocolateyGet -Force
+  Install-Package ninja -MaximumVersion 1.9.0 -Provider ChocolateyGet
+  ```
+- If you **must** use Chocolatey 0.10.14 or 0.10.15 for some reason, include the environment variable CHOCO_NONEXACT_SEARCH
+  ```PowerShell
+  $env:CHOCO_NONEXACT_SEARCH = $true
+  Install-Package ninja -MaximumVersion 1.9.0 -Provider ChocolateyGet
+  ```
+  - Please note - this will revert the default search behavior change requested in [Issue #20](https://github.com/jianyunt/ChocolateyGet/issues/20)
+- Use ChocolateyGet via PowerShell v5 or below in Native API mode, which uses Chocolatey version 0.10.13
+
+
 ## Legal and Licensing
 ChocolateyGet is licensed under the [MIT license](./LICENSE.txt).

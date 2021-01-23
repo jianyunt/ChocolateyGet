@@ -115,6 +115,11 @@ function Invoke-Choco {
 				Invoke-Command $genericParams
 				if ($Package) {
 					$config.Input = $Package
+					if (($Version -or $AllVersions) -and -not $env:CHOCO_NONEXACT_SEARCH) {
+						# Limit NuGet API result set to just the specific package name if version is specified
+						# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
+						$config.ListCommand.Exact = $true
+					}
 				}
 				$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::list
 			}) | Out-Null
@@ -259,6 +264,11 @@ function Invoke-Choco {
 
 			if ($Package) {
 				$cmdString += "$Package "
+					if (($Version -or $AllVersions) -and -not $env:CHOCO_NONEXACT_SEARCH) {
+					# Limit NuGet API result set to just the specific package name if version is specified
+					# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
+					$cmdString += "--exact "
+				}
 			}
 
 			if ($Version) {
@@ -291,12 +301,12 @@ function Invoke-Choco {
 		# Save the output to a variable so we can inspect the exit code before submitting the output to the pipeline
 		$output = & $ChocoExePath $cmdString
 
-		if ($LASTEXITCODE -ne 0) {
+		# Add support for Error Code 2 (no results) for basic enhanced error code support
+		if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 2) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage $($output | Out-String) `
+				-ExceptionMessage "The following command $ChocoExePath $cmdString failed with error code $LASTEXITCODE" `
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
-				-ExceptionObject $job
 		} else {
 			if ($Install -or ($Search -and $SourceName)) {
 				$output | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
