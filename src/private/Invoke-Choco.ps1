@@ -301,7 +301,7 @@ function Invoke-Choco {
 		# Save the output to a variable so we can inspect the exit code before submitting the output to the pipeline
 		$output = & $ChocoExePath $cmdString
 
-		# Add support for Error Code 2 (no results) for baseic enhanced error code support
+		# Add support for Error Code 2 (no results) for basic enhanced error code support
 		if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 2) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 				-ExceptionMessage "The following command $ChocoExePath $cmdString failed with error code $LASTEXITCODE" `
