@@ -14,13 +14,9 @@ function Install-Package {
 	# If the fast package preference doesnt match the pattern we expect, throw an exception
 	if ((-not ($FastPackageReference -match $script:FastReferenceRegex)) -or (-not ($Matches.name -and $Matches.version))) {
 		ThrowError -ExceptionName "System.ArgumentException" `
-			-ExceptionMessage ($FastPackageReference) `
+			-ExceptionMessage ($LocalizedData.FailToInstall -f $FastPackageReference) `
 			-ErrorId 'FailToInstall' `
 			-ErrorCategory InvalidArgument
-		# ThrowError -ExceptionName "System.ArgumentException" `
-		# 	-ExceptionMessage ($LocalizedData.FailToInstall -f $FastPackageReference) `
-		# 	-ErrorId 'FailToInstall' `
-		# 	-ErrorCategory InvalidArgument
 	}
 
 	$shouldContinueQueryMessage = ($LocalizedData.InstallPackageQuery -f "Installing", $Matches.name)
