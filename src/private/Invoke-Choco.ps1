@@ -117,6 +117,7 @@ function Invoke-Choco {
 					$config.Input = $Package
 					if ($Version -or $AllVersions) {
 						# Limit NuGet API result set to just the specific package name if version is specified
+						# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
 						$config.ListCommand.Exact = $true
 					}
 				}
@@ -263,8 +264,9 @@ function Invoke-Choco {
 
 			if ($Package) {
 				$cmdString += "$Package "
-				if ($Version -or $AllVersions) {
+					if ($Version -or $AllVersions) {
 					# Limit NuGet API result set to just the specific package name if version is specified
+					# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
 					$cmdString += "--exact "
 				}
 			}
