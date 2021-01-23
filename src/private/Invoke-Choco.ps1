@@ -302,8 +302,13 @@ function Invoke-Choco {
 		$output = & $ChocoExePath $cmdString
 
 		if ($LASTEXITCODE -ne 0) {
+			# ThrowError -ExceptionName 'System.OperationCanceledException' `
+			# 	-ExceptionMessage $($output | Out-String) `
+			# 	-ErrorID 'JobFailure' `
+			# 	-ErrorCategory InvalidOperation `
+			# 	-ExceptionObject $job
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage $($output | Out-String) `
+				-ExceptionMessage "Some output" `
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
 				-ExceptionObject $job

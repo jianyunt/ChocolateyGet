@@ -14,9 +14,13 @@ function Install-Package {
 	# If the fast package preference doesnt match the pattern we expect, throw an exception
 	if ((-not ($FastPackageReference -match $script:FastReferenceRegex)) -or (-not ($Matches.name -and $Matches.version))) {
 		ThrowError -ExceptionName "System.ArgumentException" `
-			-ExceptionMessage ($LocalizedData.FailToInstall -f $FastPackageReference) `
+			-ExceptionMessage ($FastPackageReference) `
 			-ErrorId 'FailToInstall' `
 			-ErrorCategory InvalidArgument
+		# ThrowError -ExceptionName "System.ArgumentException" `
+		# 	-ExceptionMessage ($LocalizedData.FailToInstall -f $FastPackageReference) `
+		# 	-ErrorId 'FailToInstall' `
+		# 	-ErrorCategory InvalidArgument
 	}
 
 	$shouldContinueQueryMessage = ($LocalizedData.InstallPackageQuery -f "Installing", $Matches.name)
@@ -28,7 +32,7 @@ function Install-Package {
 		return
 	}
 
-	$swid = Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source | 
+	$swid = Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source |
 		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version}
 
 	if (-not $swid) {
