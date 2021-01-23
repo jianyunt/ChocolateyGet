@@ -29,7 +29,7 @@ function Install-Package {
 	}
 
 	$swid = Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source |
-		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version}
+		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {
 		# Invoke-Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.

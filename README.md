@@ -191,7 +191,7 @@ When used with CoreCLR, PowerShell 7.0.1 is a minimum requirement due to [a comp
 ### Save a package
 Save-Package is not supported with the ChocolateyGet provider, due to Chocolatey not supporting package downloads without special licensing.
 
-### CLI Package search with MinimumVersion / MaximumVersion / AllVersions doesn't work
+### CLI Package search with MaximumVersion / AllVersions return unexpected results
 Due to [a bug with Chocolatey](https://github.com/chocolatey/choco/issues/1843) versions 0.10.14 through 0.10.15, ChocolateyGet is unable to search packages by package range via command line as of version 2.1.0.
 
 Until [Chocolatey 0.10.16 is released](https://github.com/chocolatey/choco/milestone/43), the following workarounds are available:

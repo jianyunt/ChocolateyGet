@@ -20,32 +20,32 @@ function Test-PackageVersion {
 		$MaximumVersion
 	)
 
-	$version = $Package.Version.TrimStart('v')
+	[System.Version]$version = $Package.Version.TrimStart('v')
 
 	if (-not ($RequiredVersion -or $MinimumVersion -or $MaximumVersion)) {
 		return $true
 	}
 
 	if ($RequiredVersion) {
-		return  ($Version -eq $RequiredVersion)
+		return  ($Version -eq [System.Version]$RequiredVersion)
 	}
 
 	$isMatch = $false
 
 	if($MinimumVersion)
 	{
-		$isMatch = $version -ge $MinimumVersion
+		$isMatch = $version -ge [System.Version]$MinimumVersion
 	}
 
 	if($MaximumVersion)
 	{
 		if($MinimumVersion)
 		{
-			$isMatch = $isMatch -and ($version -le $MaximumVersion)
+			$isMatch = $isMatch -and ($version -le [System.Version]$MaximumVersion)
 		}
 		else
 		{
-			$isMatch = $version -le $MaximumVersion
+			$isMatch = $version -le [System.Version]$MaximumVersion
 		}
 	}
 
