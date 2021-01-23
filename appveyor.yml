@@ -17,7 +17,7 @@ build_script:
 test_script:
   - ps: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.NativeAPI.xml
   - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.NativeAPI.xml))
-  - pwsh: choco install chocolatey -y --version 0.10.13 --allow-downgrade
+  - pwsh: Install-Package chocolatey -RequiredVersion 0.10.13 -ProviderName ChocolateyGet -Force
   - pwsh: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.CLI.xml
   - pwsh: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.CLI.xml))
 
