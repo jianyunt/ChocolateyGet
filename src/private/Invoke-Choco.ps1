@@ -308,10 +308,10 @@ function Invoke-Choco {
 			# 	-ErrorCategory InvalidOperation `
 			# 	-ExceptionObject $job
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage "Some output $LASTEXITCODE" `
+				-ExceptionMessage "The following command $ChocoExePath $cmdString failed with error code $LASTEXITCODE" `
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
-				-ExceptionObject $job
+				-CallerPSCmdlet $PSCmdlet
 		} else {
 			if ($Install -or ($Search -and $SourceName)) {
 				$output | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
