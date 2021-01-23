@@ -130,7 +130,8 @@ Describe "$platform multi-source support" {
 
 Describe "$platform version filters" {
 	$package = 'ninja'
-	$version = '1.10.2'
+	# Keep at least one version back, to test the 'latest' feature
+	$version = '1.10.1'
 
 	AfterAll {
 		Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue
