@@ -209,7 +209,7 @@ Until [Chocolatey 0.10.16 is released](https://github.com/chocolatey/choco/miles
   $env:CHOCO_NONEXACT_SEARCH = $true
   Install-Package ninja -MaximumVersion 1.9.0 -Provider ChocolateyGet
   ```
-  - Please note - this will revert the default search behavior change requested in (#20)
+  - Please note - this will revert the default search behavior change requested in [Issue #20](https://github.com/jianyunt/ChocolateyGet/issues/20)
 - Use ChocolateyGet via PowerShell v5 or below in Native API mode, which uses Chocolatey version 0.10.13
 
 
