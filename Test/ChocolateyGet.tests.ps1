@@ -57,16 +57,16 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
 		It 'searches for the latest version of a package' {
-			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams -Verbose | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 		}
 		It 'silently installs the latest version of a package' {
-			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams -Verbose  | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 		}
 		It 'finds the locally installed package just installed' {
-			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams -Verbose  | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 		}
 		It 'silently uninstalls the locally installed package just installed' {
-			Uninstall-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+			Uninstall-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams -Verbose  | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 		}
 	}
 }
@@ -87,11 +87,11 @@ Describe "$platform pipline-based package installation and uninstallation" {
 		$argsAndParams = '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
 		It 'searches for and silently installs the latest version of a package' {
-			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -Verbose  | Install-Package -Force -AdditionalArguments $argsAndParams -Verbose | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 		}
 
 		It 'finds and silently uninstalls the locally installed package just installed' {
-			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
+			Get-Package -Provider $ChocolateyGet -Name $package -Verbose | Uninstall-Package -AdditionalArguments $argsAndParams -Verbose | Where-Object {$_.Name -contains $package} | Should Not BeNullOrEmpty
 		}
 	}
 }
