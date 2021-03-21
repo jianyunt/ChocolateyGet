@@ -230,94 +230,54 @@ function Invoke-Choco {
 			# We're not interested in additional args for source management
 			Clear-Variable 'AdditionalArgs'
 
-			$cmdString = 'source '
 			if ($SourceAdd) {
-				$cmdString += "add --name='$SourceName' --source='$SourceLocation' "
+				Add-ChocoSource -Name $SourceName -Source $SourceLocation
 			} elseif ($SourceRemove) {
-				$cmdString += "remove --name='$SourceName' "
+				Remove-ChocoSource -Name $SourceName
+			} else {
+				Get-ChocoSource | Where-Object {$_.Disabled -eq 'False'}
+			}
+		} else {
+			$GenericPackageParams = @{
+				Source = $SourceName
+				AllVersions = $AllVersions
+				LocalOnly = $LocalOnly
+				Force = Get-ForceProperty
 			}
 
-			# If neither add or remote actions specified, list sources
+			if ($Version) {
+				$GenericPackageParams.Version = $Version
+			}
 
-			$cmdString += '--limit-output '
-		} else {
+			if ($Package) {
+				$GenericPackageParams.Name = $Package
+				if (($Version -or $AllVersions) -and -not $env:CHOCO_NONEXACT_SEARCH) {
+					# Limit NuGet API result set to just the specific package name if version is specified
+					# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
+					$GenericPackageParams.Exact = $true
+				}
+			}
+
 			# Package Management
 			if ($Install) {
-				$cmdString = 'install '
-				# Accept all prompts and dont show installation progress percentage - the excess output from choco.exe will slow down PowerShell
-				$AdditionalArgs += ' --yes --no-progress '
+				Install-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
 			} else {
 				# Any additional args passed to other commands should be stripped of install-related arguments because Choco gets confused if they're passed
 				$AdditionalArgs = $([regex]::Split($AdditionalArgs,$argSplitRegex) | Where-Object -FilterScript {$_ -notmatch $argParamFilterRegex}) -join ' -'
 
 				if ($Search) {
-					$cmdString = 'search '
-					$AdditionalArgs += ' --limit-output '
+					$SearchResultSourceParams = @{
+						RequestedName = $Package
+					}
+
+					if ($SourceName) {
+						$SearchResultSourceParams.Source = $SourceName
+					}
+
+					Get-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity @SearchResultSourceParams
 				} elseif ($Uninstall) {
-					$cmdString = 'uninstall '
-					# Accept all prompts
-					$AdditionalArgs += ' --yes --remove-dependencies '
+					Uninstall-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $script:PackageSourceName
 				}
-			}
-
-			# Finish constructing package management command string
-
-			if ($Package) {
-				$cmdString += "$Package "
-					if (($Version -or $AllVersions) -and -not $env:CHOCO_NONEXACT_SEARCH) {
-					# Limit NuGet API result set to just the specific package name if version is specified
-					# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
-					$cmdString += "--exact "
-				}
-			}
-
-			if ($Version) {
-				$cmdString += "--version $Version "
-			}
-
-			if ($SourceName) {
-				$cmdString += "--source $SourceName "
-			}
-
-			if ($AllVersions) {
-				$cmdString += "--all-versions "
-			}
-
-			if ($LocalOnly) {
-				$cmdString += "--local-only "
-			}
-		}
-
-		if (Get-ForceProperty)
-		{
-			$cmdString += '--force '
-		}
-
-		# Joins the constructed and user-provided arguments together to be soon split as a single array of options passed to choco.exe
-		$cmdString += $AdditionalArgs
-		Write-Debug ("Calling $ChocoExePath $cmdString")
-		$cmdString = $cmdString.Split(' ')
-
-		# Save the output to a variable so we can inspect the exit code before submitting the output to the pipeline
-		$output = & $ChocoExePath $cmdString
-
-		# Add support for Error Code 2 (no results) for basic enhanced error code support
-		if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 2) {
-			ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage "The following command $ChocoExePath $cmdString failed with error code $LASTEXITCODE" `
-				-ErrorID 'JobFailure' `
-				-ErrorCategory InvalidOperation `
-		} else {
-			if ($Install -or ($Search -and $SourceName)) {
-				$output | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
-			} elseif ($Uninstall) {
-				$output | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $script:PackageSourceName
-			} elseif ($Search) {
-				$output | ConvertTo-SoftwareIdentity -RequestedName $Package
-			} elseif ($SourceList) {
-				$output | ConvertFrom-String -Delimiter "\|" -PropertyNames $script:ChocoSourcePropertyNames | Where-Object {$_.Disabled -eq 'False'}
-			} else {
-				$output
 			}
 		}
 	}
