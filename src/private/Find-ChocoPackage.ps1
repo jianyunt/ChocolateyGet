@@ -61,11 +61,19 @@ function Find-ChocoPackage {
 		SourceName = $selectedSource
 	}
 
-	if ($requiredVersion) {
-		$chocoParams.Add('Version',$requiredVersion)
-	} elseif ($minimumVersion -or $maximumVersion -or $options.ContainsKey($script:AllVersions)) {
-		# Choco does not support searching by min or max version, so if a user is picky we'll need to pull back all versions and filter ourselves
-		$chocoParams.Add('AllVersions',$true)
+	if ($requiredVersion -or $minimumVersion -or $maximumVersion -or $options.ContainsKey($script:AllVersions)) {
+		if ($requiredVersion) {
+			$chocoParams.Add('Version',$requiredVersion)
+		} else {
+			# Choco does not support searching by min or max version, so if a user is picky we'll need to pull back all versions and filter ourselves
+			$chocoParams.Add('AllVersions',$true)
+		}
+
+		if (-not $env:CHOCO_NONEXACT_SEARCH) {
+			# Limit NuGet API result set to just the specific package name if version is specified
+			# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
+			$chocoParams.Add('Exact',$true)
+		}
 	}
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management

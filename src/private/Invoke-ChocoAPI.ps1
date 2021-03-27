@@ -47,6 +47,10 @@ function Invoke-ChocoAPI {
 		$LocalOnly,
 
 		[Parameter(ParameterSetName='Search')]
+		[switch]
+		$Exact,
+
+		[Parameter(ParameterSetName='Search')]
 		[Parameter(ParameterSetName='Install')]
 		[Parameter(Mandatory=$true, ParameterSetName='SourceAdd')]
 		[Parameter(Mandatory=$true, ParameterSetName='SourceRemove')]
@@ -102,6 +106,10 @@ function Invoke-ChocoAPI {
 		if ($Force) {
 			$config.Force = $true
 		}
+
+		if ($Exact) {
+			$config.Exact = $true
+		}
 	}
 
 	if ($SourceList) {
@@ -117,11 +125,6 @@ function Invoke-ChocoAPI {
 			Invoke-Command $genericParams
 			if ($PackageName) {
 				$config.Input = $PackageName
-				if (($Version -or $AllVersions) -and -not $env:CHOCO_NONEXACT_SEARCH) {
-					# Limit NuGet API result set to just the specific package name if version is specified
-					# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
-					$config.ListCommand.Exact = $true
-				}
 			}
 			$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::list
 		}) | Out-Null
