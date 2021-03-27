@@ -434,9 +434,11 @@ BEGIN {
                         param ( $output )
                         $output | ForEach-Object {
                             $name,$version = $_ -split '\|'
-                            [pscustomobject]@{
-                                Name = $name
-                                Version = $version
+                            if ( -not [string]::IsNullOrEmpty($name)) {
+                                [pscustomobject]@{
+                                    Name = $name
+                                    Version = $version
+                                }
                             }
                         }
                      } }
