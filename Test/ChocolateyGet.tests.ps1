@@ -83,7 +83,7 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'correctly passed arguments to the package' {
-			Get-ChildItem -Path 'C:\Users\Public\Desktop\' | ForEach-Object {(New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath} | Test-Path | Should -Be $True
+			Get-ChildItem -Path 'C:\Users\Public\Desktop\' -Filter '*cmake*' | ForEach-Object {(New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath} | Test-Path | Should -Be $True
 		}
 		It 'finds the locally installed package just installed' {
 			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
@@ -127,7 +127,7 @@ Describe "$platform pipline-based package installation and uninstallation" {
 			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'correctly passed arguments to the package' {
-			Get-ChildItem -Path 'C:\Users\Public\Desktop\' | ForEach-Object {(New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath} | Test-Path | Should -Be $True
+			Get-ChildItem -Path 'C:\Users\Public\Desktop\' -Filter '*cmake*' | ForEach-Object {(New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath} | Test-Path | Should -Be $True
 		}
 		It 'finds and silently uninstalls the locally installed package just installed' {
 			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
