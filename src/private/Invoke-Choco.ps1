@@ -260,7 +260,12 @@ function Invoke-Choco {
 
 			# Package Management
 			if ($Install) {
+				if ($AdditionalArgs) {
+					$GenericPackageParams.AdditionalArgs = $AdditionalArgs
+				}
+
 				$result = Install-ChocoPackage @GenericPackageParams
+
 				if ($result) {
 					$result | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
 				} else {
@@ -285,6 +290,7 @@ function Invoke-Choco {
 					Get-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity @SearchResultSourceParams
 				} elseif ($Uninstall) {
 					$result = Uninstall-ChocoPackage @GenericPackageParams
+
 					if ($result) {
 						$result | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $script:PackageSourceName
 					} else {
