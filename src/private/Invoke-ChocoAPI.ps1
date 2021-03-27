@@ -106,10 +106,6 @@ function Invoke-ChocoAPI {
 		if ($Force) {
 			$config.Force = $true
 		}
-
-		if ($Exact) {
-			$config.Exact = $true
-		}
 	}
 
 	if ($SourceList) {
@@ -125,6 +121,10 @@ function Invoke-ChocoAPI {
 			Invoke-Command $genericParams
 			if ($PackageName) {
 				$config.Input = $PackageName
+
+				if ($Exact) {
+					$config.ListCommand.Exact = $true
+				}
 			}
 			$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::list
 		}) | Out-Null
