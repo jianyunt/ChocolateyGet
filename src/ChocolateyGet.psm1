@@ -17,6 +17,9 @@ if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
 	if (-not $env:ChocolateyInstall) {
 		$env:ChocolateyInstall = "$($env:ProgramData)\chocolatey"
 	}
+} elseif (-not (Get-ChocoPath)) {
+	Write-Debug ("Choco not already installed")
+	$ChocoExePath = Install-ChocoBinaries
 }
 
 # Utility variables

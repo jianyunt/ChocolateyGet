@@ -14,5 +14,5 @@ function Find-Package {
 		Clear-Variable 'RequiredVersion'
 	}
 
-	Find-ChocoPackage -Name $Name -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion
+	Find-ChocoPackage -PackageName $Name -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion
 }

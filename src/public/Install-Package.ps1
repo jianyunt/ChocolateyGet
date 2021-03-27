@@ -28,11 +28,31 @@ function Install-Package {
 		return
 	}
 
-	$swid = Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source |
-		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version -ErrorAction SilentlyContinue}
+	$chocoParams = @{
+		PackageName = $Matches.name
+		Version = $Matches.version
+		SourceName = $Matches.source
+		Force = Get-ForceProperty
+	}
+
+	$swid = $(
+		if ($script:NativeAPI) {
+			# Return SWID from API call to variable
+			Invoke-ChocoAPI -Install @chocoParams
+		} else {
+			$result = Install-ChocoPackage @chocoParams
+			if (-not $result) {
+				ThrowError -ExceptionName 'System.OperationCanceledException' `
+				-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+				-ErrorID 'JobFailure' `
+				-ErrorCategory InvalidOperation `
+			}
+			ConvertTo-SoftwareIdentity -ChocoOutput $result -PackageName $Matches.name -SourceName $Matches.source
+		}
+	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {
-		# Invoke-Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.
+		# Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.
 		# The output format Choco.exe may have changed from what our regex pattern was expecting.
 		Write-Warning ($LocalizedData.UnexpectedChocoResponse -f $FastPackageReference)
 	}

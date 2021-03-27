@@ -2,7 +2,7 @@ function Find-ChocoPackage {
 	param (
 		[Parameter(Mandatory=$true)]
 		[string]
-		$Name,
+		$PackageName,
 
 		[string]
 		$RequiredVersion,
@@ -15,7 +15,7 @@ function Find-ChocoPackage {
 	)
 
 	# Throw an error if provided version arguments don't make sense
-	Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
+	Confirm-VersionParameters -Name $PackageName -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	$options = $request.Options
 	foreach( $o in $options.Keys ) {
@@ -57,8 +57,7 @@ function Find-ChocoPackage {
 	Write-Verbose "Source selected: $selectedSource"
 
 	$chocoParams = @{
-		Search = $true
-		Package = $name
+		PackageName = $PackageName
 		SourceName = $selectedSource
 	}
 
@@ -70,8 +69,11 @@ function Find-ChocoPackage {
 	}
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
-	# Will only terminate if Invoke-Choco fails to call choco.exe
-	Invoke-Choco @chocoParams |
-		Where-Object {Test-PackageName -PackageName $_.Name -RequestedName $Name} |
+	# Will only terminate if Choco fails to call choco.exe
+	$(if ($script:NativeAPI) {
+		Invoke-ChocoAPI -Search @chocoParams
+	} else {
+		Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -PackageName $PackageName -SourceName $selectedSource
+	}) | Where-Object {Test-PackageName -PackageName $_.Name -RequestedName $PackageName} |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

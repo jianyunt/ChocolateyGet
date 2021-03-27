@@ -17,7 +17,16 @@ function Add-PackageSource {
 
 	Write-Verbose "New package source: $Name, $Location"
 
-	Invoke-Choco -SourceAdd -SourceName $Name -SourceLocation $Location
+	$chocoParams = @{
+		SourceName = $Name
+		SourceLocation = $Location
+	}
+
+	if ($script:NativeAPI) {
+		Invoke-ChocoAPI -SourceAdd @chocoParams
+	} else {
+		Add-ChocoSource @chocoParams
+	}
 
 	# Add new package source
 	$packageSource = @{
