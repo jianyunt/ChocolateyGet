@@ -26,8 +26,8 @@ Describe "$platform basic package search operations" {
 		}
 	}
 	Context 'with additional arguments' {
-		$package = 'cpu-z'
-		$argsAndParams = '--exact'
+		$package = 'sysinternals'
+		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
 
 		It 'searches for the exact package name' {
 			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Should -Not -BeNullOrEmpty
@@ -52,15 +52,38 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 			Uninstall-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 	}
-	Context 'with additional arguments' {
+	Context 'with additional parameters' {
 		$package = 'sysinternals'
-		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
+		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y'
 
 		It 'searches for the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'silently installs the latest version of a package' {
 			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'correctly passed parameters to the package' {
+			Get-ChildItem -Path (Join-Path -Path $env:TEMP -ChildPath 'sysinternals') | Should -Not -BeNullOrEmpty
+		}
+		It 'finds the locally installed package just installed' {
+			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'silently uninstalls the locally installed package just installed' {
+			Uninstall-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+	}
+	Context 'with additional arguments' {
+		$package = 'cmake'
+		$argsAndParams = '--installargs "ALLUSERS=1 DESKTOP_SHORTCUT_REQUESTED=1"'
+
+		It 'searches for the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'silently installs the latest version of a package' {
+			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'correctly passed arguments to the package' {
+			Get-ChildItem -Path 'C:\Users\Public\Desktop\' | ForEach-Object {(New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath} | Test-Path | Should -Be $True
 		}
 		It 'finds the locally installed package just installed' {
 			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
@@ -82,14 +105,30 @@ Describe "$platform pipline-based package installation and uninstallation" {
 			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 	}
-	Context 'with additional arguments' {
+	Context 'with additional parameters' {
 		$package = 'sysinternals'
-		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false'
+		$argsAndParams = '--paramsglobal --params "/InstallDir='+$env:TEMP+'\sysinternals /QuickLaunchShortcut=false" -y'
 
 		It 'searches for and silently installs the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
+		It 'correctly passed parameters to the package' {
+			Get-ChildItem -Path (Join-Path -Path $env:TEMP -ChildPath 'sysinternals') | Should -Not -BeNullOrEmpty
+		}
+		It 'finds and silently uninstalls the locally installed package just installed' {
+			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+	}
+	Context 'with additional arguments' {
+		$package = 'cmake'
+		$argsAndParams = '--installargs "ALLUSERS=1 DESKTOP_SHORTCUT_REQUESTED=1"'
 
+		It 'searches for and silently installs the latest version of a package' {
+			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'correctly passed arguments to the package' {
+			Get-ChildItem -Path 'C:\Users\Public\Desktop\' | ForEach-Object {(New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath} | Test-Path | Should -Be $True
+		}
 		It 'finds and silently uninstalls the locally installed package just installed' {
 			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package -AdditionalArguments $argsAndParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
