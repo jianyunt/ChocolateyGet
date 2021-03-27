@@ -260,7 +260,15 @@ function Invoke-Choco {
 
 			# Package Management
 			if ($Install) {
-				Install-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
+				$result = Install-ChocoPackage @GenericPackageParams
+				if ($result) {
+					$result | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $SourceName
+				} else {
+					ThrowError -ExceptionName 'System.OperationCanceledException' `
+					-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+					-ErrorID 'JobFailure' `
+					-ErrorCategory InvalidOperation `
+				}
 			} else {
 				# Any additional args passed to other commands should be stripped of install-related arguments because Choco gets confused if they're passed
 				$AdditionalArgs = $([regex]::Split($AdditionalArgs,$argSplitRegex) | Where-Object -FilterScript {$_ -notmatch $argParamFilterRegex}) -join ' -'
@@ -276,7 +284,15 @@ function Invoke-Choco {
 
 					Get-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity @SearchResultSourceParams
 				} elseif ($Uninstall) {
-					Uninstall-ChocoPackage @GenericPackageParams | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $script:PackageSourceName
+					$result = Uninstall-ChocoPackage @GenericPackageParams
+					if ($result) {
+						$result | ConvertTo-SoftwareIdentity -RequestedName $Package -Source $script:PackageSourceName
+					} else {
+						ThrowError -ExceptionName 'System.OperationCanceledException' `
+						-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+						-ErrorID 'JobFailure' `
+						-ErrorCategory InvalidOperation `
+					}
 				}
 			}
 		}
