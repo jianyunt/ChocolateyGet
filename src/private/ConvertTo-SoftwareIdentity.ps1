@@ -22,7 +22,7 @@ function ConvertTo-SoftwareIdentity {
 		# Each line we get from choco.exe isnt necessarily a package, but it could be
 		foreach ($packageCandidate in $ChocoOutput) {
 			# If a particular package name wasnt queried for by the user, return everything that choco does
-			if (-not ($RequestedName) -or (Test-PackageName -RequestedName $RequestedName -PackageName $packageCandidate.name)) {
+			if ([string]::IsNullOrEmpty($RequestedName) -or (Test-PackageName -RequestedName $RequestedName -PackageName $packageCandidate.name)) {
 				# Return a new SWID based on the output from choco
 				Write-Debug "Package identified: $($packageCandidate.name), $($packageCandidate.version)"
 				$swid = @{
