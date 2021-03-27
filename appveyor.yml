@@ -5,7 +5,7 @@ image: Visual Studio 2019
 install:
   - dotnet tool restore
   - dotnet paket restore
-  - cinst pester
+  - cinst pester --version 4.10.1
 
 build_script:
   - ps: |
