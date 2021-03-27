@@ -260,8 +260,18 @@ function Invoke-Choco {
 
 			# Package Management
 			if ($Install) {
-				if ($AdditionalArgs) {
-					$GenericPackageParams.AdditionalArgs = $AdditionalArgs
+				[regex]::Split($AdditionalArgs,$argSplitRegex) | ForEach-Object {
+					if ($_ -match $paramGlobalRegex) {
+						$GenericPackageParams.ParamsGlobal = $True
+					} elseif ($_ -match $paramFilterRegex) {
+						# Just get the parameters and trim quotes on either end
+						$GenericPackageParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
+					} elseif ($_ -match $argGlobalRegex) {
+						$GenericPackageParams.ArgsGlobal = $True
+					} elseif ($_ -match $argFilterRegex) {
+						# Just get the parameters and trim quotes on either end
+						$GenericPackageParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
+					}
 				}
 
 				$result = Install-ChocoPackage @GenericPackageParams

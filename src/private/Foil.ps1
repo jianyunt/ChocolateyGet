@@ -3,16 +3,10 @@ Function Get-ChocoSource
 {
 [CmdletBinding()]
 
-param(
-[Parameter()]
-[string]$AdditionalArguments
-    )
+param(    )
 
 BEGIN {
-    $__PARAMETERMAP = @{
-        AdditionalArguments = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
-    }
-
+    $__PARAMETERMAP = @{}
     $__outputHandlers = @{
         Default = @{ StreamOutput = $False; Handler = { 
                         param ($output)
@@ -81,11 +75,6 @@ PROCESS {
 .DESCRIPTION
 PowerShell Crescendo wrapper for Chocolatey
 
-.PARAMETER AdditionalArguments
-
-
-
-
 #>
 }
 
@@ -97,16 +86,13 @@ param(
 [Parameter()]
 [string]$Name,
 [Parameter()]
-[string]$Source,
-[Parameter()]
-[string]$AdditionalArguments
+[string]$Source
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
         Name = @{ OriginalName = '--name='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
         Source = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        AdditionalArguments = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
     }
 
     $__outputHandlers = @{
@@ -170,10 +156,6 @@ Source Name
 Source Location
 
 
-.PARAMETER AdditionalArguments
-
-
-
 
 #>
 }
@@ -184,15 +166,12 @@ Function Remove-ChocoSource
 
 param(
 [Parameter()]
-[string]$Name,
-[Parameter()]
-[string]$AdditionalArguments
+[string]$Name
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
         Name = @{ OriginalName = '--name='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        AdditionalArguments = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
     }
 
     $__outputHandlers = @{
@@ -252,10 +231,6 @@ PowerShell Crescendo wrapper for Chocolatey
 Source Name
 
 
-.PARAMETER AdditionalArguments
-
-
-
 
 #>
 }
@@ -280,7 +255,13 @@ param(
 [Parameter()]
 [switch]$Force,
 [Parameter()]
-[string]$AdditionalArguments
+[switch]$ParamsGlobal,
+[Parameter()]
+[string]$Parameters,
+[Parameter()]
+[switch]$ArgsGlobal,
+[Parameter()]
+[string]$InstallArguments
     )
 
 BEGIN {
@@ -292,7 +273,10 @@ BEGIN {
         LocalOnly = @{ OriginalName = '--local-only'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Exact = @{ OriginalName = '--exact'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        AdditionalArguments = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
+        ParamsGlobal = @{ OriginalName = '--params-global'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
+        Parameters = @{ OriginalName = '--parameters'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
+        ArgsGlobal = @{ OriginalName = '--args-global'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
+        InstallArguments = @{ OriginalName = '--install-arguments'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
     }
 
     $__outputHandlers = @{
@@ -393,8 +377,20 @@ Search by exact package name
 Force the operation
 
 
-.PARAMETER AdditionalArguments
+.PARAMETER ParamsGlobal
+Apply package parameters to dependencies
 
+
+.PARAMETER Parameters
+Parameters to pass to the package
+
+
+.PARAMETER ArgsGlobal
+Apply package arguments to dependencies
+
+
+.PARAMETER InstallArguments
+Parameters to pass to the package
 
 
 
@@ -419,9 +415,7 @@ param(
 [Parameter()]
 [switch]$Exact,
 [Parameter()]
-[switch]$Force,
-[Parameter()]
-[string]$AdditionalArguments
+[switch]$Force
     )
 
 BEGIN {
@@ -433,7 +427,6 @@ BEGIN {
         LocalOnly = @{ OriginalName = '--local-only'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Exact = @{ OriginalName = '--exact'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        AdditionalArguments = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
     }
 
     $__outputHandlers = @{
@@ -523,10 +516,6 @@ Search by exact package name
 Force the operation
 
 
-.PARAMETER AdditionalArguments
-
-
-
 
 #>
 }
@@ -549,9 +538,7 @@ param(
 [Parameter()]
 [switch]$Exact,
 [Parameter()]
-[switch]$Force,
-[Parameter()]
-[string]$AdditionalArguments
+[switch]$Force
     )
 
 BEGIN {
@@ -563,7 +550,6 @@ BEGIN {
         LocalOnly = @{ OriginalName = '--local-only'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Exact = @{ OriginalName = '--exact'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        AdditionalArguments = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
     }
 
     $__outputHandlers = @{
@@ -662,10 +648,6 @@ Search by exact package name
 
 .PARAMETER Force
 Force the operation
-
-
-.PARAMETER AdditionalArguments
-
 
 
 
