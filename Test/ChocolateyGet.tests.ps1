@@ -30,7 +30,7 @@ Describe "$platform basic package search operations" {
 		$params = "--paramsglobal --params ""/InstallDir:$env:TEMP\sysinternals /QuickLaunchShortcut:false"""
 
 		It 'searches for the exact package name' {
-			Find-Package -Provider $ChocolateyGet -Name $package -AundditionalArguments $params | Should -Not -BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $params | Should -Not -BeNullOrEmpty
 		}
 	}
 }
