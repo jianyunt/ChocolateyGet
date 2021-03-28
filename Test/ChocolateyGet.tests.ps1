@@ -27,10 +27,11 @@ Describe "$platform basic package search operations" {
 	}
 	Context 'with additional arguments' {
 		$package = 'sysinternals'
-		$params = "--paramsglobal --params ""/InstallDir:$env:ProgramFiles\$package /QuickLaunchShortcut:false"""
+		$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
+		$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
 
 		BeforeAll {
-			Remove-Item -Force -Recurse $env:ProgramFiles\$package -ErrorAction SilentlyContinue
+			Remove-Item -Force -Recurse $installDir -ErrorAction SilentlyContinue
 		}
 
 		It 'searches for the exact package name' {
@@ -58,10 +59,11 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 	}
 	Context 'with additional parameters' {
 		$package = 'sysinternals'
-		$params = "--paramsglobal --params ""/InstallDir:$env:ProgramFiles\$package /QuickLaunchShortcut:false"""
+		$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
+		$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
 
 		BeforeAll {
-			Remove-Item -Force -Recurse $env:ProgramFiles\$package -ErrorAction SilentlyContinue
+			Remove-Item -Force -Recurse $installDir -ErrorAction SilentlyContinue
 		}
 
 		It 'searches for the latest version of a package' {
@@ -71,7 +73,7 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 			Install-Package -Force -Provider $ChocolateyGet -Name $package -AdditionalArguments $params | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'correctly passed parameters to the package' {
-			Get-ChildItem -Path (Join-Path -Path $env:ProgramFiles -ChildPath $package) -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+			Get-ChildItem -Path $installDir -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
 		}
 		It 'finds the locally installed package just installed' {
 			Get-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $params | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
@@ -95,7 +97,8 @@ Describe "$platform pipline-based package installation and uninstallation" {
 	}
 	Context 'with additional parameters' {
 		$package = 'sysinternals'
-		$params = "--paramsglobal --params ""/InstallDir:$env:ProgramFiles\$package /QuickLaunchShortcut:false"""
+		$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
+		$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
 
 		BeforeAll {
 			Remove-Item -Force -Recurse $env:ProgramFiles\$package -ErrorAction SilentlyContinue
@@ -105,7 +108,7 @@ Describe "$platform pipline-based package installation and uninstallation" {
 			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force -AdditionalArguments $params | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'correctly passed parameters to the package' {
-			Get-ChildItem -Path (Join-Path -Path $env:ProgramFiles -ChildPath $package) -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+			Get-ChildItem -Path $installDir -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls the locally installed package just installed' {
 			Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package -AdditionalArguments $params | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
