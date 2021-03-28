@@ -171,7 +171,7 @@ function Invoke-ChocoAPI {
 			} else {
 				# In this area, we're only leveraging (not managing) sources, hence why we're treating the source name parameter differently
 				if ($Name) {
-					$config.Names = $Name
+					$config.PackageNames = $Name
 				}
 
 				if ($Source) {
