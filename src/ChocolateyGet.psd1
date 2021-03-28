@@ -1,6 +1,6 @@
 @{
 	RootModule = 'ChocolateyGet.psm1'
-	ModuleVersion = '2.1.0'
+	ModuleVersion = '3.0.0'
 	GUID = 'c1735ed7-8b2f-426a-8cbc-b7feb6b8288d'
 	Author = 'Jianyun'
 	Copyright = ''
@@ -10,7 +10,7 @@
 	PowerShellVersion = if ($PSEdition -eq 'Core') {
 		'7.0.1'
 	} else {
-		'3.0'
+		'5.1'
 	}
 	RequiredModules = @(
 		@{
@@ -19,7 +19,7 @@
 		},
 		@{
 			ModuleName='Foil'
-			ModuleVersion='0.0.1'
+			ModuleVersion='0.0.3'
 		}
 	)
 	PrivateData = @{
