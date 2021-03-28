@@ -2,7 +2,7 @@ function Find-ChocoPackage {
 	param (
 		[Parameter(Mandatory=$true)]
 		[string]
-		$PackageName,
+		$Name,
 
 		[string]
 		$RequiredVersion,
@@ -15,7 +15,7 @@ function Find-ChocoPackage {
 	)
 
 	# Throw an error if provided version arguments don't make sense
-	Confirm-VersionParameters -Name $PackageName -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
+	Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	$options = $request.Options
 	foreach( $o in $options.Keys ) {
@@ -26,7 +26,7 @@ function Find-ChocoPackage {
 
 	if ($options -and $options.ContainsKey('Source')) {
 		# Finding the matched package sources from the registered ones
-		Write-Verbose ($LocalizedData.SpecifiedSourceName -f ($options['Source']))
+		Write-Verbose ($LocalizedData.SpecifiedSource -f ($options['Source']))
 		if ($RegisteredPackageSources.Name -eq $options['Source']) {
 			# Found the matched registered source
 			$selectedSource = $options['Source']
@@ -42,9 +42,9 @@ function Find-ChocoPackage {
 		if ($RegisteredPackageSources.Count -eq 1) {
 			# If no source name is specified and only one source is available, use it
 			$selectedSource = $RegisteredPackageSources[0].Name
-		} elseif ($RegisteredPackageSources.Name -eq $script:PackageSourceName) {
+		} elseif ($RegisteredPackageSources.Name -eq $script:PackageSource) {
 			# If multiple sources are avaiable but none specified, default to using Chocolatey.org - if present
-			$selectedSource = $script:PackageSourceName
+			$selectedSource = $script:PackageSource
 		} else {
 			# If Chocoately.org is not present and no source specified, throw an exception
 			ThrowError -ExceptionName 'System.ArgumentException' `
@@ -57,8 +57,8 @@ function Find-ChocoPackage {
 	Write-Verbose "Source selected: $selectedSource"
 
 	$chocoParams = @{
-		PackageName = $PackageName
-		SourceName = $selectedSource
+		Name = $Name
+		Source = $selectedSource
 	}
 
 	if ($requiredVersion -or $minimumVersion -or $maximumVersion -or $options.ContainsKey($script:AllVersions)) {
@@ -81,7 +81,7 @@ function Find-ChocoPackage {
 	$(if ($script:NativeAPI) {
 		Invoke-ChocoAPI -Search @chocoParams
 	} else {
-		Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -PackageName $PackageName -SourceName $selectedSource
-	}) | Where-Object {Test-PackageName -PackageName $_.Name -RequestedName $PackageName} |
+		Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Name $Name -Source $selectedSource
+	}) | Where-Object {Test-PackageName -Name $_.Name -RequestedName $Name} |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

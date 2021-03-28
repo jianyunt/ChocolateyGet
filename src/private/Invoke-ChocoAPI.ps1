@@ -30,7 +30,7 @@ function Invoke-ChocoAPI {
 		[Parameter(Mandatory=$true, ParameterSetName='Install')]
 		[Parameter(Mandatory=$true, ParameterSetName='Uninstall')]
 		[string]
-		$PackageName,
+		$Name,
 
 		[Parameter(ParameterSetName='Search')]
 		[Parameter(Mandatory=$true, ParameterSetName='Install')]
@@ -55,11 +55,11 @@ function Invoke-ChocoAPI {
 		[Parameter(Mandatory=$true, ParameterSetName='SourceAdd')]
 		[Parameter(Mandatory=$true, ParameterSetName='SourceRemove')]
 		[string]
-		$SourceName = $script:PackageSourceName,
+		$Source = $script:PackageSource,
 
 		[Parameter(Mandatory=$true, ParameterSetName='SourceAdd')]
 		[string]
-		$SourceLocation,
+		$Location,
 
 		[string]
 		$AdditionalArgs = (Get-AdditionalArguments),
@@ -119,8 +119,8 @@ function Invoke-ChocoAPI {
 			# Entering scriptblock
 			param($config)
 			Invoke-Command $genericParams
-			if ($PackageName) {
-				$config.Input = $PackageName
+			if ($Name) {
+				$config.Input = $Name
 
 				if ($Exact) {
 					$config.ListCommand.Exact = $true
@@ -134,7 +134,7 @@ function Invoke-ChocoAPI {
 		$ChocoAPI.GetType().GetMethod('List').MakeGenericMethod([chocolatey.infrastructure.results.PackageResult]).Invoke($ChocoAPI,$null) | ForEach-Object {
 			# If searching local packages, we need to spoof the source name returned by the API with a generic default
 			if ($LocalOnly) {
-				$_.Source = $script:PackageSourceName
+				$_.Source = $script:PackageSource
 			} else {
 				# Otherwise, convert the source URI returned by Choco to a source name
 				$_.Source = $ChocoAPI.GetConfiguration().MachineSources | Where-Object Key -eq $_.Source | Select-Object -ExpandProperty Name
@@ -160,22 +160,22 @@ function Invoke-ChocoAPI {
 			# Configuring 'set' operations
 			if ($SourceAdd -or $SourceRemove) {
 				$config.CommandName = $sourceCommandName
-				$config.SourceCommand.Name = $SourceName
+				$config.SourceCommand.Name = $Source
 
 				if ($SourceAdd) {
 					$config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::add
-					$config.Sources = $SourceLocation
+					$config.Sources = $Location
 				} elseif ($SourceRemove) {
 					$config.SourceCommand.Command = [chocolatey.infrastructure.app.domain.SourceCommandType]::remove
 				}
 			} else {
 				# In this area, we're only leveraging (not managing) sources, hence why we're treating the source name parameter differently
-				if ($PackageName) {
-					$config.PackageNames = $PackageName
+				if ($Name) {
+					$config.Names = $Name
 				}
 
-				if ($SourceName) {
-					$config.Sources = $config.MachineSources | Where-Object Name -eq $SourceName | Select-Object -ExpandProperty Key
+				if ($Source) {
+					$config.Sources = $config.MachineSources | Where-Object Name -eq $Source | Select-Object -ExpandProperty Key
 				}
 
 				if ($Install) {
@@ -210,12 +210,12 @@ function Invoke-ChocoAPI {
 			# This is a regression of the API vs CLI, as we can capture dependencies returned by the CLI
 
 			$swid = @{
-				FastPackageReference = $PackageName+"#"+$Version+"#"+$SourceName
-				Name = $PackageName
+				FastPackageReference = $Name+"#"+$Version+"#"+$Source
+				Name = $Name
 				Version = $Version
 				versionScheme = "MultiPartNumeric"
 				FromTrustedSource = $true
-				Source = $SourceName
+				Source = $Source
 			}
 
 			New-SoftwareIdentity @swid

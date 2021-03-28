@@ -29,9 +29,9 @@ function Install-Package {
 	}
 
 	$chocoParams = @{
-		PackageName = $Matches.name
+		Name = $Matches.name
 		Version = $Matches.version
-		SourceName = $Matches.source
+		Source = $Matches.source
 		Force = Get-ForceProperty
 	}
 
@@ -47,7 +47,7 @@ function Install-Package {
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
 			}
-			ConvertTo-SoftwareIdentity -ChocoOutput $result -PackageName $Matches.name -SourceName $Matches.source
+			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Matches.name -Source $Matches.source
 		}
 	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version -ErrorAction SilentlyContinue}
 

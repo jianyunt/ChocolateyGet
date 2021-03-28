@@ -2,7 +2,7 @@
 [string]$ScriptPath = Split-Path (Get-Variable MyInvocation -Scope Script).Value.MyCommand.Definition -Parent
 
 # Define provider related variables
-$script:PackageSourceName = "Chocolatey"
+$script:PackageSource = "Chocolatey"
 $script:additionalArguments = "AdditionalArguments"
 $script:AllVersions = "AllVersions"
 $script:AcceptLicense = "AcceptLicense"

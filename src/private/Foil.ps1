@@ -78,21 +78,21 @@ PowerShell Crescendo wrapper for Chocolatey
 #>
 }
 
-Function Add-ChocoSource
+Function Register-ChocoSource
 {
 [CmdletBinding()]
 
 param(
-[Parameter()]
-[string]$SourceName,
-[Parameter()]
-[string]$SourceLocation
+[Parameter(Mandatory=$true)]
+[string]$Name,
+[Parameter(Mandatory=$true)]
+[string]$Location
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
-        SourceName = @{ OriginalName = '--name='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        SourceLocation = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
+        Name = @{ OriginalName = '--name='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
+        Location = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
     }
 
     $__outputHandlers = @{
@@ -148,11 +148,11 @@ PROCESS {
 .DESCRIPTION
 PowerShell Crescendo wrapper for Chocolatey
 
-.PARAMETER SourceName
+.PARAMETER Name
 Source Name
 
 
-.PARAMETER SourceLocation
+.PARAMETER Location
 Source Location
 
 
@@ -160,18 +160,18 @@ Source Location
 #>
 }
 
-Function Remove-ChocoSource
+Function Unregister-ChocoSource
 {
 [CmdletBinding()]
 
 param(
-[Parameter()]
-[string]$SourceName
+[Parameter(Mandatory=$true)]
+[string]$Name
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
-        SourceName = @{ OriginalName = '--name='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
+        Name = @{ OriginalName = '--name='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
     }
 
     $__outputHandlers = @{
@@ -227,7 +227,7 @@ PROCESS {
 .DESCRIPTION
 PowerShell Crescendo wrapper for Chocolatey
 
-.PARAMETER SourceName
+.PARAMETER Name
 Source Name
 
 
@@ -241,19 +241,9 @@ Function Install-ChocoPackage
 
 param(
 [Parameter()]
-[string]$PackageName,
-[Parameter()]
 [string]$Version,
-[Parameter()]
-[string]$SourceName,
-[Parameter()]
-[switch]$AllVersions,
-[Parameter()]
-[switch]$LocalOnly,
-[Parameter()]
-[switch]$Exact,
-[Parameter()]
-[switch]$Force,
+[Parameter(Mandatory=$true)]
+[string]$Name,
 [Parameter()]
 [switch]$ParamsGlobal,
 [Parameter()]
@@ -261,22 +251,23 @@ param(
 [Parameter()]
 [switch]$ArgsGlobal,
 [Parameter()]
-[string]$InstallArguments
+[string]$InstallArguments,
+[Parameter()]
+[string]$Source,
+[Parameter()]
+[switch]$Force
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
-        PackageName = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
         Version = @{ OriginalName = '--version='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        SourceName = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        AllVersions = @{ OriginalName = '--all-versions'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        LocalOnly = @{ OriginalName = '--local-only'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        Exact = @{ OriginalName = '--exact'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
+        Name = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
         ParamsGlobal = @{ OriginalName = '--params-global'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Parameters = @{ OriginalName = '--parameters'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
         ArgsGlobal = @{ OriginalName = '--args-global'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         InstallArguments = @{ OriginalName = '--install-arguments'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
+        Source = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
+        Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
     }
 
     $__outputHandlers = @{
@@ -349,32 +340,12 @@ PROCESS {
 .DESCRIPTION
 PowerShell Crescendo wrapper for Chocolatey
 
-.PARAMETER PackageName
-Package Name
-
-
 .PARAMETER Version
 Package version
 
 
-.PARAMETER SourceName
-Package Source
-
-
-.PARAMETER AllVersions
-All Versions
-
-
-.PARAMETER LocalOnly
-Local Packages Only
-
-
-.PARAMETER Exact
-Search by exact package name
-
-
-.PARAMETER Force
-Force the operation
+.PARAMETER Name
+Package Name
 
 
 .PARAMETER ParamsGlobal
@@ -393,6 +364,14 @@ Apply package arguments to dependencies
 Parameters to pass to the package
 
 
+.PARAMETER Source
+Package Source
+
+
+.PARAMETER Force
+Force the operation
+
+
 
 #>
 }
@@ -403,11 +382,7 @@ Function Get-ChocoPackage
 
 param(
 [Parameter()]
-[string]$PackageName,
-[Parameter()]
 [string]$Version,
-[Parameter()]
-[string]$SourceName,
 [Parameter()]
 [switch]$AllVersions,
 [Parameter()]
@@ -415,28 +390,26 @@ param(
 [Parameter()]
 [switch]$Exact,
 [Parameter()]
-[switch]$Force
+[string]$Source
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
-        PackageName = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
         Version = @{ OriginalName = '--version='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        SourceName = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
         AllVersions = @{ OriginalName = '--all-versions'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         LocalOnly = @{ OriginalName = '--local-only'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
         Exact = @{ OriginalName = '--exact'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
+        Source = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
     }
 
     $__outputHandlers = @{
         Default = @{ StreamOutput = $False; Handler = { 
                         param ( $output )
                         $output | ForEach-Object {
-                            $name,$version = $_ -split '\|'
+                            $Name,$version = $_ -split '\|'
                             if ( -not [string]::IsNullOrEmpty($name)) {
                                 [pscustomobject]@{
-                                    Name = $name
+                                    Name = $Name
                                     Version = $version
                                 }
                             }
@@ -490,16 +463,8 @@ PROCESS {
 .DESCRIPTION
 PowerShell Crescendo wrapper for Chocolatey
 
-.PARAMETER PackageName
-Package Name
-
-
 .PARAMETER Version
 Package version
-
-
-.PARAMETER SourceName
-Package Source
 
 
 .PARAMETER AllVersions
@@ -514,8 +479,8 @@ Local Packages Only
 Search by exact package name
 
 
-.PARAMETER Force
-Force the operation
+.PARAMETER Source
+Package Source
 
 
 
@@ -528,29 +493,17 @@ Function Uninstall-ChocoPackage
 
 param(
 [Parameter()]
-[string]$PackageName,
-[Parameter()]
 [string]$Version,
-[Parameter()]
-[string]$SourceName,
-[Parameter()]
-[switch]$AllVersions,
-[Parameter()]
-[switch]$LocalOnly,
-[Parameter()]
-[switch]$Exact,
+[Parameter(Mandatory=$true)]
+[string]$Name,
 [Parameter()]
 [switch]$Force
     )
 
 BEGIN {
     $__PARAMETERMAP = @{
-        PackageName = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
         Version = @{ OriginalName = '--version='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        SourceName = @{ OriginalName = '--source='; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $True }
-        AllVersions = @{ OriginalName = '--all-versions'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        LocalOnly = @{ OriginalName = '--local-only'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
-        Exact = @{ OriginalName = '--exact'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
+        Name = @{ OriginalName = ''; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [string]; NoGap = $False }
         Force = @{ OriginalName = '--force'; OriginalPosition = '0'; Position = '2147483647'; ParameterType = [switch]; NoGap = $False }
     }
 
@@ -624,28 +577,12 @@ PROCESS {
 .DESCRIPTION
 PowerShell Crescendo wrapper for Chocolatey
 
-.PARAMETER PackageName
-Package Name
-
-
 .PARAMETER Version
 Package version
 
 
-.PARAMETER SourceName
-Package Source
-
-
-.PARAMETER AllVersions
-All Versions
-
-
-.PARAMETER LocalOnly
-Local Packages Only
-
-
-.PARAMETER Exact
-Search by exact package name
+.PARAMETER Name
+Package Name
 
 
 .PARAMETER Force
@@ -656,4 +593,4 @@ Force the operation
 #>
 }
 
-Export-ModuleMember -Function Get-ChocoSource, Add-ChocoSource, Remove-ChocoSource, Install-ChocoPackage, Get-ChocoPackage, Uninstall-ChocoPackage
+Export-ModuleMember -Function Get-ChocoSource, Register-ChocoSource, Unregister-ChocoSource, Install-ChocoPackage, Get-ChocoPackage, Uninstall-ChocoPackage

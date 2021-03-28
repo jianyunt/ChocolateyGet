@@ -103,33 +103,33 @@ Describe "$platform pipline-based package installation and uninstallation" {
 
 Describe "$platform multi-source support" {
 	BeforeAll {
-		$altSourceName = 'LocalChocoSource'
-		$altSourceLocation = $PSScriptRoot
+		$altSource = 'LocalChocoSource'
+		$altLocation = $PSScriptRoot
 		$package = 'cpu-z'
 
-		Save-Package $package -Source 'http://chocolatey.org/api/v2' -Path $altSourceLocation
-		Unregister-PackageSource -Name $altSourceName -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+		Save-Package $package -Source 'http://chocolatey.org/api/v2' -Path $altLocation
+		Unregister-PackageSource -Name $altSource -Provider $ChocolateyGet -ErrorAction SilentlyContinue
 	}
 	AfterAll {
-		Remove-Item "$altSourceLocation\*.nupkg" -Force -ErrorAction SilentlyContinue
-		Unregister-PackageSource -Name $altSourceName -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+		Remove-Item "$altLocation\*.nupkg" -Force -ErrorAction SilentlyContinue
+		Unregister-PackageSource -Name $altSource -Provider $ChocolateyGet -ErrorAction SilentlyContinue
 	}
 
 	It 'refuses to register a source with no location' {
-		Register-PackageSource -Name $altSourceName -Provider $ChocolateyGet -ErrorAction SilentlyContinue | Where-Object {$_.Name -eq $altSourceName} | Should -BeNullOrEmpty
+		Register-PackageSource -Name $altSource -Provider $ChocolateyGet -ErrorAction SilentlyContinue | Where-Object {$_.Name -eq $altSource} | Should -BeNullOrEmpty
 	}
 	It 'registers an alternative package source' {
-		Register-PackageSource -Name $altSourceName -Provider $ChocolateyGet -Location $altSourceLocation | Where-Object {$_.Name -eq $altSourceName} | Should -Not -BeNullOrEmpty
+		Register-PackageSource -Name $altSource -Provider $ChocolateyGet -Location $altLocation | Where-Object {$_.Name -eq $altSource} | Should -Not -BeNullOrEmpty
 	}
 	It 'searches for and installs the latest version of a package from an alternate source' {
-		Find-Package -Provider $ChocolateyGet -Name $package -source $altSourceName | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		Find-Package -Provider $ChocolateyGet -Name $package -source $altSource | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 	}
 	It 'finds and uninstalls a package installed from an alternate source' {
 		Get-Package -Provider $ChocolateyGet -Name $package | Uninstall-Package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 	}
 	It 'unregisters an alternative package source' {
-		Unregister-PackageSource -Name $altSourceName -Provider $ChocolateyGet
-		Get-PackageSource -Provider $ChocolateyGet | Where-Object {$_.Name -eq $altSourceName} | Should -BeNullOrEmpty
+		Unregister-PackageSource -Name $altSource -Provider $ChocolateyGet
+		Get-PackageSource -Provider $ChocolateyGet | Where-Object {$_.Name -eq $altSource} | Should -BeNullOrEmpty
 	}
 }
 

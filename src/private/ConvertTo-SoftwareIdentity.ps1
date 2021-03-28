@@ -11,27 +11,27 @@ function ConvertTo-SoftwareIdentity {
 
 		[Parameter()]
 		[string]
-		$PackageName,
+		$Name,
 
 		[Parameter()]
 		[string]
-		$SourceName = $script:PackageSourceName
+		$Source = $script:PackageSource
 	)
 
 	process {
 		# Each line we get from choco.exe isnt necessarily a package, but it could be
 		foreach ($packageCandidate in $ChocoOutput) {
 			# If a particular package name wasnt queried for by the user, return everything that choco does
-			if (-not ($PackageName) -or (Test-PackageName -RequestedName $PackageName -PackageName $packageCandidate.name)) {
+			if (-not ($Name) -or (Test-PackageName -RequestedName $Name -Name $packageCandidate.Name)) {
 				# Return a new SWID based on the output from choco
-				Write-Debug "Package identified: $($packageCandidate.name), $($packageCandidate.version)"
+				Write-Debug "Package identified: $($packageCandidate.Name), $($packageCandidate.version)"
 				$swid = @{
-					FastPackageReference = $packageCandidate.name+"#"+ $packageCandidate.version.TrimStart('v')+"#"+$SourceName
-					Name = $packageCandidate.name
+					FastPackageReference = $packageCandidate.Name+"#"+ $packageCandidate.version.TrimStart('v')+"#"+$Source
+					Name = $packageCandidate.Name
 					Version = $packageCandidate.version.TrimStart('v')
 					versionScheme = "MultiPartNumeric"
 					FromTrustedSource = $true
-					Source = $SourceName
+					Source = $Source
 				}
 				New-SoftwareIdentity @swid
 			}

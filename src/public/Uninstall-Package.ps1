@@ -20,7 +20,7 @@ function Uninstall-Package {
 	}
 
 	$chocoParams = @{
-		PackageName = $Matches.name
+		Name = $Matches.name
 		Version = $Matches.version
 		Force = Get-ForceProperty
 	}
@@ -37,7 +37,7 @@ function Uninstall-Package {
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
 			}
-			ConvertTo-SoftwareIdentity -ChocoOutput $result -PackageName $PackageName -SourceName $Matches.source
+			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Name -Source $Matches.source
 		}
 	)
 

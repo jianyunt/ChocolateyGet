@@ -24,7 +24,7 @@ function Get-InstalledPackage {
 
 	# If a user wants to check whether the latest version is installed, first check the repo for what the latest version is
 	if ($RequiredVersion -eq 'latest') {
-		$sid = Find-ChocoPackage -PackageName $Name
+		$sid = Find-ChocoPackage -Name $Name
 		$RequiredVersion = $sid.Version
 	}
 
@@ -35,7 +35,7 @@ function Get-InstalledPackage {
 
 	# If a user provides a name without a wildcard, include it in the search
 	if ($Name -and -not (Test-WildcardPattern -Name $Name)) {
-		$chocoParams.Add('PackageName',$Name)
+		$chocoParams.Add('Name',$Name)
 	}
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
@@ -43,7 +43,7 @@ function Get-InstalledPackage {
 	$(if ($script:NativeAPI) {
 		Invoke-ChocoAPI -Search @chocoParams
 	} else {
-		Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -PackageName $PackageName
-	}) | Where-Object {-not $Name -or (Test-PackageName -PackageName $_.Name -RequestedName $Name)} |
+		Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Name $Name
+	}) | Where-Object {-not $Name -or (Test-PackageName -Name $_.Name -RequestedName $Name)} |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }
