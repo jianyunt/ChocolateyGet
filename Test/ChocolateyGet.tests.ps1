@@ -26,12 +26,11 @@ Describe "$platform basic package search operations" {
 		}
 	}
 	Context 'with additional arguments' {
-		$package = 'sysinternals'
-		$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
-		$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
-
 		BeforeAll {
-			Remove-Item -Force -Recurse $installDir -ErrorAction SilentlyContinue
+			$package = 'sysinternals'
+			$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
+			$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
+			Remove-Item -Force -Recurse -Path $installDir -ErrorAction SilentlyContinue
 		}
 
 		It 'searches for the exact package name' {
@@ -58,12 +57,11 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 		}
 	}
 	Context 'with additional parameters' {
-		$package = 'sysinternals'
-		$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
-		$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
-
 		BeforeAll {
-			Remove-Item -Force -Recurse $installDir -ErrorAction SilentlyContinue
+			$package = 'sysinternals'
+			$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
+			$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
+			Remove-Item -Force -Recurse -Path $installDir -ErrorAction SilentlyContinue
 		}
 
 		It 'searches for the latest version of a package' {
@@ -96,12 +94,11 @@ Describe "$platform pipline-based package installation and uninstallation" {
 		}
 	}
 	Context 'with additional parameters' {
-		$package = 'sysinternals'
-		$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
-		$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
-
 		BeforeAll {
-			Remove-Item -Force -Recurse $env:ProgramFiles\$package -ErrorAction SilentlyContinue
+			$package = 'sysinternals'
+			$installDir = Join-Path -Path $env:ProgramFiles -ChildPath $package
+			$params = "--paramsglobal --params ""/InstallDir:$installDir /QuickLaunchShortcut:false"""
+			Remove-Item -Force -Recurse -Path $installDir -ErrorAction SilentlyContinue
 		}
 
 		It 'searches for and silently installs the latest version of a package' {
