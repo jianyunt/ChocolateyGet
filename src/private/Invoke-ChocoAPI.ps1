@@ -61,26 +61,27 @@ function Invoke-ChocoAPI {
 		[string]
 		$Location,
 
+		[Parameter(ParameterSetName='Install')]
+		[switch]
+		$ParamsGlobal,
+
+		[Parameter(ParameterSetName='Install')]
 		[string]
-		$AdditionalArgs = (Get-AdditionalArguments),
+		$Parameters,
+
+		[Parameter(ParameterSetName='Install')]
+		[switch]
+		$ArgsGlobal,
+
+		[Parameter(ParameterSetName='Install')]
+		[string]
+		$InstallArguments,
 
 		[switch]
 		$Force = (Get-ForceProperty)
 	)
 
 	$sourceCommandName = 'source'
-	# Split on the first hyphen of each option/switch
-	$argSplitRegex = '(?:^|\s)-'
-	# Installation parameters/arguments can interfere with non-installation commands (ex: search) and should be filtered out
-	$argParamFilterRegex = '\w*(?:param|arg)\w*'
-	# ParamGlobal Flag
-	$paramGlobalRegex = '\w*-(?:p.+global)\w*'
-	# ArgGlobal Flag
-	$argGlobalRegex = '\w*-(?:(a|i).+global)\w*'
-	# Just parameters
-	$paramFilterRegex = '\w*(?:param)\w*'
-	# Just parameters
-	$argFilterRegex = '\w*(?:arg)\w*'
 
 	$ChocoAPI = [chocolatey.Lets]::GetChocolatey().SetCustomLogging([chocolatey.infrastructure.logging.NullLog]::new())
 
@@ -182,17 +183,20 @@ function Invoke-ChocoAPI {
 					$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::install
 					$config.PromptForConfirmation = $False
 
-					[regex]::Split($AdditionalArgs,$argSplitRegex) | ForEach-Object {
-						if ($_ -match $paramGlobalRegex) {
-							$config.ApplyPackageParametersToDependencies = $True
-						} elseif ($_ -match $paramFilterRegex) {
-							# Just get the parameters and trim quotes on either end
-							$config.PackageParameters = $_.Split(' ',2)[1].Trim('"','''')
-						} elseif ($_ -match $argGlobalRegex) {
-							$config.ApplyInstallArgumentsToDependencies = $True
-						} elseif ($_ -match $argFilterRegex) {
-							$config.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
-						}
+					if ($ParamsGlobal) {
+						$config.ApplyPackageParametersToDependencies = $True
+					}
+
+					if ($Parameters) {
+						$config.PackageParameters = $Parameters
+					}
+
+					if ($ArgsGlobal) {
+						$config.ApplyInstallArgumentsToDependencies = $True
+					}
+
+					if ($InstallArguments) {
+						$config.InstallArguments = $InstallArguments
 					}
 				} elseif ($Uninstall) {
 					$config.CommandName = [chocolatey.infrastructure.app.domain.CommandNameType]::uninstall

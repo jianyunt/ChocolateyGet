@@ -5,7 +5,10 @@ function Install-Package {
 		[Parameter(Mandatory=$true)]
 		[ValidateNotNullOrEmpty()]
 		[string]
-		$FastPackageReference
+		$FastPackageReference,
+
+		[string]
+		$AdditionalArgs = (Get-AdditionalArguments)
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -35,6 +38,30 @@ function Install-Package {
 		Force = Get-ForceProperty
 	}
 
+	# Split on the first hyphen of each option/switch
+	$argSplitRegex = '(?:^|\s)-'
+	# ParamGlobal Flag
+	$paramGlobalRegex = '\w*-(?:p.+global)\w*'
+	# ArgGlobal Flag
+	$argGlobalRegex = '\w*-(?:(a|i).+global)\w*'
+	# Just parameters
+	$paramFilterRegex = '\w*(?:param)\w*'
+	# Just parameters
+	$argFilterRegex = '\w*(?:arg)\w*'
+
+	[regex]::Split($AdditionalArgs,$argSplitRegex) | ForEach-Object {
+		if ($_ -match $paramGlobalRegex) {
+			$chocoParams.ParamsGlobal = $True
+		} elseif ($_ -match $paramFilterRegex) {
+			# Just get the parameters and trim quotes on either end
+			$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
+		} elseif ($_ -match $argGlobalRegex) {
+			$chocoParams.ArgsGlobal = $True
+		} elseif ($_ -match $argFilterRegex) {
+			$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
+		}
+	}
+
 	$swid = $(
 		if ($script:NativeAPI) {
 			# Return SWID from API call to variable
@@ -47,9 +74,9 @@ function Install-Package {
 				-ErrorID 'JobFailure' `
 				-ErrorCategory InvalidOperation `
 			}
-			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Matches.name -Source $Matches.source
+			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $chocoParams.name -Source $chocoParams.source
 		}
-	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version -ErrorAction SilentlyContinue}
+	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $chocoParams.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {
 		# Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.
