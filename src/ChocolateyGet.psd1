@@ -14,8 +14,12 @@
 	}
 	RequiredModules = @(
 		@{
-			ModuleName='PackageManagement';
+			ModuleName='PackageManagement'
 			ModuleVersion='1.1.7.2'
+		},
+		@{
+			ModuleName='Foil'
+			ModuleVersion='0.0.1'
 		}
 	)
 	PrivateData = @{

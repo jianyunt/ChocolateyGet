@@ -9,6 +9,7 @@ install:
 
 build_script:
   - ps: |
+      $(Import-PowerShellDataFile .\src\ChocolateyGet.psd1).RequiredModules | ForEach-Object {Install-Module -Name $_.ModuleVersion -MinimumVersion $_.ModuleVersion -Verbose}
       New-Item -ItemType Directory -Name lib -Path ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\
       Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
       Copy-Item .\packages\chocolatey.lib\lib\chocolatey.dll ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\lib\ -Force
