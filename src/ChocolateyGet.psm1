@@ -2,7 +2,7 @@
 [string]$ScriptPath = Split-Path (Get-Variable MyInvocation -Scope Script).Value.MyCommand.Definition -Parent
 
 # Define provider related variables
-$script:PackageSourceName = "Chocolatey"
+$script:PackageSource = "Chocolatey"
 $script:additionalArguments = "AdditionalArguments"
 $script:AllVersions = "AllVersions"
 $script:AcceptLicense = "AcceptLicense"
@@ -17,6 +17,9 @@ if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
 	if (-not $env:ChocolateyInstall) {
 		$env:ChocolateyInstall = "$($env:ProgramData)\chocolatey"
 	}
+} elseif (-not (Get-ChocoPath)) {
+	Write-Debug ("Choco not already installed")
+	$ChocoExePath = Install-ChocoBinaries
 }
 
 # Utility variables

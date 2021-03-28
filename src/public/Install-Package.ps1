@@ -5,7 +5,10 @@ function Install-Package {
 		[Parameter(Mandatory=$true)]
 		[ValidateNotNullOrEmpty()]
 		[string]
-		$FastPackageReference
+		$FastPackageReference,
+
+		[string]
+		$AdditionalArgs = (Get-AdditionalArguments)
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -28,11 +31,55 @@ function Install-Package {
 		return
 	}
 
-	$swid = Invoke-Choco -Install -Package $Matches.name -Version $Matches.version -SourceName $Matches.source |
-		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $Matches.version -ErrorAction SilentlyContinue}
+	$chocoParams = @{
+		Name = $Matches.name
+		Version = $Matches.version
+		Source = $Matches.source
+		Force = Get-ForceProperty
+	}
+
+	# Split on the first hyphen of each option/switch
+	$argSplitRegex = '(?:^|\s)-'
+	# ParamGlobal Flag
+	$paramGlobalRegex = '\w*-(?:p.+global)\w*'
+	# ArgGlobal Flag
+	$argGlobalRegex = '\w*-(?:(a|i).+global)\w*'
+	# Just parameters
+	$paramFilterRegex = '\w*(?:param)\w*'
+	# Just parameters
+	$argFilterRegex = '\w*(?:arg)\w*'
+
+	[regex]::Split($AdditionalArgs,$argSplitRegex) | ForEach-Object {
+		if ($_ -match $paramGlobalRegex) {
+			$chocoParams.ParamsGlobal = $True
+		} elseif ($_ -match $paramFilterRegex) {
+			# Just get the parameters and trim quotes on either end
+			$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
+		} elseif ($_ -match $argGlobalRegex) {
+			$chocoParams.ArgsGlobal = $True
+		} elseif ($_ -match $argFilterRegex) {
+			$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
+		}
+	}
+
+	$swid = $(
+		if ($script:NativeAPI) {
+			# Return SWID from API call to variable
+			Invoke-ChocoAPI -Install @chocoParams
+		} else {
+			$result = Install-ChocoPackage @chocoParams
+			if (-not $result) {
+				ThrowError -ExceptionName 'System.OperationCanceledException' `
+				-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+				-ErrorID 'JobFailure' `
+				-ErrorCategory InvalidOperation `
+			}
+			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $chocoParams.name -Source $chocoParams.source
+		}
+	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $chocoParams.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {
-		# Invoke-Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.
+		# Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.
 		# The output format Choco.exe may have changed from what our regex pattern was expecting.
 		Write-Warning ($LocalizedData.UnexpectedChocoResponse -f $FastPackageReference)
 	}

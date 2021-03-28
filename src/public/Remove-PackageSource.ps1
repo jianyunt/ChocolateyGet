@@ -18,6 +18,10 @@ function Remove-PackageSource {
 			-ErrorCategory InvalidArgument
 	}
 
-	# Invoke-Choco will throw an exception if unregistration fails
-	Invoke-Choco -SourceRemove -SourceName $Name
+	# Choco will throw an exception if unregistration fails
+	if ($script:NativeAPI) {
+		Invoke-ChocoAPI -SourceRemove -Source $Name
+	} else {
+		Unregister-ChocoSource -Name $Name
+	}
 }

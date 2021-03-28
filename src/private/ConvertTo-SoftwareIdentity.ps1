@@ -6,41 +6,34 @@ function ConvertTo-SoftwareIdentity {
 	[CmdletBinding()]
 	param (
 		[Parameter(ValueFromPipeline)]
-		[string[]]
+		[object[]]
 		$ChocoOutput,
 
 		[Parameter()]
 		[string]
-		$RequestedName,
+		$Name,
 
 		[Parameter()]
 		[string]
-		$Source = $script:PackageSourceName
+		$Source = $script:PackageSource
 	)
-
-	begin {
-		$packageRegex = "^(?<name>[\S]+)[\|\s](?<version>[\S]+)"
-		$packageReportRegex="^[0-9]*(\s*)(packages installed)"
-	}
 
 	process {
 		# Each line we get from choco.exe isnt necessarily a package, but it could be
 		foreach ($packageCandidate in $ChocoOutput) {
-			if (($packageCandidate -Match $packageRegex) -and ($packageCandidate -notmatch $packageReportRegex) -and $Matches.name -and $Matches.version) {
-				# If a particular package name wasnt queried for by the user, return everything that choco does
-				if (-not ($RequestedName) -or (Test-PackageName -RequestedName $RequestedName -PackageName $Matches.name)) {
-					# Return a new SWID based on the output from choco
-					Write-Debug "Package identified: $($Matches.name), $($Matches.version)"
-					$swid = @{
-						FastPackageReference = $Matches.name+"#"+ $Matches.version.TrimStart('v')+"#"+$Source
-						Name = $Matches.name
-						Version = $Matches.version.TrimStart('v')
-						versionScheme = "MultiPartNumeric"
-						FromTrustedSource = $true
-						Source = $Source
-					}
-					New-SoftwareIdentity @swid
+			# If a particular package name wasnt queried for by the user, return everything that choco does
+			if (-not ($Name) -or (Test-PackageName -RequestedName $Name -Name $packageCandidate.Name)) {
+				# Return a new SWID based on the output from choco
+				Write-Debug "Package identified: $($packageCandidate.Name), $($packageCandidate.version)"
+				$swid = @{
+					FastPackageReference = $packageCandidate.Name+"#"+ $packageCandidate.version.TrimStart('v')+"#"+$Source
+					Name = $packageCandidate.Name
+					Version = $packageCandidate.version.TrimStart('v')
+					versionScheme = "MultiPartNumeric"
+					FromTrustedSource = $true
+					Source = $Source
 				}
+				New-SoftwareIdentity @swid
 			}
 		}
 	}

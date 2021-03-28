@@ -1,4 +1,8 @@
 # Utility function - Read the registered package sources from its configuration file
 function Get-PackageSources {
-	Invoke-Choco -SourceList
+	if ($script:NativeAPI) {
+		Invoke-ChocoAPI -SourceList
+	} else {
+		Get-ChocoSource
+	}
 }

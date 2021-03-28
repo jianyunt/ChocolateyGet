@@ -20,15 +20,29 @@ function Uninstall-Package {
 	}
 
 	$chocoParams = @{
-		Uninstall = $true
-		Package = $Matches.name
+		Name = $Matches.name
 		Version = $Matches.version
+		Force = Get-ForceProperty
 	}
 
-	$swid = Invoke-Choco @chocoParams
+	$swid = $(
+		if ($script:NativeAPI) {
+			# Return SWID from API call to variable
+			Invoke-ChocoAPI -Uninstall @chocoParams
+		} else {
+			$result = Uninstall-ChocoPackage @chocoParams
+			if (-not $result) {
+				ThrowError -ExceptionName 'System.OperationCanceledException' `
+				-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+				-ErrorID 'JobFailure' `
+				-ErrorCategory InvalidOperation `
+			}
+			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Name -Source $Matches.source
+		}
+	)
 
 	if (-not $swid) {
-		# Invoke-Choco didn't throw an exception but we couldn't pull a Software Identity from the output.
+		# Choco didn't throw an exception but we couldn't pull a Software Identity from the output.
 		# The output format Choco.exe may have changed from what our regex pattern was expecting.
 		Write-Warning ($LocalizedData.UnexpectedChocoResponse -f $FastPackageReference)
 	}

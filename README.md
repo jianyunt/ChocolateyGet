@@ -44,7 +44,7 @@ ChocolateyGet integrates with Choco.exe to manage and store source information
 If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-Package cmdlets, you can use AdditionalArguments PowerShell property.
 
 ```powershell
-Install-Package sysinternals -Provider ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir=c:\windows\temp\sysinternals /QuickLaunchShortcut=false" -y --installargs MaintenanceService=false' -Verbose
+Install-Package sysinternals -Provider ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir:c:\windows\temp\sysinternals /QuickLaunchShortcut:false" -y --installargs MaintenanceService=false' -Verbose
 ```
 
 ## DSC Compatibility

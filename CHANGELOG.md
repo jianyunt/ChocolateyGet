@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2021-03-28
+#### Changed
+* ChocolateyGet CLI integration with Choco.exe is now based on the [Foil](https://github.com/ethanbergstrom/Foil) PowerShell Crescendo module
+#### Removed
+* The AdditionalArgs parameter will now only pass package argument/parameter-related values to Choco.exe
+* The dependency on Foil (and Crescendo) means ChocolateyGet is no longer supported with PowerShell 5.0 and below
+
 ## [2.1.0] - 2021-01-23
 #### Changed
 * Change default search to use exact package name if both package name and required version are specified (#20)

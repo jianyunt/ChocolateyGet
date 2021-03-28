@@ -4,11 +4,11 @@ function Resolve-PackageSource {
 
 	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Resolve-PackageSource'))
 
-	$SourceNames = $request.PackageSources
+	$Sources = $request.PackageSources
 
 	# No source name pattern specified, so return everything
-	if (-not $SourceNames) {
-		$SourceNames = "*"
+	if (-not $Sources) {
+		$Sources = "*"
 	}
 
 	# Get sources from Chocolatey
@@ -19,7 +19,7 @@ function Resolve-PackageSource {
 		$src = $_.Name
 		Write-Debug "Source $src is registred"
 		# Pass the source on only if it matches the provided name pattern
-		$SourceNames | Where-Object { $src -like $_ }
+		$Sources | Where-Object { $src -like $_ }
 	} | ForEach-Object {
 		New-PackageSource -Name $_.Name -Location $_.Location -Trusted $true -Registered $true
 	}

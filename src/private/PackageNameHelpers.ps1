@@ -17,7 +17,7 @@ function Test-PackageName {
 	param (
 		[Parameter(Mandatory=$true)]
 		[string]
-		$PackageName,
+		$Name,
 
 		[Parameter(Mandatory=$true)]
 		[string]
@@ -27,7 +27,7 @@ function Test-PackageName {
 	$nameRegex='^.*'+($RequestedName.TrimStart('*')).TrimEnd('.')+'.*$'
 
 	# Return true if the package name returned from choco matched what we were expecting
-	($PackageName -match $nameRegex) -and (
-		($RequestedName -eq $PackageName) -or (Test-WildcardPattern -name $RequestedName)
+	($Name -match $nameRegex) -and (
+		($RequestedName -eq $Name) -or (Test-WildcardPattern -name $RequestedName)
 	)
 }
