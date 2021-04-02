@@ -19,9 +19,5 @@ function Remove-PackageSource {
 	}
 
 	# Choco will throw an exception if unregistration fails
-	if ($script:NativeAPI) {
-		Invoke-ChocoAPI -SourceRemove -Source $Name
-	} else {
-		Unregister-ChocoSource -Name $Name
-	}
+	Unregister-ChocoSource -Name $Name
 }

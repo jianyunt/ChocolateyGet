@@ -26,19 +26,14 @@ function Uninstall-Package {
 	}
 
 	$swid = $(
-		if ($script:NativeAPI) {
-			# Return SWID from API call to variable
-			Invoke-ChocoAPI -Uninstall @chocoParams
-		} else {
-			$result = Uninstall-ChocoPackage @chocoParams
-			if (-not $result) {
-				ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
-				-ErrorID 'JobFailure' `
-				-ErrorCategory InvalidOperation `
-			}
-			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Name -Source $Matches.source
+		$result = Uninstall-ChocoPackage @chocoParams
+		if (-not $result) {
+			ThrowError -ExceptionName 'System.OperationCanceledException' `
+			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+			-ErrorID 'JobFailure' `
+			-ErrorCategory InvalidOperation `
 		}
+		ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Name -Source $Matches.source
 	)
 
 	if (-not $swid) {

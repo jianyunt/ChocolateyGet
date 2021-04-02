@@ -63,19 +63,14 @@ function Install-Package {
 	}
 
 	$swid = $(
-		if ($script:NativeAPI) {
-			# Return SWID from API call to variable
-			Invoke-ChocoAPI -Install @chocoParams
-		} else {
-			$result = Install-ChocoPackage @chocoParams
-			if (-not $result) {
-				ThrowError -ExceptionName 'System.OperationCanceledException' `
-				-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
-				-ErrorID 'JobFailure' `
-				-ErrorCategory InvalidOperation `
-			}
-			ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $chocoParams.name -Source $chocoParams.source
+		$result = Install-ChocoPackage @chocoParams
+		if (-not $result) {
+			ThrowError -ExceptionName 'System.OperationCanceledException' `
+			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+			-ErrorID 'JobFailure' `
+			-ErrorCategory InvalidOperation `
 		}
+		ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $chocoParams.name -Source $chocoParams.source
 	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $chocoParams.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {
