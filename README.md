@@ -156,6 +156,7 @@ Configuration MyNode {
 	# The source information wont actually be used by the Get-Package step of the PackageManagement DSC resource check, but it helps make clear to the reader where the package should come from
 	PackageManagement NodeJS {
 		Name = 'nodejs'
+		ProviderName = 'ChocolateyGet'
 		Source = 'privateRepo'
 		RequiredVersion = 'latest'
 		DependsOn = @('[PackageManagementSource]ChocoPrivateRepo', '[PackageManagementSource]ChocolateyRepo')
