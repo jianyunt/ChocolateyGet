@@ -22,7 +22,7 @@ function Find-ChocoPackage {
 		Write-Debug ( "OPTION: {0} => {1}" -f ($o, $options[$o]) )
 	}
 
-	[array]$RegisteredPackageSources = Get-PackageSources
+	[array]$RegisteredPackageSources = Get-ChocoSource
 
 	if ($options -and $options.ContainsKey('Source')) {
 		# Finding the matched package sources from the registered ones

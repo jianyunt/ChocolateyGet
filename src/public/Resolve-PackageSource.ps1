@@ -12,7 +12,7 @@ function Resolve-PackageSource {
 	}
 
 	# Get sources from Chocolatey
-	[array]$RegisteredPackageSources = Get-PackageSources
+	[array]$RegisteredPackageSources = Get-ChocoSource
 
 	# Filter sources by whether they're disabled in Chocolatey
 	$RegisteredPackageSources | Where-Object {
