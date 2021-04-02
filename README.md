@@ -65,6 +65,7 @@ Configuration MyNode {
 	}
 	PackageManagement NodeJS {
 		Name = 'nodejs'
+		ProviderName = 'ChocolateyGet'
 		Source = 'privateRepo'
 		DependsOn = '[PackageManagementSource]ChocoPrivateRepo'
 	}
