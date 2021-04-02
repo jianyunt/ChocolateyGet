@@ -10,11 +10,6 @@ $script:AcceptLicense = "AcceptLicense"
 # Define choco related variables
 $script:ChocoExeName = 'choco.exe'
 
-if (-not (Get-ChocoPath)) {
-	Write-Debug ("Choco not already installed")
-	$ChocoExePath = Install-ChocoBinaries
-}
-
 # Utility variables
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
 $script:ChocoSourcePropertyNames = @(
@@ -44,4 +39,10 @@ Get-ChildItem $ScriptPath/public -Recurse -Filter '*.ps1' -File | ForEach-Object
 	([System.Management.Automation.Language.Parser]::ParseInput((Get-Content -Path $_.FullName -Raw), [ref]$null, [ref]$null)).FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false) | ForEach-Object {
 		Export-ModuleMember $_.Name
 	}
+}
+
+# Install Chocolatey if not already present
+if (-not (Get-ChocoPath)) {
+	Write-Debug ("Choco not already installed")
+	Install-ChocoBinaries
 }
