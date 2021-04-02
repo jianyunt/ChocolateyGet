@@ -31,12 +31,6 @@ $script:ChocoSourcePropertyNames = @(
 
 Import-LocalizedData LocalizedData -filename "ChocolateyGet.Resource.psd1"
 
-# Load included libraries, since the manifest wont handle that for package providers
-if ($script:NativeAPI) {
-	Get-ChildItem $ScriptPath/lib/ -Filter 'chocolatey.dll' -File | ForEach-Object {
-		Add-Type -Path $_.FullName
-	}
-}
 # Dot sourcing private script files
 Get-ChildItem $ScriptPath/private -Recurse -Filter '*.ps1' -File | ForEach-Object {
 	. $_.FullName
