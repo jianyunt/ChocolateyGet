@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2021-04-02
+#### Removed
+* No longer using Native API method for interacting with choco.exe due to [a compatibility issue between the Chocolatey API and Chocolatey.org](https://github.com/jianyunt/ChocolateyGet/issues/24)
+
 ## [3.0.0] - 2021-03-28
 #### Changed
 * ChocolateyGet CLI integration with Choco.exe is now based on the [Foil](https://github.com/ethanbergstrom/Foil) PowerShell Crescendo module

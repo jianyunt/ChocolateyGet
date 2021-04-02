@@ -10,14 +10,7 @@ $script:AcceptLicense = "AcceptLicense"
 # Define choco related variables
 $script:ChocoExeName = 'choco.exe'
 
-# Only allow the native Chocolatey .NET library with FullCLR
-if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
-	$script:NativeAPI = $true
-	# If Choco.exe isn't already installed, try to guess where the API files should get extracted
-	if (-not $env:ChocolateyInstall) {
-		$env:ChocolateyInstall = "$($env:ProgramData)\chocolatey"
-	}
-} elseif (-not (Get-ChocoPath)) {
+if (-not (Get-ChocoPath)) {
 	Write-Debug ("Choco not already installed")
 	$ChocoExePath = Install-ChocoBinaries
 }
@@ -38,12 +31,6 @@ $script:ChocoSourcePropertyNames = @(
 
 Import-LocalizedData LocalizedData -filename "ChocolateyGet.Resource.psd1"
 
-# Load included libraries, since the manifest wont handle that for package providers
-if ($script:NativeAPI) {
-	Get-ChildItem $ScriptPath/lib/ -Filter 'chocolatey.dll' -File | ForEach-Object {
-		Add-Type -Path $_.FullName
-	}
-}
 # Dot sourcing private script files
 Get-ChildItem $ScriptPath/private -Recurse -Filter '*.ps1' -File | ForEach-Object {
 	. $_.FullName

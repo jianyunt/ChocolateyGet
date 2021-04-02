@@ -167,21 +167,6 @@ If using the 'latest' functionality, best practice is to either:
 * use the default Chocolatey.org source
 * unregister the default Chocolatey.org source in favor of a **single** custom source
 
-## API integration
-Under PowerShell 5.1 and below ChocolateyGet invokes Chocolatey through it's native API by default rather than through interpreting CLI output. As a result, ChocolateyGet can operate without a local installation of Choco.exe.
-
-The provider's standard battery of tests run about **36% faster** under the native API versus using the CLI interpreter, with operations that don't invoke a package (searching for packages, registering sources, etc.) running about **10x faster**.
-
-By default, ChocolateyGet uses the API when invoked with PowerShell 5.1 and below, but can revert to using the CLI in the environment entries before the provider is first invoked:
-```PowerShell
-$env:CHOCO_CLI = $true
-Find-Package -Provider ChocolateyGet -Name nodejs
-```
-
-If Choco.exe is already installed, the Native API will detect the existing Chocolatey installation path and leverage it for maintaining local package and source metadata.
-
-Invoking the provider with the Native API is the first use of Chocolatey on your system, the provider will instruct the Native API to align where it extracts its files with the standard used by Choco.exe (%ProgramData%/Chocolatey) to avoid diverging locations of package and source metadata.
-
 ## Known Issues
 ### Compatibility
 ChocolateyGet works with PowerShell for both FullCLR/'Desktop' (ex 5.1) and CoreCLR (ex: 7.0.1), though Chocolatey itself still requires FullCLR.
@@ -191,7 +176,7 @@ When used with CoreCLR, PowerShell 7.0.1 is a minimum requirement due to [a comp
 ### Save a package
 Save-Package is not supported with the ChocolateyGet provider, due to Chocolatey not supporting package downloads without special licensing.
 
-### CLI Package search with MaximumVersion / AllVersions return unexpected results
+### Package search with MaximumVersion / AllVersions return unexpected results
 Due to [a bug with Chocolatey](https://github.com/chocolatey/choco/issues/1843) versions 0.10.14 through 0.10.15, ChocolateyGet is unable to search packages by package range via command line as of version 2.1.0.
 
 Until [Chocolatey 0.10.16 is released](https://github.com/chocolatey/choco/milestone/43), the following workarounds are available:
@@ -210,8 +195,6 @@ Until [Chocolatey 0.10.16 is released](https://github.com/chocolatey/choco/miles
   Install-Package ninja -MaximumVersion 1.9.0 -Provider ChocolateyGet
   ```
   - Please note - this will revert the default search behavior change requested in [Issue #20](https://github.com/jianyunt/ChocolateyGet/issues/20)
-- Use ChocolateyGet via PowerShell v5 or below in Native API mode, which uses Chocolatey version 0.10.13
-
 
 ## Legal and Licensing
 ChocolateyGet is licensed under the [MIT license](./LICENSE.txt).

@@ -3,8 +3,6 @@ version: 1.0.{build}
 image: Visual Studio 2019
 
 install:
-  - dotnet tool restore
-  - dotnet paket restore
   - cinst pester --version 4.10.1
 
 build_script:
@@ -12,15 +10,13 @@ build_script:
       Install-Module -Name Foil -Force
       New-Item -ItemType Directory -Name lib -Path ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\
       Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
-      Copy-Item .\packages\chocolatey.lib\lib\chocolatey.dll ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\lib\ -Force
-      Copy-Item .\packages\log4net\lib\net40-full\log4net.dll ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\lib\ -Force
+      Install-Package chocolatey -RequiredVersion 0.10.13 -ProviderName ChocolateyGet -Force
 
 test_script:
-  - ps: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.NativeAPI.xml
-  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.NativeAPI.xml))
-  - pwsh: Install-Package chocolatey -RequiredVersion 0.10.13 -ProviderName ChocolateyGet -Force
-  - pwsh: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.CLI.xml
-  - pwsh: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.CLI.xml))
+  - ps: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.FullCLR.xml
+  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.FullCLR.xml))
+  - pwsh: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.CoreCLR.xml
+  - pwsh: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.CoreCLR.xml))
 
 on_finish:
   - ps: Get-ChildItem $env:programdata\chocolatey\logs | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }

@@ -1,4 +1,0 @@
-source https://api.nuget.org/v3/index.json
-
-nuget log4net == 2.0.3
-nuget chocolatey.lib

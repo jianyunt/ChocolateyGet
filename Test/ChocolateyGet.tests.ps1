@@ -2,10 +2,10 @@
 
 Import-PackageProvider $ChocolateyGet -Force
 
-if ($PSEdition -eq 'Desktop' -and -not $env:CHOCO_CLI) {
-	$platform = 'API'
+if ($PSEdition -eq 'Desktop') {
+	$platform = 'FullCLR'
 } else {
-	$platform = 'CLI'
+	$platform = 'CoreCLR'
 }
 
 Describe "$platform basic package search operations" {
