@@ -8,7 +8,7 @@ install:
 build_script:
   - ps: |
       Install-Module -Name Foil -Force
-      New-Item -ItemType Directory -Name lib -Path ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\
+      New-Item -ItemType Directory -Name ChocolateyGet -Path ~\Documents\WindowsPowerShell\Modules\
       Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
       Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
 
