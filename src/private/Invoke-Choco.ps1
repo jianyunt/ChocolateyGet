@@ -127,12 +127,13 @@ function Invoke-Choco {
 			Write-Debug ("Invoking the Choco API with the following configuration: $($ChocoAPI.GetConfiguration() | Out-String)")
 			# This invocation looks gross, but PowerShell currently lacks a clean way to call the parameter-less .NET generic method that Chocolatey uses for returning data
 			$ChocoAPI.GetType().GetMethod('List').MakeGenericMethod([chocolatey.infrastructure.results.PackageResult]).Invoke($ChocoAPI,$null) | ForEach-Object {
-				# If searching local packages, we need to spoof the source name returned by the API with a generic default
-				if ($LocalOnly) {
+
+				# Attempt to translate the source URL back into a human-readable source name
+				$_.Source = $ChocoAPI.GetConfiguration().MachineSources | Where-Object Key -eq $_.Source | Select-Object -ExpandProperty Name
+
+				# If searching local packages, or nothing got returned, we need to spoof the source name returned by the API with a generic default
+				if ((-not $_.Source) -or $LocalOnly) {
 					$_.Source = $script:PackageSourceName
-				} else {
-					# Otherwise, convert the source URI returned by Choco to a source name
-					$_.Source = $ChocoAPI.GetConfiguration().MachineSources | Where-Object Key -eq $_.Source | Select-Object -ExpandProperty Name
 				}
 
 				$swid = @{
