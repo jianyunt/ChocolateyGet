@@ -8,7 +8,7 @@ function Install-Package {
 		$FastPackageReference,
 
 		[string]
-		$AdditionalArgs = (Get-AdditionalArguments)
+		$AdditionalArgs = (Get-ProviderAdditionalParameter $script:additionalArguments)
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -61,6 +61,9 @@ function Install-Package {
 			$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
 		}
 	}
+
+	Write-Debug "chocoParams ="
+	$chocoParams | ConvertTo-Json -Depth 10 | Out-String -Width 200 | ForEach-Object { Write-Debug "$_" }
 
 	$swid = $(
 		$result = Install-ChocoPackage @chocoParams
