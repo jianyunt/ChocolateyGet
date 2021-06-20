@@ -8,7 +8,13 @@ function Install-Package {
 		$FastPackageReference,
 
 		[string]
-		$AdditionalArgs = (Get-ProviderAdditionalParameter $script:additionalArguments)
+		$AdditionalArgs = (Get-ProviderAdditionalParameter $script:additionalArguments),
+
+		[string]
+		$ChocoPackageParameters = (Get-ProviderAdditionalParameter $script:ProviderAdditionalParameterPackageParameters),
+
+		[string]
+		$ChocoInstallArguments = (Get-ProviderAdditionalParameter $script:ProviderAdditionalParameterInstallArguments)
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -36,6 +42,8 @@ function Install-Package {
 		Version = $Matches.version
 		Source = $Matches.source
 		Force = Get-ForceProperty
+		Parameters = $ChocoPackageParameters
+		InstallArguments = $ChocoInstallArguments
 	}
 
 	# Split on the first hyphen of each option/switch
