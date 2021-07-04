@@ -63,7 +63,7 @@ function Install-Package {
 	}
 
 	$swid = $(
-		$result = Install-ChocoPackage @chocoParams
+		$result = Foil\Install-ChocoPackage @chocoParams
 		if (-not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `

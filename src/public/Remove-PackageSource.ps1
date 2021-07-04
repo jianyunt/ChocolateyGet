@@ -8,7 +8,7 @@ function Remove-PackageSource {
 
 	Write-Debug ('Remove-PackageSource')
 
-	[array]$RegisteredPackageSources = Get-ChocoSource
+	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
 	# Choco.exe will not error if the specified source name isn't already registered, so we will do it here instead.
 	if (-not ($RegisteredPackageSources.Name -eq $Name)) {
@@ -19,5 +19,5 @@ function Remove-PackageSource {
 	}
 
 	# Choco will throw an exception if unregistration fails
-	Unregister-ChocoSource -Name $Name
+	Foil\Unregister-ChocoSource -Name $Name
 }

@@ -17,7 +17,7 @@ function Add-PackageSource {
 
 	Write-Verbose "New package source: $Name, $Location"
 
-	Register-ChocoSource -Name $Name -Location $Location
+	Foil\Register-ChocoSource -Name $Name -Location $Location
 
 	# Add new package source
 	$packageSource = @{
