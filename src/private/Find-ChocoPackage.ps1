@@ -22,7 +22,7 @@ function Find-ChocoPackage {
 		Write-Debug ( "OPTION: {0} => {1}" -f ($o, $options[$o]) )
 	}
 
-	[array]$RegisteredPackageSources = Get-ChocoSource
+	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
 	if ($options -and $options.ContainsKey('Source')) {
 		# Finding the matched package sources from the registered ones
@@ -78,6 +78,6 @@ function Find-ChocoPackage {
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
 	# Will only terminate if Choco fails to call choco.exe
-	Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Name $Name -Source $selectedSource | Where-Object {Test-PackageName -Name $_.Name -RequestedName $Name} |
+	Foil\Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Name $Name -Source $selectedSource | Where-Object {Test-PackageName -Name $_.Name -RequestedName $Name} |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

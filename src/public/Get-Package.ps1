@@ -40,7 +40,7 @@ function Get-InstalledPackage {
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
 	# Will only terminate if Choco fails to call choco.exe
-	Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Name $Name |
+	Foil\Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Name $Name |
 		Where-Object {-not $Name -or (Test-PackageName -Name $_.Name -RequestedName $Name)} |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

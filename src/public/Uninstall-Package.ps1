@@ -26,7 +26,7 @@ function Uninstall-Package {
 	}
 
 	$swid = $(
-		$result = Uninstall-ChocoPackage @chocoParams
+		$result = Foil\Uninstall-ChocoPackage @chocoParams
 		if (-not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
