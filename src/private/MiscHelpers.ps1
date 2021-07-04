@@ -1,18 +1,19 @@
 # Get AdditionalArguments property from the input cmdline
-function Get-AdditionalArguments {
+function Get-ProviderAdditionalParameter {
 	[CmdletBinding()]
 	[OutputType([string])]
 	param (
+		[Parameter(Mandatory)] [string] $Name
 	)
 
-	$additionalArgs = $null
+	$value = $null
 	$options = $request.Options
 
-	if($options.ContainsKey($script:additionalArguments)) {
-		$additionalArgs = $options[$script:additionalArguments]
+	if($options.ContainsKey($Name)) {
+		$value = $options[$Name]
 	}
 
-	$additionalArgs
+	$value
 }
 
 # Find whether a user specifies -force
