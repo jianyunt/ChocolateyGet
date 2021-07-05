@@ -199,3 +199,31 @@ Describe 'version filters' {
 		}
 	}
 }
+
+Describe "error handling on Chocolatey failures" {
+	Context 'package installation' {
+		BeforeAll {
+			$package = 'googlechrome'
+			# This version is known to be broken, per https://github.com/chocolatey-community/chocolatey-coreteampackages/issues/1608
+			$version = '87.0.4280.141'
+		}
+		AfterAll {
+			Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+		}
+
+		It 'searches for and fails to silently install a broken package version' {
+			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
+		}
+	}
+	Context 'package uninstallation' {
+		BeforeAll {
+			$package = 'chromium'
+			# This version is known to be broken, per https://github.com/chocolatey-community/chocolatey-coreteampackages/issues/341
+			$version = '56.0.2897.0'
+		}
+
+		It 'searches for, installs, and fails to silently uninstall a broken package version' {
+			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Uninstall-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
+		}
+	}
+}
