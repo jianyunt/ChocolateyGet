@@ -3,6 +3,7 @@ version: 1.0.{build}
 image: Visual Studio 2019
 
 install:
+  - ps: Install-Module -Name Pester -Force -SkipPublisherCheck
   - ps: Install-Module PsScriptAnalyzer -Force
   - ps: Install-Module -Name Foil -Force
 
