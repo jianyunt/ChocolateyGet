@@ -212,7 +212,7 @@ Describe "error handling on Chocolatey failures" {
 		}
 
 		It 'searches for and fails to silently install a broken package version' {
-			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force -ErrorAction Stop} | Should -Throw
+			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
 		}
 	}
 	Context 'package uninstallation' {
@@ -223,7 +223,7 @@ Describe "error handling on Chocolatey failures" {
 		}
 
 		It 'searches for, installs, and fails to silently uninstall a broken package version' {
-			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Uninstall-Package -Force -ErrorAction Stop} | Should -Throw
+			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Uninstall-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
 		}
 	}
 }
