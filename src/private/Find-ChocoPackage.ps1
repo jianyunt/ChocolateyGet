@@ -15,7 +15,7 @@ function Find-ChocoPackage {
 	)
 
 	# Throw an error if provided version arguments don't make sense
-	Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
+	Confirm-VersionParameter -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	$options = $request.Options
 	foreach( $o in $options.Keys ) {

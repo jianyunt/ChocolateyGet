@@ -10,6 +10,7 @@ function Initialize-Provider {
 
 # Defines PowerShell dynamic parameters so that a user can pass in parameters via OneGet to the provider
 function Get-DynamicOptions {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification='Required by PackageManagement')]
 	param (
 		[Microsoft.PackageManagement.MetaProvider.PowerShell.OptionCategory]
 		$category

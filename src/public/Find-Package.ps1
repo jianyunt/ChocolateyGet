@@ -1,5 +1,6 @@
 # Finds packages by given name and version information.
 function Find-Package {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidOverwritingBuiltInCmdlets', '', Justification='Required by PackageManagement')]
 	param (
 		[string] $Name,
 		[string] $RequiredVersion,

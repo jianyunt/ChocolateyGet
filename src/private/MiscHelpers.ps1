@@ -1,5 +1,5 @@
 # Get AdditionalArguments property from the input cmdline
-function Get-AdditionalArguments {
+function Get-AdditionalArgument {
 	[CmdletBinding()]
 	[OutputType([string])]
 	param (
@@ -51,6 +51,7 @@ function Get-AcceptLicenseProperty {
 
 # Utility to throw an errorrecord
 function ThrowError {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidOverwritingBuiltInCmdlets', '', Justification='ThrowError exists in neither 5.1 or 7+. PSSAs documentation is outdated.')]
 	param (
 		# We need to grab and use the 'parent' (parent = 1) scope to properly return output to the user
 		[parameter()]
