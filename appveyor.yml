@@ -3,14 +3,14 @@ version: 1.0.{build}
 image: Visual Studio 2019
 
 install:
-  - ps: Install-Module -Name Pester -Force -SkipPublisherCheck
+  - ps: Install-Module Pester -Force -SkipPublisherCheck
   - ps: Install-Module PsScriptAnalyzer -Force
-  - ps: Install-Module -Name Foil -Force
+  - ps: Install-Module Foil -Force
 
 build_script:
   - ps: |
       New-Item -ItemType Directory -Name ChocolateyGet -Path ~\Documents\WindowsPowerShell\Modules\
-      Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
+      Copy-Item -Path .\src\* -Destination ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
       Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
 
 test_script:
@@ -18,4 +18,4 @@ test_script:
 
 on_finish:
   - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testResults.xml))
-  - ps: Get-ChildItem $env:ProgramData\chocolatey\logs | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem $env:ProgramData\chocolatey\logs | %{ Push-AppveyorArtifact $_.FullName -FileName $_.Name }
