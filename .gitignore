@@ -1,4 +1,4 @@
-*TestsResults.xml
+testResults.xml
 *.dll
 .paket/*
 packages/*

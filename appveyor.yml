@@ -13,8 +13,8 @@ build_script:
       Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
 
 test_script:
-  - ps: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.FullCLR.xml
-  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.FullCLR.xml))
+  - ps: Invoke-Pester -CI
 
 on_finish:
-  - ps: Get-ChildItem $env:programdata\chocolatey\logs | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testResults.xml))
+  - ps: Get-ChildItem $env:ProgramData\chocolatey\logs | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
