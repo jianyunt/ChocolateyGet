@@ -53,7 +53,7 @@ function Test-PackageVersion {
 }
 
 # Sanity checks on the various version options specified by the user
-function Confirm-VersionParameters
+function Confirm-VersionParameter
 {
 	Param (
 

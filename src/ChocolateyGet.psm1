@@ -44,5 +44,5 @@ Get-ChildItem $ScriptPath/public -Recurse -Filter '*.ps1' -File | ForEach-Object
 # Install Chocolatey if not already present
 if (-not (Get-ChocoPath)) {
 	Write-Debug ("Choco not already installed")
-	Install-ChocoBinaries
+	Install-Chocolatey
 }

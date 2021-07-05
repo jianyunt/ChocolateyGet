@@ -1,5 +1,5 @@
 # Get AdditionalArguments property from the input cmdline
-function Get-AdditionalArguments {
+function Get-AdditionalArgument {
 	[CmdletBinding()]
 	[OutputType([string])]
 	param (

@@ -20,7 +20,7 @@ function Get-InstalledPackage {
 	)
 
 	# Throw an error if provided version arguments don't make sense
-	Confirm-VersionParameters -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
+	Confirm-VersionParameter -Name $Name -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion -RequiredVersion $RequiredVersion
 
 	# If a user wants to check whether the latest version is installed, first check the repo for what the latest version is
 	if ($RequiredVersion -eq 'latest') {

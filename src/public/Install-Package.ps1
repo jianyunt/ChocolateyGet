@@ -9,7 +9,7 @@ function Install-Package {
 		$FastPackageReference,
 
 		[string]
-		$AdditionalArgs = (Get-AdditionalArguments)
+		$AdditionalArgs = (Get-AdditionalArgument)
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
