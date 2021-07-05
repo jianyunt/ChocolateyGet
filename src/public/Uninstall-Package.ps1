@@ -1,5 +1,6 @@
 # It is required to implement this function for the providers that support UnInstall-Package.
 function Uninstall-Package {
+	# [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidOverwritingBuiltInCmdlets', '', Justification='Required by PackageManagement')]
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory=$true)]

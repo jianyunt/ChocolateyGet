@@ -1,4 +1,5 @@
 function Install-ChocoBinaries {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Justification='The Chocolatey install script is trusted')]
 	[CmdletBinding()]
 	[OutputType([bool])]
 

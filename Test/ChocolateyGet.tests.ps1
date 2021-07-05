@@ -1,4 +1,7 @@
-﻿$ChocolateyGet = 'ChocolateyGet'
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification='PSSA does not understand Pester scopes well')]
+param()
+
+$ChocolateyGet = 'ChocolateyGet'
 
 Import-PackageProvider $ChocolateyGet -Force
 
@@ -183,7 +186,7 @@ Describe "$platform version filters" {
 
 	Context '"latest" version' {
 		It 'does not find the "latest" locally installed version if an outdated version is installed' {
-			Install-Package -name $package -requiredVersion $version -Provider $ChocolateyGet -Force
+			Install-Package -Name $package -RequiredVersion $version -Provider $ChocolateyGet -Force
 			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' -ErrorAction SilentlyContinue | Where-Object {$_.Name -contains $package} | Should -BeNullOrEmpty
 		}
 		It 'searches for and silently installs the latest package version' {

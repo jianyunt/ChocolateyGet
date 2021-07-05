@@ -1,4 +1,5 @@
 function Remove-PackageSource {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification='ShouldProcess support not required by PackageManagement API spec')]
 	param (
 		[Parameter(Mandatory=$true)]
 		[ValidateNotNullOrEmpty()]
