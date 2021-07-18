@@ -45,7 +45,7 @@ function Install-Package {
 		Name = $Matches.name
 		Version = $Matches.version
 		Source = $Matches.source
-		Force = Get-ForceProperty
+		Force = Get-ProviderDynamicFlag -Name $script:Force
 		Parameters = $PackageParameters
 		InstallArguments = $InstallArguments
 	}
