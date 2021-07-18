@@ -18,13 +18,10 @@ function Find-ChocoPackage {
 	)
 
 	$options = $request.Options
-	foreach( $o in $options.Keys ) {
-		Write-Debug ( "OPTION: {0} => {1}" -f ($o, $options[$o]) )
-	}
 
 	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
-	if ($options -and $options.ContainsKey('Source')) {
+	if ($options -And $options.ContainsKey('Source')) {
 		# Finding the matched package sources from the registered ones
 		Write-Verbose ($LocalizedData.SpecifiedSource -f ($options['Source']))
 		if ($RegisteredPackageSources.Name -eq $options['Source']) {
@@ -65,19 +62,19 @@ function Find-ChocoPackage {
 		$chocoParams.Add('Version',$requiredVersion)
 	}
 
-	if ($minimumVersion -or $maximumVersion -or $options.ContainsKey($script:AllVersions)) {
+	if ($minimumVersion -Or $maximumVersion -Or $options.ContainsKey($script:AllVersions)) {
 		# Choco does not support searching by min or max version, so if a user is picky we'll need to pull back all versions and filter ourselves
 		$chocoParams.Add('AllVersions',$true)
 	}
 
-	if (-not ($env:CHOCO_NONEXACT_SEARCH -or [WildcardPattern]::ContainsWildcardCharacters($Name))) {
+	if (-Not ($env:CHOCO_NONEXACT_SEARCH -Or [WildcardPattern]::ContainsWildcardCharacters($Name))) {
 		# Limit NuGet result set to just the specific package name if version is specified
 		# Have to keep choco pinned to 0.10.13 due to https://github.com/chocolatey/choco/issues/1843 - should be fixed in 0.10.16, which is still in beta
 		$chocoParams.Add('Exact',$true)
 	}
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
-	# Will only terminate if Choco fails to call choco.exe
+	# Will only terminate if Foil fails to call choco.exe
 	Foil\Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Source $selectedSource |
 		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

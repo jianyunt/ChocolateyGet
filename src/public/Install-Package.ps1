@@ -25,7 +25,7 @@ function Install-Package {
 	Write-Debug -Message ($LocalizedData.FastPackageReference -f $FastPackageReference)
 
 	# If the fast package preference doesnt match the pattern we expect, throw an exception
-	if ((-not ($FastPackageReference -match $script:FastReferenceRegex)) -or (-not ($Matches.name -and $Matches.version))) {
+	if ((-Not ($FastPackageReference -Match $script:FastReferenceRegex)) -Or (-Not ($Matches.name -And $Matches.version))) {
 		ThrowError -ExceptionName "System.ArgumentException" `
 			-ExceptionMessage ($LocalizedData.FailToInstall -f $FastPackageReference) `
 			-ErrorId 'FailToInstall' `
@@ -36,7 +36,7 @@ function Install-Package {
 	$shouldContinueCaption = $LocalizedData.InstallPackageCaption
 
 	# If the user opts not to install the package, exit from the script
-	if (-not ((Get-PromptBypass) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
+	if (-Not ((Get-PromptBypass) -Or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
 		Write-Warning ($LocalizedData.NotInstalled -f $FastPackageReference)
 		return
 	}
@@ -45,7 +45,7 @@ function Install-Package {
 		Name = $Matches.name
 		Version = $Matches.version
 		Source = $Matches.source
-		Force = Get-ProviderDynamicFlag -Name $script:Force
+		Force = $request.Options.ContainsKey($script:Force)
 		Parameters = $PackageParameters
 		InstallArguments = $InstallArguments
 	}
@@ -62,21 +62,21 @@ function Install-Package {
 	$argFilterRegex = '\w*(?:arg)\w*'
 
 	[regex]::Split($AdditionalArgs,$argSplitRegex) | ForEach-Object {
-		if ($_ -match $paramGlobalRegex) {
+		if ($_ -Match $paramGlobalRegex) {
 			$chocoParams.ParamsGlobal = $True
-		} elseif ($_ -match $paramFilterRegex) {
+		} elseif ($_ -Match $paramFilterRegex) {
 			# Just get the parameters and trim quotes on either end
 			$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
-		} elseif ($_ -match $argGlobalRegex) {
+		} elseif ($_ -Match $argGlobalRegex) {
 			$chocoParams.ArgsGlobal = $True
-		} elseif ($_ -match $argFilterRegex) {
+		} elseif ($_ -Match $argFilterRegex) {
 			$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
 		}
 	}
 
 	$swid = $(
 		$result = Foil\Install-ChocoPackage @chocoParams
-		if (-not $result) {
+		if (-Not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
 			-ErrorID 'JobFailure' `
@@ -85,8 +85,8 @@ function Install-Package {
 		ConvertTo-SoftwareIdentity -ChocoOutput $result -Source $chocoParams.source
 	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $chocoParams.version -ErrorAction SilentlyContinue}
 
-	if (-not $swid) {
-		# Choco didn't throw an exception but we also couldn't pull a Software Identity from the output.
+	if (-Not $swid) {
+		# Foil didn't throw an exception but we also couldn't pull a Software Identity from the output.
 		# The output format Choco.exe may have changed from what our regex pattern was expecting.
 		Write-Warning ($LocalizedData.UnexpectedChocoResponse -f $FastPackageReference)
 	}

@@ -21,7 +21,7 @@ function Test-PackageVersion {
 	)
 
 	# User didn't have any version requirements
-	if (-not ($RequiredVersion -or $MinimumVersion -or $MaximumVersion)) {
+	if (-Not ($RequiredVersion -Or $MinimumVersion -Or $MaximumVersion)) {
 		return $true
 	}
 
@@ -33,9 +33,9 @@ function Test-PackageVersion {
 	}
 
 	# Conditional filtering of the version based on optional minimum and maximum version requirements
-	# Would prefer to express this with ternary operators, but that's not supported with PowerShell 5.1
-	$null -ne (
-		$version | Where-Object {-Not $MinimumVersion -or ($_ -ge [System.Version]$MinimumVersion)} |
-			Where-Object {-Not $MaximumVersion -or ($_ -le [System.Version]$MaximumVersion)}
-	)
+	(-Not $MinimumVersion -Or (
+		$version -ge [System.Version]$MinimumVersion
+	)) -And (-Not $MaximumVersion -Or (
+		$version -le [System.Version]$MaximumVersion
+	))
 }
