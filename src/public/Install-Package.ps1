@@ -14,11 +14,11 @@ function Install-Package {
 
 		[Parameter()]
 		[string]
-    $InstallArguments = ($request.Options[$script:InstallArguments]),
+		$InstallArguments = ($request.Options[$script:InstallArguments]),
 
 		[Parameter()]
 		[string]
-    $PackageParameters = ($request.Options[$script:PackageParameters])
+		$PackageParameters = ($request.Options[$script:PackageParameters])
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
