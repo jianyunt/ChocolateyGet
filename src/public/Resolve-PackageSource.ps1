@@ -7,7 +7,7 @@ function Resolve-PackageSource {
 	$Sources = $request.PackageSources
 
 	# No source name pattern specified, so return everything
-	if (-not $Sources) {
+	if (-Not $Sources) {
 		$Sources = "*"
 	}
 
@@ -19,7 +19,7 @@ function Resolve-PackageSource {
 		$src = $_.Name
 		Write-Debug "Source $src is registred"
 		# Pass the source on only if it matches the provided name pattern
-		$Sources | Where-Object { $src -like $_ }
+		$Sources | Where-Object { $src -Like $_ }
 	} | ForEach-Object {
 		New-PackageSource -Name $_.Name -Location $_.Location -Trusted $true -Registered $true
 	}

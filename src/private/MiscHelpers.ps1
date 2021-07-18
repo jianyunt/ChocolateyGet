@@ -1,24 +1,10 @@
-# Get AdditionalArguments property from the input cmdline
-function Get-ProviderDynamicFlag {
-	[CmdletBinding()]
-	[OutputType([bool])]
-	param (
-		[Parameter(Mandatory = $true)]
-		[ValidateNotNullOrEmpty()]
-		[System.String]
-		$Name
-	)
-
-	$request.Options.ContainsKey($Name)
-}
-
 function Get-PromptBypass {
 	[CmdletBinding()]
 	[OutputType([bool])]
 	param (
 	)
 
-	(Get-ProviderDynamicFlag -Name $script:Force) -or (Get-ProviderDynamicFlag -Name $script:AcceptLicense)
+	$request.Options.ContainsKey($script:Force) -Or $request.Options.ContainsKey($script:AcceptLicense)
 }
 
 # Utility to throw an errorrecord
