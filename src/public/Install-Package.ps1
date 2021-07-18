@@ -74,9 +74,6 @@ function Install-Package {
 		}
 	}
 
-	Write-Debug "chocoParams ="
-	$chocoParams | ConvertTo-Json -Depth 10 | Out-String -Width 200 | ForEach-Object { Write-Debug "$_" }
-
 	$swid = $(
 		$result = Foil\Install-ChocoPackage @chocoParams
 		if (-not $result) {
