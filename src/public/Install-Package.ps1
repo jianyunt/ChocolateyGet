@@ -1,5 +1,6 @@
 # It is required to implement this function for the providers that support install-package.
 function Install-Package {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidOverwritingBuiltInCmdlets', '', Justification='Required by PackageManagement')]
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory=$true)]
@@ -7,14 +8,17 @@ function Install-Package {
 		[string]
 		$FastPackageReference,
 
+		[Parameter()]
 		[string]
-		$AdditionalArgs = (Get-ProviderAdditionalParameter $script:additionalArguments),
+		$AdditionalArgs = ($request.Options[$script:AdditionalArguments]),
 
+		[Parameter()]
 		[string]
-		$ChocoPackageParameters = (Get-ProviderAdditionalParameter $script:ProviderAdditionalParameterPackageParameters),
+    $InstallArguments = ($request.Options[$script:InstallArguments]),
 
+		[Parameter()]
 		[string]
-		$ChocoInstallArguments = (Get-ProviderAdditionalParameter $script:ProviderAdditionalParameterInstallArguments)
+    $PackageParameters = ($request.Options[$script:PackageParameters])
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -32,7 +36,7 @@ function Install-Package {
 	$shouldContinueCaption = $LocalizedData.InstallPackageCaption
 
 	# If the user opts not to install the package, exit from the script
-	if (-not (((Get-ForceProperty) -or (Get-AcceptLicenseProperty)) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
+	if (-not ((Get-PromptBypass) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
 		Write-Warning ($LocalizedData.NotInstalled -f $FastPackageReference)
 		return
 	}
@@ -42,8 +46,8 @@ function Install-Package {
 		Version = $Matches.version
 		Source = $Matches.source
 		Force = Get-ForceProperty
-		Parameters = $ChocoPackageParameters
-		InstallArguments = $ChocoInstallArguments
+		Parameters = $PackageParameters
+		InstallArguments = $InstallArguments
 	}
 
 	# Split on the first hyphen of each option/switch
@@ -74,14 +78,14 @@ function Install-Package {
 	$chocoParams | ConvertTo-Json -Depth 10 | Out-String -Width 200 | ForEach-Object { Write-Debug "$_" }
 
 	$swid = $(
-		$result = Install-ChocoPackage @chocoParams
+		$result = Foil\Install-ChocoPackage @chocoParams
 		if (-not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
 			-ErrorID 'JobFailure' `
 			-ErrorCategory InvalidOperation `
 		}
-		ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $chocoParams.name -Source $chocoParams.source
+		ConvertTo-SoftwareIdentity -ChocoOutput $result -Source $chocoParams.source
 	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $chocoParams.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {

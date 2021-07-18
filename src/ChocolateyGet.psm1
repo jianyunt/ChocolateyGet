@@ -2,15 +2,14 @@
 [string]$ScriptPath = Split-Path (Get-Variable MyInvocation -Scope Script).Value.MyCommand.Definition -Parent
 
 # Define provider related variables
-$script:PackageSource = "Chocolatey"
-$script:additionalArguments = "AdditionalArguments"
-$script:AllVersions = "AllVersions"
 $script:AcceptLicense = "AcceptLicense"
-$script:ProviderAdditionalParameterPackageParameters = "PackageParameters"
-$script:ProviderAdditionalParameterInstallArguments = "InstallArguments"
 
-# Define choco related variables
-$script:ChocoExeName = 'choco.exe'
+$script:AdditionalArguments = "AdditionalArguments"
+$script:AllVersions = "AllVersions"
+$script:Force = "Force"
+$script:PackageSource = "Chocolatey"
+$script:PackageParameters = "PackageParameters"
+$script:InstallArguments = "InstallArguments"
 
 # Utility variables
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
@@ -46,5 +45,5 @@ Get-ChildItem $ScriptPath/public -Recurse -Filter '*.ps1' -File | ForEach-Object
 # Install Chocolatey if not already present
 if (-not (Get-ChocoPath)) {
 	Write-Debug ("Choco not already installed")
-	Install-ChocoBinaries
+	Install-Chocolatey
 }

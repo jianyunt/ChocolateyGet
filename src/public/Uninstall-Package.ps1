@@ -1,5 +1,6 @@
 # It is required to implement this function for the providers that support UnInstall-Package.
 function Uninstall-Package {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidOverwritingBuiltInCmdlets', '', Justification='Required by PackageManagement')]
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory=$true)]
@@ -22,18 +23,18 @@ function Uninstall-Package {
 	$chocoParams = @{
 		Name = $Matches.name
 		Version = $Matches.version
-		Force = Get-ForceProperty
+		Force = Get-ProviderDynamicFlag -Name $script:Force
 	}
 
 	$swid = $(
-		$result = Uninstall-ChocoPackage @chocoParams
+		$result = Foil\Uninstall-ChocoPackage @chocoParams
 		if (-not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
 			-ErrorID 'JobFailure' `
 			-ErrorCategory InvalidOperation `
 		}
-		ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Name -Source $Matches.source
+		ConvertTo-SoftwareIdentity -ChocoOutput $result -Source $Matches.source
 	)
 
 	if (-not $swid) {

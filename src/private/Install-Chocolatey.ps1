@@ -1,4 +1,5 @@
-function Install-ChocoBinaries {
+function Install-Chocolatey {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Justification='The Chocolatey install script is trusted')]
 	[CmdletBinding()]
 	[OutputType([bool])]
 
@@ -6,7 +7,7 @@ function Install-ChocoBinaries {
 	)
 
 	# If the user opts not to install Chocolatey, throw an exception
-	if (-not (((Get-ForceProperty) -or (Get-AcceptLicenseProperty)) -or $request.ShouldContinue($LocalizedData.InstallChocoExeShouldContinueQuery, $LocalizedData.InstallChocoExeShouldContinueCaption))) {
+	if (-not ((Get-PromptBypass) -or $request.ShouldContinue($LocalizedData.InstallChocoExeShouldContinueQuery, $LocalizedData.InstallChocoExeShouldContinueCaption))) {
 		ThrowError -ExceptionName 'System.OperationCanceledException' `
 			-ExceptionMessage ($LocalizedData.UserDeclined -f "install") `
 			-ErrorId 'UserDeclined' `

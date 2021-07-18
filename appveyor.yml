@@ -3,20 +3,19 @@ version: 1.0.{build}
 image: Visual Studio 2019
 
 install:
-  - cinst pester --version 4.10.1
+  - ps: Install-Module Pester -Force -SkipPublisherCheck
+  - ps: Install-Module PsScriptAnalyzer -Force
+  - ps: Install-Module Foil -Force
 
 build_script:
   - ps: |
-      Install-Module -Name Foil -Force
       New-Item -ItemType Directory -Name ChocolateyGet -Path ~\Documents\WindowsPowerShell\Modules\
-      Copy-Item .\src\* ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
+      Copy-Item -Path .\src\* -Destination ~\Documents\WindowsPowerShell\Modules\ChocolateyGet\ -Recurse
       Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
 
 test_script:
-  - ps: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.FullCLR.xml
-  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.FullCLR.xml))
-  - pwsh: Invoke-Pester -EnableExit -OutputFormat NUnitXml -OutputFile TestsResults.CoreCLR.xml
-  - pwsh: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.CoreCLR.xml))
+  - ps: Invoke-Pester -CI
 
 on_finish:
-  - ps: Get-ChildItem $env:programdata\chocolatey\logs | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testResults.xml))
+  - ps: Get-ChildItem $env:ProgramData\chocolatey\logs | %{ Push-AppveyorArtifact $_.FullName -FileName $_.Name }

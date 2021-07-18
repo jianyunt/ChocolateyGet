@@ -1,16 +1,16 @@
-﻿$ChocolateyGet = 'ChocolateyGet'
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification='PSSA does not understand Pester scopes well')]
+param()
 
-Import-PackageProvider $ChocolateyGet -Force
-
-if ($PSEdition -eq 'Desktop') {
-	$platform = 'FullCLR'
-} else {
-	$platform = 'CoreCLR'
+BeforeAll {
+	$ChocolateyGet = 'ChocolateyGet'
+	Import-PackageProvider $ChocolateyGet -Force
 }
 
-Describe "$platform basic package search operations" {
+Describe 'basic package search operations' {
 	Context 'without additional arguments' {
-		$package = 'cpu-z'
+		BeforeAll {
+			$package = 'cpu-z'
+		}
 
 		It 'gets a list of latest installed packages' {
 			Get-Package -Provider $ChocolateyGet | Where-Object {$_.Name -contains 'chocolatey'} | Should -Not -BeNullOrEmpty
@@ -39,9 +39,11 @@ Describe "$platform basic package search operations" {
 	}
 }
 
-Describe "$platform DSC-compliant package installation and uninstallation" {
+Describe 'DSC-compliant package installation and uninstallation' {
 	Context 'without additional arguments' {
-		$package = 'cpu-z'
+		BeforeAll {
+			$package = 'cpu-z'
+		}
 
 		It 'searches for the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
@@ -82,9 +84,11 @@ Describe "$platform DSC-compliant package installation and uninstallation" {
 	}
 }
 
-Describe "$platform pipline-based package installation and uninstallation" {
+Describe 'pipline-based package installation and uninstallation' {
 	Context 'without additional arguments' {
-		$package = 'cpu-z'
+		BeforeAll {
+			$package = 'cpu-z'
+		}
 
 		It 'searches for and silently installs the latest version of a package' {
 			Find-Package -Provider $ChocolateyGet -Name $package | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
@@ -113,7 +117,7 @@ Describe "$platform pipline-based package installation and uninstallation" {
 	}
 }
 
-Describe "$platform multi-source support" {
+Describe 'multi-source support' {
 	BeforeAll {
 		$altSource = 'LocalChocoSource'
 		$altLocation = $PSScriptRoot
@@ -145,11 +149,12 @@ Describe "$platform multi-source support" {
 	}
 }
 
-Describe "$platform version filters" {
-	$package = 'ninja'
-	# Keep at least one version back, to test the 'latest' feature
-	$version = '1.10.1'
-
+Describe 'version filters' {
+	BeforeAll {
+		$package = 'ninja'
+		# Keep at least one version back, to test the 'latest' feature
+		$version = '1.10.1'
+	}
 	AfterAll {
 		Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue
 	}
@@ -183,7 +188,7 @@ Describe "$platform version filters" {
 
 	Context '"latest" version' {
 		It 'does not find the "latest" locally installed version if an outdated version is installed' {
-			Install-Package -name $package -requiredVersion $version -Provider $ChocolateyGet -Force
+			Install-Package -Name $package -RequiredVersion $version -Provider $ChocolateyGet -Force
 			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' -ErrorAction SilentlyContinue | Where-Object {$_.Name -contains $package} | Should -BeNullOrEmpty
 		}
 		It 'searches for and silently installs the latest package version' {
@@ -191,6 +196,34 @@ Describe "$platform version filters" {
 		}
 		It 'finds and silently uninstalls a specific package version' {
 			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -gt $version} | Should -Not -BeNullOrEmpty
+		}
+	}
+}
+
+Describe "error handling on Chocolatey failures" {
+	Context 'package installation' {
+		BeforeAll {
+			$package = 'googlechrome'
+			# This version is known to be broken, per https://github.com/chocolatey-community/chocolatey-coreteampackages/issues/1608
+			$version = '87.0.4280.141'
+		}
+		AfterAll {
+			Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue
+		}
+
+		It 'searches for and fails to silently install a broken package version' {
+			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
+		}
+	}
+	Context 'package uninstallation' {
+		BeforeAll {
+			$package = 'chromium'
+			# This version is known to be broken, per https://github.com/chocolatey-community/chocolatey-coreteampackages/issues/341
+			$version = '56.0.2897.0'
+		}
+
+		It 'searches for, installs, and fails to silently uninstall a broken package version' {
+			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Uninstall-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
 		}
 	}
 }
