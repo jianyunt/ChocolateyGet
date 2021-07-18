@@ -1,52 +1,24 @@
 # Get AdditionalArguments property from the input cmdline
-function Get-AdditionalArgument {
+function Get-ProviderDynamicFlag {
 	[CmdletBinding()]
-	[OutputType([string])]
+	[OutputType([bool])]
 	param (
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]
+		$Name
 	)
 
-	$additionalArgs = $null
-	$options = $request.Options
-
-	if($options.ContainsKey($script:additionalArguments)) {
-		$additionalArgs = $options[$script:additionalArguments]
-	}
-
-	$additionalArgs
+	$request.Options.ContainsKey($Name)
 }
 
-# Find whether a user specifies -force
-function Get-ForceProperty {
+function Get-PromptBypass {
 	[CmdletBinding()]
 	[OutputType([bool])]
 	param (
 	)
 
-	$force = $false
-	$options = $request.Options
-
-	if ($options.ContainsKey('Force')) {
-		$force = (-not [System.String]::IsNullOrWhiteSpace($options['Force']))
-	}
-
-	$force
-}
-
-# Find whether a user specifies -AcceptLicense
-function Get-AcceptLicenseProperty {
-	[CmdletBinding()]
-	[OutputType([bool])]
-	param (
-	)
-
-	$acceptLicense = $false
-	$options = $request.Options
-
-	if ($options.ContainsKey($script:AcceptLicense)) {
-		$acceptLicense = (-not [System.String]::IsNullOrWhiteSpace($options[$script:AcceptLicense]))
-	}
-
-	$acceptLicense
+	(Get-ProviderDynamicFlag -Name $script:Force) -or (Get-ProviderDynamicFlag -Name $script:AcceptLicense)
 }
 
 # Utility to throw an errorrecord
@@ -54,16 +26,16 @@ function ThrowError {
 	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidOverwritingBuiltInCmdlets', '', Justification='ThrowError exists in neither 5.1 or 7+. PSSAs documentation is outdated.')]
 	param (
 		# We need to grab and use the 'parent' (parent = 1) scope to properly return output to the user
-		[parameter()]
+		[Parameter()]
 		[System.Management.Automation.PSCmdlet]
 		$CallerPSCmdlet = ((Get-Variable -Scope 1 'PSCmdlet').Value),
 
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
 		[System.String]
 		$ExceptionName,
 
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
 		[System.String]
 		$ExceptionMessage,
@@ -71,12 +43,12 @@ function ThrowError {
 		[System.Object]
 		$ExceptionObject,
 
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
 		[System.String]
 		$ErrorId,
 
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[ValidateNotNull()]
 		[System.Management.Automation.ErrorCategory]
 		$ErrorCategory

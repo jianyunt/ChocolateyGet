@@ -8,8 +8,9 @@ function Install-Package {
 		[string]
 		$FastPackageReference,
 
+		[Parameter()]
 		[string]
-		$AdditionalArgs = (Get-AdditionalArgument)
+		$AdditionalArgs = ($request.Options[$script:AdditionalArguments])
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -27,7 +28,7 @@ function Install-Package {
 	$shouldContinueCaption = $LocalizedData.InstallPackageCaption
 
 	# If the user opts not to install the package, exit from the script
-	if (-not (((Get-ForceProperty) -or (Get-AcceptLicenseProperty)) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
+	if (-not ((Get-PromptBypass) -or $request.ShouldContinue($shouldContinueQueryMessage, $shouldContinueCaption))) {
 		Write-Warning ($LocalizedData.NotInstalled -f $FastPackageReference)
 		return
 	}
@@ -36,7 +37,7 @@ function Install-Package {
 		Name = $Matches.name
 		Version = $Matches.version
 		Source = $Matches.source
-		Force = Get-ForceProperty
+		Force = Get-ProviderDynamicFlag -Name $script:Force
 	}
 
 	# Split on the first hyphen of each option/switch
@@ -71,7 +72,7 @@ function Install-Package {
 			-ErrorID 'JobFailure' `
 			-ErrorCategory InvalidOperation `
 		}
-		ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $chocoParams.name -Source $chocoParams.source
+		ConvertTo-SoftwareIdentity -ChocoOutput $result -Source $chocoParams.source
 	) | Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $chocoParams.version -ErrorAction SilentlyContinue}
 
 	if (-not $swid) {
