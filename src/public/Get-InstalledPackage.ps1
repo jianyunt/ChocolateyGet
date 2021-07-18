@@ -33,14 +33,13 @@ function Get-InstalledPackage {
 
 	# If a user provides a name without a wildcard, include it in the search
 	# This provides wildcard search behavior for locally installed packages, which Chocolatey lacks
-	if ($Name -and -not ([WildcardPattern]::ContainsWildcardCharacters($Name))) {
+	if ($Name -And -Not ([WildcardPattern]::ContainsWildcardCharacters($Name))) {
 		$chocoParams.Add('Name',$Name)
 	}
 
 	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
-	# Will only terminate if Choco fails to call choco.exe
-	# Would prefer to express this with ternary operators, but that's not supported with PowerShell 5.1
+	# Will only terminate if Foil fails to call choco.exe
 	Foil\Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity |
-		Where-Object {-Not $Name -or ($_.Name -Like $Name)} |
+		Where-Object {-Not $Name -Or ($_.Name -Like $Name)} |
 			Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

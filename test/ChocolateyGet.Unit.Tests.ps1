@@ -161,28 +161,28 @@ Describe 'version filters' {
 
 	Context 'required version' {
 		It 'searches for and silently installs a specific package version' {
-			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -eq $version} | Should -Not -BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -eq $version} | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls a specific package version' {
-			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -eq $version} | Should -Not -BeNullOrEmpty
+			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -eq $version} | Should -Not -BeNullOrEmpty
 		}
 	}
 
 	Context 'minimum version' {
 		It 'searches for and silently installs a minimum package version' {
-			Find-Package -Provider $ChocolateyGet -Name $package -MinimumVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -ge $version} | Should -Not -BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -MinimumVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls a minimum package version' {
-			Get-Package -Provider $ChocolateyGet -Name $package -MinimumVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -ge $version} | Should -Not -BeNullOrEmpty
+			Get-Package -Provider $ChocolateyGet -Name $package -MinimumVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
 		}
 	}
 
 	Context 'maximum version' {
 		It 'searches for and silently installs a maximum package version' {
-			Find-Package -Provider $ChocolateyGet -Name $package -MaximumVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -le $version} | Should -Not -BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -MaximumVersion $version | Install-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -le $version} | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls a maximum package version' {
-			Get-Package -Provider $ChocolateyGet -Name $package -MaximumVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -le $version} | Should -Not -BeNullOrEmpty
+			Get-Package -Provider $ChocolateyGet -Name $package -MaximumVersion $version | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -le $version} | Should -Not -BeNullOrEmpty
 		}
 	}
 
@@ -192,10 +192,10 @@ Describe 'version filters' {
 			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' -ErrorAction SilentlyContinue | Where-Object {$_.Name -contains $package} | Should -BeNullOrEmpty
 		}
 		It 'searches for and silently installs the latest package version' {
-			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | Install-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -gt $version} | Should -Not -BeNullOrEmpty
+			Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | Install-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -gt $version} | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls a specific package version' {
-			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -and $_.Version -gt $version} | Should -Not -BeNullOrEmpty
+			Get-Package -Provider $ChocolateyGet -Name $package -RequiredVersion 'latest' | UnInstall-Package -Force | Where-Object {$_.Name -contains $package -And $_.Version -gt $version} | Should -Not -BeNullOrEmpty
 		}
 	}
 }
