@@ -18,11 +18,6 @@ ConvertFrom-StringData @'
 	InstallPackageQuery={0} package '{1}'. By {0} you accept licenses for the package(s). The package possibly needs to run 'chocolateyInstall.ps1'.
 	InstallPackageCaption=Are you sure you want to perform this action?
 
-	AllVersionsCannotBeUsedWithOtherVersionParameters=You cannot use the parameter AllVersions with RequiredVersion, MinimumVersion or MaximumVersion in the same command.
-	VersionRangeAndRequiredVersionCannotBeSpecifiedTogether=You cannot use the parameters RequiredVersion and either MinimumVersion or MaximumVersion in the same command. Specify only one of these parameters in your command.
-	MinimumVersionIsGreaterThanMaximumVersion=The specified MinimumVersion '{0}' is greater than the specified MaximumVersion '{1}'.
-	VersionParametersAreAllowedOnlyWithSingleName=The RequiredVersion, MinimumVersion, MaximumVersion or AllVersions parameters are allowed only when you specify a single name as the value of the Name parameter, without any wildcard characters.
-
 	SpecifiedSource=Using the specified source names: '{0}'.
 	PackageSourceNotFound=No package source with the name '{0}' was found.
 	UnspecifiedSource=Multiple non-default sources are available, but the default source is not. A source name must be specified.

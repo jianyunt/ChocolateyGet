@@ -2,13 +2,11 @@
 [string]$ScriptPath = Split-Path (Get-Variable MyInvocation -Scope Script).Value.MyCommand.Definition -Parent
 
 # Define provider related variables
-$script:PackageSource = "Chocolatey"
-$script:additionalArguments = "AdditionalArguments"
-$script:AllVersions = "AllVersions"
 $script:AcceptLicense = "AcceptLicense"
-
-# Define choco related variables
-$script:ChocoExeName = 'choco.exe'
+$script:AdditionalArguments = "AdditionalArguments"
+$script:AllVersions = "AllVersions"
+$script:Force = "Force"
+$script:PackageSource = "Chocolatey"
 
 # Utility variables
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"

@@ -23,7 +23,7 @@ function Uninstall-Package {
 	$chocoParams = @{
 		Name = $Matches.name
 		Version = $Matches.version
-		Force = Get-ForceProperty
+		Force = Get-ProviderDynamicFlag -Name $script:Force
 	}
 
 	$swid = $(
@@ -34,7 +34,7 @@ function Uninstall-Package {
 			-ErrorID 'JobFailure' `
 			-ErrorCategory InvalidOperation `
 		}
-		ConvertTo-SoftwareIdentity -ChocoOutput $result -Name $Name -Source $Matches.source
+		ConvertTo-SoftwareIdentity -ChocoOutput $result -Source $Matches.source
 	)
 
 	if (-not $swid) {

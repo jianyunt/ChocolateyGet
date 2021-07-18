@@ -15,7 +15,7 @@ function Resolve-PackageSource {
 	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
 	# Filter sources by whether they're disabled in Chocolatey
-	$RegisteredPackageSources | Where-Object {
+	$RegisteredPackageSources | Where-Object {$_.Disabled -eq 'False'} | Where-Object {
 		$src = $_.Name
 		Write-Debug "Source $src is registred"
 		# Pass the source on only if it matches the provided name pattern

@@ -20,11 +20,11 @@ function Get-DynamicOptions {
 
 	switch ($category) {
 		Package {
-			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:additionalArguments -ExpectedType String -IsRequired $false)
+			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:AdditionalArguments -ExpectedType String -IsRequired $false)
 			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:AcceptLicense -ExpectedType Switch -IsRequired $false)
 		}
 		Install {
-			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:additionalArguments -ExpectedType String -IsRequired $false)
+			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:AdditionalArguments -ExpectedType String -IsRequired $false)
 			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:AcceptLicense -ExpectedType Switch -IsRequired $false)
 		}
 	}
