@@ -7,8 +7,8 @@ $script:AdditionalArguments = "AdditionalArguments"
 $script:AllVersions = "AllVersions"
 $script:Force = "Force"
 $script:InstallArguments = "InstallArguments"
-$script:PackageSource = "Chocolatey"
 $script:PackageParameters = "PackageParameters"
+$script:PackageSource = "Chocolatey"
 
 # Utility variables
 $script:FastReferenceRegex = "(?<name>[^#]*)#(?<version>[^\s]*)#(?<source>[^#]*)"
