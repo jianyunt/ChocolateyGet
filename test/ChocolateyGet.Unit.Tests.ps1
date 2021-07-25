@@ -220,7 +220,7 @@ Describe "error handling on Chocolatey failures" {
 			$package = 'chromium'
 			# This version is known to be broken, per https://github.com/chocolatey-community/chocolatey-coreteampackages/issues/341
 			$version = '56.0.2897.0'
-			Install-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+			Install-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version -Force
 		}
 
 		It 'fails to silently uninstall a package that cannot be uninstalled' {
