@@ -191,12 +191,6 @@ Until [Chocolatey 0.10.16 is released](https://github.com/chocolatey/choco/miles
   Install-Package chocolatey -RequiredVersion 0.10.13 -Provider ChocolateyGet -Force
   Install-Package ninja -MaximumVersion 1.9.0 -Provider ChocolateyGet
   ```
-- If you **must** use Chocolatey 0.10.14 or 0.10.15 for some reason, include the environment variable CHOCO_NONEXACT_SEARCH
-  ```PowerShell
-  $env:CHOCO_NONEXACT_SEARCH = $true
-  Install-Package ninja -MaximumVersion 1.9.0 -Provider ChocolateyGet
-  ```
-  - Please note - this will revert the default search behavior change requested in [Issue #20](https://github.com/jianyunt/ChocolateyGet/issues/20)
 
 ## Legal and Licensing
 ChocolateyGet is licensed under the [MIT license](./LICENSE.txt).
