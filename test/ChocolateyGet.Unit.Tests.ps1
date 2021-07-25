@@ -222,7 +222,7 @@ Describe "error handling on Chocolatey failures" {
 			$version = '56.0.2897.0'
 			Install-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
-		
+
 		It 'fails to silently uninstall a package that cannot be uninstalled' {
 			{Uninstall-Package -Provider $ChocolateyGet -Name $package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
 		}
