@@ -30,7 +30,7 @@ function Uninstall-Package {
 		$result = Foil\Uninstall-ChocoPackage @chocoParams
 		if (-Not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
-			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+			-ExceptionMessage $LocalizedData.ChocoFailure`
 			-ErrorID 'JobFailure' `
 			-ErrorCategory InvalidOperation `
 		}

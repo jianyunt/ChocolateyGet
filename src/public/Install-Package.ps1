@@ -41,25 +41,19 @@ function Install-Package {
 	}
 
 	# Split on the first hyphen of each option/switch
-	$argSplitRegex = '(?:^|\s)-'
-	# ParamGlobal Flag
-	$paramGlobalRegex = '\w*-(?:p.+global)\w*'
-	# ArgGlobal Flag
-	$argGlobalRegex = '\w*-(?:(a|i).+global)\w*'
-	# Just parameters
-	$paramFilterRegex = '\w*(?:param)\w*'
-	# Just parameters
-	$argFilterRegex = '\w*(?:arg)\w*'
-
-	[regex]::Split($AdditionalArgs,$argSplitRegex) | ForEach-Object {
-		if ($_ -Match $paramGlobalRegex) {
+	[regex]::Split($AdditionalArgs,'(?:^|\s)-') | ForEach-Object {
+		Write-Debug "AdditionalArgs: $_"
+		if ($_ -Match '\w*-(?:p.+global)\w*') {
+			Write-Debug "Found the ParamsGlobal flag"
 			$chocoParams.ParamsGlobal = $True
-		} elseif ($_ -Match $paramFilterRegex) {
-			# Just get the parameters and trim quotes on either end
+		} elseif ($_ -Match '\w*(?:param)\w*') {
+			Write-Debug "Found package parameters to split and trim"
 			$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
-		} elseif ($_ -Match $argGlobalRegex) {
+		} elseif ($_ -Match '\w*-(?:(a|i).+global)\w*') {
+			Write-Debug "Found the ArgsGlobal flag"
 			$chocoParams.ArgsGlobal = $True
-		} elseif ($_ -Match $argFilterRegex) {
+		} elseif ($_ -Match '\w*(?:arg)\w*') {
+			Write-Debug "Found package arguments to split and trim"
 			$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
 		}
 	}
@@ -68,7 +62,7 @@ function Install-Package {
 		$result = Foil\Install-ChocoPackage @chocoParams
 		if (-Not $result) {
 			ThrowError -ExceptionName 'System.OperationCanceledException' `
-			-ExceptionMessage "The operation failed. Check the Chocolatey logs for more information." `
+			-ExceptionMessage $LocalizedData.ChocoFailure `
 			-ErrorID 'JobFailure' `
 			-ErrorCategory InvalidOperation `
 		}

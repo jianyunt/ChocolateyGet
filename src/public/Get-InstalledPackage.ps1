@@ -20,6 +20,8 @@ function Get-InstalledPackage {
 		$MaximumVersion
 	)
 
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Get-InstalledPackage'))
+
 	# If a user wants to check whether the latest version is installed, first check the repo for what the latest version is
 	if ($RequiredVersion -eq 'latest') {
 		$swid = Find-ChocoPackage -Name $Name
