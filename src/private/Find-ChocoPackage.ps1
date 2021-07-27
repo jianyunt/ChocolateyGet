@@ -21,7 +21,7 @@ function Find-ChocoPackage {
 
 	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
-	$selectedSource = (
+	$selectedSource = $(
 		if ($options -And $options.ContainsKey('Source')) {
 			# Finding the matched package sources from the registered ones
 			if ($RegisteredPackageSources.Name -eq $options['Source']) {
