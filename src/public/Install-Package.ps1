@@ -43,18 +43,23 @@ function Install-Package {
 	# Split on the first hyphen of each option/switch
 	[regex]::Split($AdditionalArgs,'(?:^|\s)-') | ForEach-Object {
 		Write-Debug "AdditionalArgs: $_"
-		if ($_ -Match '\w*-(?:p.+global)\w*') {
-			Write-Debug "Found the ParamsGlobal flag"
-			$chocoParams.ParamsGlobal = $True
-		} elseif ($_ -Match '\w*(?:param)\w*') {
-			Write-Debug "Found package parameters to split and trim"
-			$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
-		} elseif ($_ -Match '\w*-(?:(a|i).+global)\w*') {
-			Write-Debug "Found the ArgsGlobal flag"
-			$chocoParams.ArgsGlobal = $True
-		} elseif ($_ -Match '\w*(?:arg)\w*') {
-			Write-Debug "Found package arguments to split and trim"
-			$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
+		switch -Regex ($_) {
+			'\w*-(?:p.+global)\w*' {
+				Write-Debug "Found the ParamsGlobal flag"
+				$chocoParams.ParamsGlobal = $True
+			}
+			'\w*(?:param)\w*' {
+				Write-Debug "Found package parameters to split and trim"
+				$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
+			}
+			'\w*-(?:(a|i).+global)\w*' {
+				Write-Debug "Found the ArgsGlobal flag"
+				$chocoParams.ArgsGlobal = $True
+			}
+			'\w*(?:arg)\w*' {
+				Write-Debug "Found package arguments to split and trim"
+				$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
+			}
 		}
 	}
 
