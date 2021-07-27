@@ -21,35 +21,36 @@ function Find-ChocoPackage {
 
 	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
-	if ($options -And $options.ContainsKey('Source')) {
-		# Finding the matched package sources from the registered ones
-		Write-Verbose ($LocalizedData.SpecifiedSource -f ($options['Source']))
-		if ($RegisteredPackageSources.Name -eq $options['Source']) {
-			# Found the matched registered source
-			$selectedSource = $options['Source']
-		} else {
-			ThrowError -ExceptionName 'System.ArgumentException' `
+	$selectedSource = (
+		if ($options -And $options.ContainsKey('Source')) {
+			# Finding the matched package sources from the registered ones
+			if ($RegisteredPackageSources.Name -eq $options['Source']) {
+				# Found the matched registered source
+				$options['Source']
+			} else {
+				ThrowError -ExceptionName 'System.ArgumentException' `
 				-ExceptionMessage ($LocalizedData.PackageSourceNotFound -f ($options['Source'])) `
 				-ErrorId 'PackageSourceNotFound' `
 				-ErrorCategory InvalidArgument `
 				-ExceptionObject $options['Source']
-		}
-	} else {
-		# User did not specify a source. Now what?
-		if ($RegisteredPackageSources.Count -eq 1) {
-			# If no source name is specified and only one source is available, use it
-			$selectedSource = $RegisteredPackageSources[0].Name
-		} elseif ($RegisteredPackageSources.Name -eq $script:PackageSource) {
-			# If multiple sources are avaiable but none specified, default to using Chocolatey.org - if present
-			$selectedSource = $script:PackageSource
+			}
 		} else {
-			# If Chocoately.org is not present and no source specified, throw an exception
-			ThrowError -ExceptionName 'System.ArgumentException' `
+			# User did not specify a source. Now what?
+			if ($RegisteredPackageSources.Count -eq 1) {
+				# If no source name is specified and only one source is available, use it
+				$RegisteredPackageSources[0].Name
+			} elseif ($RegisteredPackageSources.Name -eq $script:PackageSource) {
+				# If multiple sources are avaiable but none specified, default to using Chocolatey.org - if present
+				$script:PackageSource
+			} else {
+				# If Chocoately.org is not present and no source specified, throw an exception
+				ThrowError -ExceptionName 'System.ArgumentException' `
 				-ExceptionMessage $LocalizedData.UnspecifiedSource `
 				-ErrorId 'UnspecifiedSource' `
 				-ErrorCategory InvalidArgument
+			}
 		}
-	}
+	)
 
 	Write-Verbose "Source selected: $selectedSource"
 
