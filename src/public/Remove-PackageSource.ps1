@@ -7,7 +7,7 @@ function Remove-PackageSource {
 		$Name
 	)
 
-	Write-Debug ('Remove-PackageSource')
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Remove-PackageSource'))
 
 	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
 
