@@ -47,18 +47,22 @@ function Install-Package {
 			'\w*-(?:p.+global)\w*' {
 				Write-Debug "Found the ParamsGlobal flag"
 				$chocoParams.ParamsGlobal = $True
+				Break
 			}
 			'\w*(?:param)\w*' {
 				Write-Debug "Found package parameters to split and trim"
 				$chocoParams.Parameters = $_.Split(' ',2)[1].Trim('"','''')
+				Break
 			}
 			'\w*-(?:(a|i).+global)\w*' {
 				Write-Debug "Found the ArgsGlobal flag"
 				$chocoParams.ArgsGlobal = $True
+				Break
 			}
 			'\w*(?:arg)\w*' {
 				Write-Debug "Found package arguments to split and trim"
 				$chocoParams.InstallArguments = $_.Split(' ',2)[1].Trim('"','''')
+				Break
 			}
 		}
 	}
