@@ -20,12 +20,12 @@ function Test-PackageVersion {
 		$MaximumVersion
 	)
 
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Test-PackageVersion'))
+
 	# User didn't have any version requirements
 	if (-Not ($RequiredVersion -Or $MinimumVersion -Or $MaximumVersion)) {
 		return $true
 	}
-
-	[System.Version]$version = $Package.Version.TrimStart('v')
 
 	# User specified a specific version - it either matches or it doesn't
 	if ($RequiredVersion) {
