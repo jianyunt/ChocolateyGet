@@ -6,6 +6,8 @@ function Install-Chocolatey {
 	param (
 	)
 
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Install-Chocolatey'))
+
 	# If the user opts not to install Chocolatey, throw an exception
 	if (-Not ((Get-PromptBypass) -Or $request.ShouldContinue($LocalizedData.InstallChocoExeShouldContinueQuery, $LocalizedData.InstallChocoExeShouldContinueCaption))) {
 		ThrowError -ExceptionName 'System.OperationCanceledException' `
