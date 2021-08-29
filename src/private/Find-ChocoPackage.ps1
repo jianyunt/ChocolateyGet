@@ -17,6 +17,8 @@ function Find-ChocoPackage {
 		$MaximumVersion
 	)
 
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Find-ChocoPackage'))
+
 	$options = $request.Options
 
 	[array]$RegisteredPackageSources = Foil\Get-ChocoSource
@@ -37,13 +39,13 @@ function Find-ChocoPackage {
 		} else {
 			# User did not specify a source. Now what?
 			if ($RegisteredPackageSources.Count -eq 1) {
-				# If no source name is specified and only one source is available, use it
+				# If no source name is specified and only one source is available, use that source
 				$RegisteredPackageSources[0].Name
 			} elseif ($RegisteredPackageSources.Name -eq $script:PackageSource) {
 				# If multiple sources are avaiable but none specified, default to using Chocolatey.org - if present
 				$script:PackageSource
 			} else {
-				# If Chocoately.org is not present and no source specified, throw an exception
+				# If Chocoately.org is not present and no source specified, we can't guess what the user wants - throw an exception
 				ThrowError -ExceptionName 'System.ArgumentException' `
 				-ExceptionMessage $LocalizedData.UnspecifiedSource `
 				-ErrorId 'UnspecifiedSource' `
@@ -73,8 +75,7 @@ function Find-ChocoPackage {
 		$chocoParams.Add('Exact',$true)
 	}
 
-	# Return the result without additional evaluation, even if empty, to let PackageManagement handle error management
-	# Will only terminate if Foil fails to call choco.exe
+	# Convert the PSCustomObject output from Foil into PackageManagement SWIDs, then filter results by any version requirements
 	Foil\Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Source $selectedSource |
 		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }

@@ -21,7 +21,7 @@ function Add-PackageSource {
 
 	Foil\Register-ChocoSource -Name $Name -Location $Location
 
-	# Add new package source
+	# Chocolatey / Foil doesn't return anything after new sources are registered, but PackageManagement expects a response
 	$packageSource = @{
 		Name = $Name
 		Location = $Location.TrimEnd("\")

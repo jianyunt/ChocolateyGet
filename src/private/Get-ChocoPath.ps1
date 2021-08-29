@@ -6,6 +6,8 @@ function Get-ChocoPath {
 	param (
 	)
 
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Get-ChocoPath'))
+
 	$ChocoExeName = 'choco.exe'
 
 	# Using Get-Command cmdlet, get the location of Choco.exe if it is available under $env:PATH.
