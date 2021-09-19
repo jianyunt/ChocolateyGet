@@ -78,6 +78,12 @@ function Install-Package {
 		}
 	}
 
+	foreach ($possiblyEmptyParam in @('Parameters', 'InstallArguments')) {
+		if ([string]::IsNullOrEmpty($chocoParams[$possiblyEmptyParam])) {
+			$chocoParams.Remove($possiblyEmptyParam)
+		}
+	}
+
 	# Convert the PSCustomObject output from Foil into PackageManagement SWIDs, then validate what Chocolatey installed matched what we requested
 	$swid = $(
 		$result = Foil\Install-ChocoPackage @chocoParams
