@@ -211,8 +211,8 @@ Describe "error handling on Chocolatey failures" {
 			Uninstall-Package -Name $package -Provider $ChocolateyGet -ErrorAction SilentlyContinue
 		}
 
-		It 'searches for and fails to silently install a broken package version' {
-			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
+		It 'fails to silently install a package that cannot be installed' {
+			{Install-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
 		}
 	}
 	Context 'package uninstallation' {
@@ -220,10 +220,11 @@ Describe "error handling on Chocolatey failures" {
 			$package = 'chromium'
 			# This version is known to be broken, per https://github.com/chocolatey-community/chocolatey-coreteampackages/issues/341
 			$version = '56.0.2897.0'
+			Install-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version -Force
 		}
 
-		It 'searches for, installs, and fails to silently uninstall a broken package version' {
-			{Find-Package -Provider $ChocolateyGet -Name $package -RequiredVersion $version | Install-Package -Force | Uninstall-Package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
+		It 'fails to silently uninstall a package that cannot be uninstalled' {
+			{Uninstall-Package -Provider $ChocolateyGet -Name $package -Force -ErrorAction Stop -WarningAction SilentlyContinue} | Should -Throw
 		}
 	}
 }

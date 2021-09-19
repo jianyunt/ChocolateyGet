@@ -16,11 +16,12 @@ function Add-PackageSource {
 		$Trusted
 	)
 
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Add-PackageSource'))
 	Write-Verbose "New package source: $Name, $Location"
 
 	Foil\Register-ChocoSource -Name $Name -Location $Location
 
-	# Add new package source
+	# Chocolatey / Foil doesn't return anything after new sources are registered, but PackageManagement expects a response
 	$packageSource = @{
 		Name = $Name
 		Location = $Location.TrimEnd("\")

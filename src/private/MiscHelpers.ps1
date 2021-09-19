@@ -4,6 +4,7 @@ function Get-PromptBypass {
 	param (
 	)
 
+	# Skip any user prompts if either the Force or AcceptLicense options passed in the cmdlet invocation
 	$request.Options.ContainsKey($script:Force) -Or $request.Options.ContainsKey($script:AcceptLicense)
 }
 

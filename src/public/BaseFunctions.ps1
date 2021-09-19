@@ -1,5 +1,6 @@
 # Mandatory function for the PackageManagement providers. It returns the name of your provider.
 function Get-PackageProviderName {
+	Write-Debug ($LocalizedData.ProviderDebugMessage -f ('Get-PackageProviderName'))
 	return 'ChocolateyGet'
 }
 
