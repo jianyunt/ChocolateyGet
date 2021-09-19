@@ -84,7 +84,7 @@ Describe 'DSC-compliant package installation and uninstallation' {
 	}
 }
 
-Describe 'pipline-based package installation and uninstallation' {
+Describe 'pipeline-based package installation and uninstallation' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'cpu-z'
