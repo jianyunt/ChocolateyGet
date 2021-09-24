@@ -6,19 +6,7 @@ function Install-Package {
 		[Parameter(Mandatory=$true)]
 		[ValidateNotNullOrEmpty()]
 		[string]
-		$FastPackageReference,
-
-		[Parameter()]
-		[string]
-		$AdditionalArgs = ($request.Options[$script:AdditionalArguments]),
-
-		[Parameter()]
-		[string]
-		$InstallArgs = ($request.Options[$script:InstallArguments]),
-
-		[Parameter()]
-		[string]
-		$PackageParams = ($request.Options[$script:PackageParameters])
+		$FastPackageReference
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -46,12 +34,13 @@ function Install-Package {
 		Version = $Matches.version
 		Source = $Matches.source
 		Force = $request.Options.ContainsKey($script:Force)
-		Parameters = $PackageParams
-		InstallArguments = $InstallArgs
+		Parameters = $request.Options[$script:PackageParameters]
+		InstallArguments = $request.Options[$script:InstallArguments]
 	}
 
 	# Split on the first hyphen of each option/switch
-	[regex]::Split($AdditionalArgs,'(?:^|\s)-') | ForEach-Object {
+	# Overrides values passed through explicit package parameter/argument options
+	[regex]::Split($request.Options[$script:AdditionalArguments],'(?:^|\s)-') | ForEach-Object {
 		Write-Debug "AdditionalArgs: $_"
 		# Check each option/switch against known patterns that we can pass to Foil
 		switch -Regex ($_) {

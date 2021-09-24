@@ -41,7 +41,11 @@ Unregister-PackageSource privateRepo -Provider ChocolateyGet
 ChocolateyGet integrates with Choco.exe to manage and store source information
 
 ## Pass in choco arguments
-If you need to pass in some of choco arguments to the Find, Install, Get and Uninstall-Package cmdlets, you can use AdditionalArguments PowerShell property.
+If you need to pass in additional package installation options, you can use either the dedicated package parameter and argument properties or the combined AdditionalArguments property.
+
+```powershell
+Install-Package sysinternals -Provider ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal' -PackageParameters '/InstallDir:c:\windows\temp\sysinternals /QuickLaunchShortcut:false' -InstallArguments 'MaintenanceService=false' -Verbose
+```
 
 ```powershell
 Install-Package sysinternals -Provider ChocolateyGet -AcceptLicense -AdditionalArguments '--paramsglobal --params "/InstallDir:c:\windows\temp\sysinternals /QuickLaunchShortcut:false" -y --installargs MaintenanceService=false' -Verbose
