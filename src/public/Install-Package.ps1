@@ -14,11 +14,11 @@ function Install-Package {
 
 		[Parameter()]
 		[string]
-		$InstallArguments = ($request.Options[$script:InstallArguments]),
+		$InstallArgs = ($request.Options[$script:InstallArguments]),
 
 		[Parameter()]
 		[string]
-		$PackageParameters = ($request.Options[$script:PackageParameters])
+		$PackageParams = ($request.Options[$script:PackageParameters])
 	)
 
 	Write-Debug -Message ($LocalizedData.ProviderDebugMessage -f ('Install-Package'))
@@ -46,8 +46,8 @@ function Install-Package {
 		Version = $Matches.version
 		Source = $Matches.source
 		Force = $request.Options.ContainsKey($script:Force)
-		Parameters = $PackageParameters
-		InstallArguments = $InstallArguments
+		Parameters = $PackageParams
+		InstallArguments = $InstallArgs
 	}
 
 	# Split on the first hyphen of each option/switch
