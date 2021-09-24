@@ -34,7 +34,7 @@ Get-Package keepass-plugin-winhello -Provider ChocolateyGet -Verbose | Uninstall
 ### Manage package sources
 ```PowerShell
 Register-PackageSource privateRepo -Provider ChocolateyGet -Location 'https://somewhere/out/there/api/v2/'
-Find-Package nodejs -Verbose -Provider ChocolateyGet -Source privateRepo -AdditionalArguments --exact | Install-Package
+Find-Package nodejs -Verbose -Provider ChocolateyGet -Source privateRepo | Install-Package
 Unregister-PackageSource privateRepo -Provider ChocolateyGet
 ```
 
