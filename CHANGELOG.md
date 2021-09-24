@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2021-09-24
+#### Added
+* Support for [package parameters/arguments that start with dashes via separate cmdlet dynamic parameters](https://github.com/jianyunt/ChocolateyGet/issues/29)
+  * Thanks to @jberezanski for the contribution
+#### Fixed
+* Duplicate legacy logic has been tightened up in the following areas:
+  * package name checks
+  * package version parsing and checks
+  * prompt bypass flag checks
+  * parameter/argument parsing
+  * resolving package source information
+* Chocolatey once again will be installed automatically if not already present
+#### Changed
+* Always use exact package name in searches, unless the package name contains a wildcard character
+* Upgraded unit tests to Pester v5 format, and added static code analysis tests with PSScriptAnalyzer
+* Including dependent packages during package uninstalling [must now be explicitly requested](https://github.com/jianyunt/ChocolateyGet/issues/40)
+  * Thanks to @jberezanski for the suggestion
+* Install [Chocolatey 0.11.12 by default](https://github.com/jianyunt/ChocolateyGet/issues/41) if Chocolatey is not already installed
+  * Thanks to @jberezanski for the suggestion
+#### Removed
+* Due to exact package search behavior mentioned above, support for the CHOCO_NONEXACT_SEARCH environment variable has been removed
+
 ## [3.1.1] - 2021-04-02
 #### Fixed
 * Chocolatey once again will be installed automatically if not already present
