@@ -82,9 +82,38 @@ Describe 'DSC-compliant package installation and uninstallation' {
 			Uninstall-Package -Provider $ChocolateyGet -Name $package -AdditionalArguments $params | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 	}
+	Context 'with package parameters passed explicitly' {
+		BeforeAll {
+			$package = 'kitty'
+			$installDir = Join-Path -Path $env:ChocolateyInstall -ChildPath (Join-Path -Path 'lib' -ChildPath $package)
+			$kittyIniPath = Join-Path -Path $installDir -ChildPath (Join-Path -Path 'tools' -ChildPath 'kitty.ini')
+			$packageParams = "/Portable"
+			$wrappedParams = "--params ""/Dummy"""
+			Remove-Item -Force -Recurse -Path $installDir -ErrorAction SilentlyContinue
+		}
+		It 'silently installs the latest version of a package with explicit parameters' {
+			Install-Package -Force -Provider $ChocolateyGet -Name $package -PackageParameters $packageParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'correctly passed explicit parameters to the package' {
+			$kittyIniPath | Should -Exist
+			$kittyIniPath | Should -FileContentMatch 'savemode=dir'
+		}
+		It 'silently uninstalls the locally installed package just installed' {
+			Uninstall-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'silently installs the latest version of a package with explicit and wrapped parameters' {
+			Install-Package -Force -Provider $ChocolateyGet -Name $package -PackageParameters $packageParams -AdditionalArguments $wrappedParams | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+		It 'correctly passed wrapped parameters to the package' {
+			$kittyIniPath | Should -Not -Exist
+		}
+		It 'silently uninstalls the locally installed package just installed again' {
+			Uninstall-Package -Provider $ChocolateyGet -Name $package | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
+		}
+	}
 }
 
-Describe 'pipline-based package installation and uninstallation' {
+Describe 'pipeline-based package installation and uninstallation' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'cpu-z'

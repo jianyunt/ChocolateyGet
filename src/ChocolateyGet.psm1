@@ -6,6 +6,8 @@ $script:AcceptLicense = "AcceptLicense"
 $script:AdditionalArguments = "AdditionalArguments"
 $script:AllVersions = "AllVersions"
 $script:Force = "Force"
+$script:InstallArguments = "InstallArguments"
+$script:PackageParameters = "PackageParameters"
 $script:PackageSource = "Chocolatey"
 
 # Utility variables

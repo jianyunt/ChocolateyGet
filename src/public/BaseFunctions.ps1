@@ -27,6 +27,8 @@ function Get-DynamicOptions {
 		Install {
 			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:AdditionalArguments -ExpectedType String -IsRequired $false)
 			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:AcceptLicense -ExpectedType Switch -IsRequired $false)
+			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:PackageParameters -ExpectedType String -IsRequired $false)
+			Write-Output -InputObject (New-DynamicOption -Category $category -Name $script:InstallArguments -ExpectedType String -IsRequired $false)
 		}
 	}
 }
