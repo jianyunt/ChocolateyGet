@@ -28,7 +28,7 @@ Get-Package nodejs -Verbose -Provider ChocolateyGet
 ```
 ### Uninstall a package
 ```PowerShell
-Get-Package nodejs -Provider ChocolateyGet -Verbose | Uninstall-Package -Verbose
+Get-Package keepass-plugin-winhello -Provider ChocolateyGet -Verbose | Uninstall-Package -Verbose -RemoveDependencies
 ```
 
 ### Manage package sources

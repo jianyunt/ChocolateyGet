@@ -24,6 +24,7 @@ function Uninstall-Package {
 		Name = $Matches.name
 		Version = $Matches.version
 		Force = $request.Options.ContainsKey($script:Force)
+		RemoveDependencies = $request.Options.ContainsKey($script:RemoveDependencies)
 	}
 
 	# Convert the PSCustomObject output from Foil into PackageManagement SWIDs, then validate what Chocolatey installed matched what we requested
