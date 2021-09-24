@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * prompt bypass flag checks
   * parameter/argument parsing
   * resolving package source information
-* Chocolatey once again will be installed automatically if not already present
 #### Changed
 * Always use exact package name in searches, unless the package name contains a wildcard character
 * Upgraded unit tests to Pester v5 format, and added static code analysis tests with PSScriptAnalyzer
