@@ -18,7 +18,7 @@ Find-Package -Provider ChocolateyGet -Name firefox*
 
 ### Install a package
 ```PowerShell
-Find-Package nodejs -Verbose -Provider ChocolateyGet -AdditionalArguments | Install-Package
+Find-Package nodejs -Verbose -Provider ChocolateyGet | Install-Package
 
 Install-Package -Name 7zip -Verbose -Provider ChocolateyGet
 ```
