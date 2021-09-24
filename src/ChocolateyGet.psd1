@@ -19,7 +19,7 @@
 		},
 		@{
 			ModuleName='Foil'
-			ModuleVersion='0.0.3'
+			ModuleVersion='0.1.0'
 		}
 	)
 	PrivateData = @{

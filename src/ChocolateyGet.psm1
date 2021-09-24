@@ -8,6 +8,7 @@ $script:AllVersions = "AllVersions"
 $script:Force = "Force"
 $script:InstallArguments = "InstallArguments"
 $script:PackageParameters = "PackageParameters"
+$script:RemoveDependencies = "RemoveDependencies"
 $script:PackageSource = "Chocolatey"
 
 # Utility variables
