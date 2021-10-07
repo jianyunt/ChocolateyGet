@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Upgraded unit tests to Pester v5 format, and added static code analysis tests with PSScriptAnalyzer
 * Including dependent packages during package uninstalling [must now be explicitly requested](https://github.com/jianyunt/ChocolateyGet/issues/40)
   * Thanks to @jberezanski for the suggestion
-* Install [Chocolatey 0.11.12 by default](https://github.com/jianyunt/ChocolateyGet/issues/41) if Chocolatey is not already installed
+* Install [Chocolatey 0.11.2 by default](https://github.com/jianyunt/ChocolateyGet/issues/41) if Chocolatey is not already installed
   * Thanks to @jberezanski for the suggestion
 #### Removed
 * Due to exact package search behavior mentioned above, support for the CHOCO_NONEXACT_SEARCH environment variable has been removed
