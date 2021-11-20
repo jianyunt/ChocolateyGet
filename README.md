@@ -7,6 +7,7 @@ ChocolateyGet is Package Management (OneGet) provider that facilitates installin
 ```PowerShell
 Install-PackageProvider ChocolateyGet -Force
 ```
+Note: Please do **not** use `Import-Module` with Package Management providers, as they are not meant to be imported in that manner. Either use `Import-PackageProvider` or specify the provider name with the `-Provider` argument to the PackageManagement cmdlets, such as in the examples below:
 
 ## Sample usages
 ### Search for a package
