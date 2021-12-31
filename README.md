@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/vxbk2jqy0r6y7cem/branch/master?svg=true)](https://ci.appveyor.com/project/jianyunt/chocolateyget/branch/master)
 
 # ChocolateyGet
-ChocolateyGet is Package Management (OneGet) provider that facilitates installing Chocolatey packages from any NuGet repository.
+ChocolateyGet is a Package Management (OneGet) provider that facilitates installing Chocolatey packages from any NuGet repository.
 
 ## Install ChocolateyGet
 ```PowerShell
