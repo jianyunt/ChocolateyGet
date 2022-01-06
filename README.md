@@ -4,13 +4,18 @@
 ChocolateyGet is a Package Management (OneGet) provider that facilitates installing Chocolatey packages from any NuGet repository.
 
 ## Install ChocolateyGet
+
 ```PowerShell
 Install-PackageProvider ChocolateyGet -Force
 ```
 Note: Please do **not** use `Import-Module` with Package Management providers, as they are not meant to be imported in that manner. Either use `Import-PackageProvider` or specify the provider name with the `-Provider` argument to the PackageManagement cmdlets, such as in the examples below:
 
 ## Sample usages
+
+Note: When ran for the **first time**, any of the subsequent commands will install Chocolatey if not already present in your system. Run them in an **elevated shell**, otherwise the installation will fail.
+
 ### Search for a package
+
 ```PowerShell
 Find-Package -Provider ChocolateyGet -Name nodejs
 
