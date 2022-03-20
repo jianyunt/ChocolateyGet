@@ -83,6 +83,31 @@ Configuration MyNode {
 ```
 
 ## Keep packages up to date
+
+To update a package, simply run Install-Package and it will update the package to the latest version (or install it if it does not exist).
+
+If you specify a version, either by `-RequiredVersion` or `-MaxiumVersion`, then it will update, or install, that version; if you specify nothing then the default behaviour is the latest version.
+
+```pwsh
+# List all versions
+Find-Package -Name git -MinimumVersion 2.30 -AllVersions -Provider ChocolateyGet
+
+# Check the package is not installed
+Get-Package -Name git -AllVersions -Provider ChocolateyGet
+
+# Install a specific version
+Install-Package -Name git -RequiredVersion 2.34.0 -Verbose -Provider ChocolateyGet
+
+# Check it installed
+Get-Package -Name git -AllVersions -Provider ChocolateyGet
+
+# Update to the latest version
+Install-Package -Name git -Verbose -Provider ChocolateyGet
+
+# Check it updated
+Get-Package -Name git -AllVersions -Provider ChocolateyGet
+```
+
 A common complaint of PackageManagement/OneGet is it doesn't allow for updating installed packages, while Chocolatey does.
 In order to reconcile the two, ChocolateyGet has a reserved keyword 'latest' that when passed as a Required Version can compare the version of what's currently installed against what's in the repository.
 ```PowerShell
