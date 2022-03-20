@@ -111,6 +111,12 @@ Install-Package -Name curl -Verbose -Provider ChocolateyGet
 Get-Package -Name curl -AllVersions
 ```
 
+To list all installed ChocolateyGet packages, with their installed and latest versions:
+
+```
+Get-Package | Select Name, Version, ProviderName, @{l="LatestVersion";e={(Find-Package $_.Name -Provider $_.ProviderName).Version}}
+```
+
 ChocolateyGet also has a reserved keyword 'latest' that when passed as a Required Version can compare the version of what's currently installed against what's in the repository. This allows you to pass a `-RequiredVersion` property to `Get-Package` and get back an error (otherwise `Get-Package` will simply return the current installed version, with no indication of where it is latest or not).
 
 ```PowerShell
