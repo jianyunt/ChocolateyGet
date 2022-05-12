@@ -84,67 +84,40 @@ Configuration MyNode {
 
 ## Keep packages up to date
 
-To update a package, simply run Install-Package and it will update the package to the latest version (or install it if it does not exist).
+To update a package, simply run `Install-Package` again, and the provider will update the package to the latest version.
 
-If you specify a version, either by `-RequiredVersion` or `-MaxiumVersion`, then it will update, or install, that version; if you specify nothing then the default behaviour is the latest version.
+If you specify a version with either the `-RequiredVersion` or `-MaxiumVersion` parameters and a qualifying version of the package is available, the provider will upgrade the package to that version.
 
-```pwsh
-# List all versions
-Find-Package -Name curl -AllVersions -Provider ChocolateyGet
-
-# Check the package is not installed
-Get-Package -Name curl -AllVersions
-
-# Install a specific version
-Install-Package -Name curl -RequiredVersion 7.60.0 -Verbose -Provider ChocolateyGet
-
-# Check it installed
-Get-Package -Name curl -AllVersions
-
-# List latest versions
-Find-Package -Name curl -Provider ChocolateyGet
-
-# Update to the latest version
-Install-Package -Name curl -Verbose -Provider ChocolateyGet
-
-# Check it updated
-Get-Package -Name curl -AllVersions
+To return a list of all installed packages that qualify for an update:
+```PowerShell
+Get-Package -ProviderName ChocolateyGet | Select-Object Name, Version, @{l="LatestVersion";e={(Find-Package $_.Name -Provider $_.ProviderName).Version}} | Where-Object {$_.Version -lt $_.LatestVersion}
 ```
 
-To list all installed ChocolateyGet packages, with their installed and latest versions:
-
-```
-Get-Package | Select Name, Version, ProviderName, @{l="LatestVersion";e={(Find-Package $_.Name -Provider $_.ProviderName).Version}}
-```
-
-ChocolateyGet also has a reserved keyword 'latest' that when passed as a Required Version can compare the version of what's currently installed against what's in the repository. This allows you to pass a `-RequiredVersion` property to `Get-Package` and get back an error (otherwise `Get-Package` will simply return the current installed version, with no indication of where it is latest or not).
+ChocolateyGet also has a reserved keyword 'latest' that, when passed as a Required Version, compares the version of package currently installed against what is in the repository. This can be used to check whether the latest version of package is already installed.
 
 ```PowerShell
-PS C:\Users\ethan> Find-Package curl -RequiredVersion latest -Provider ChocolateyGet
+# In this example, version 7.68 is the latest available
+Find-Package curl -Provider ChocolateyGet
 
 Name                           Version          Source           Summary
 ----                           -------          ------           -------
 curl                           7.68.0           chocolatey
 
-PS C:\Users\ethan> Install-Package curl -RequiredVersion 7.60.0 -Provider ChocolateyGet -Force
+# Install an older version
+Install-Package curl -RequiredVersion 7.60.0 -Provider ChocolateyGet -Force
 
 Name                           Version          Source           Summary
 ----                           -------          ------           -------
 curl                           v7.60.0          chocolatey
 
-PS C:\Users\ethan> Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
+# Get-Package returns no results, because the 'latest' version (ex: 7.68) is not installed
+Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
 Get-Package : No package found for 'curl'.
 At line:1 char:1
 + Get-Package curl -RequiredVersion latest -Provider ChocolateyGet
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : ObjectNotFound: (Microsoft.Power...lets.GetPackage:GetPackage) [Get-Package], Exception
     + FullyQualifiedErrorId : NoMatchFound,Microsoft.PowerShell.PackageManagement.Cmdlets.GetPackage
-```
-
-Without the keyword `latest` you would need to compare the find version to the installed version, e.g.
-
-```
-Get-Package -Name curl -Provider ChocolateyGet -RequiredVersion (Find-Package -Name curl -Provider ChocolateyGet).Version
 ```
 
 This feature can be combined with a PackageManagement-compatible configuration management system (ex: [PowerShell DSC LCM in 'ApplyAndAutoCorrect' mode](https://docs.microsoft.com/en-us/powershell/scripting/dsc/managing-nodes/metaconfig)) to regularly keep certain packages up to date:
