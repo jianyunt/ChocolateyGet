@@ -29,7 +29,7 @@ function Install-Chocolatey {
 			[Net.ServicePointManager]::SecurityProtocol = ([Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12)
 		}
 		# Keep the default version of choco to install pinned to known safe versions
-		$env:chocolateyVersion = '0.12.1'
+		$env:chocolateyVersion = '1.2.1'
 		Invoke-WebRequest 'https://chocolatey.org/install.ps1' -UseBasicParsing | Invoke-Expression > $null
 	} catch {
 		ThrowError -ExceptionName 'System.OperationCanceledException' `

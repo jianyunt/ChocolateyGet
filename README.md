@@ -184,6 +184,8 @@ ChocolateyGet works with PowerShell for both FullCLR/'Desktop' (ex 5.1) and Core
 
 When used with CoreCLR, PowerShell 7.0.1 is a minimum requirement due to [a compatibility issue in PowerShell 7.0](https://github.com/PowerShell/PowerShell/pull/12203).
 
+Users must upgrade to v4.1.0 or higher of this provider module prior to the release of Chocolatey v2 to ensure continued compatibility.
+
 ### Save a package
 Save-Package is not supported with the ChocolateyGet provider, due to Chocolatey not supporting package downloads without special licensing.
 

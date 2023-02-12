@@ -76,6 +76,6 @@ function Find-ChocoPackage {
 	}
 
 	# Convert the PSCustomObject output from Foil into PackageManagement SWIDs, then filter results by any version requirements
-	Foil\Get-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Source $selectedSource |
+	Foil\Find-ChocoPackage @chocoParams | ConvertTo-SoftwareIdentity -Source $selectedSource |
 		Where-Object {Test-PackageVersion -Package $_ -RequiredVersion $RequiredVersion -MinimumVersion $MinimumVersion -MaximumVersion $MaximumVersion}
 }
