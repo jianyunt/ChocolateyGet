@@ -1,6 +1,6 @@
 @{
 	RootModule = 'ChocolateyGet.psm1'
-	ModuleVersion = '4.0.0'
+	ModuleVersion = '4.1.0'
 	GUID = 'c1735ed7-8b2f-426a-8cbc-b7feb6b8288d'
 	Author = 'Jianyun'
 	Copyright = ''
@@ -19,7 +19,7 @@
 		},
 		@{
 			ModuleName='Foil'
-			ModuleVersion='0.1.0'
+			ModuleVersion='0.3.0'
 		}
 	)
 	PrivateData = @{
