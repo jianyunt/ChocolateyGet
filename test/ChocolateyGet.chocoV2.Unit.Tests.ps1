@@ -10,7 +10,7 @@ Describe "Chocolatey V2 test validity" {
 		$package = 'chocolatey'
 		$version = '2.0.0'
 		# Upgrade to Chocolatey v2 to test the API changes
-		choco upgrade $package
+		choco upgrade $package --yes
 	}
 	It 'confirms version of Chocolatey is at least 2.0.0' {
 		Get-Package -Provider 'ChocolateyGet' | Where-Object {$_.Name -eq $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
