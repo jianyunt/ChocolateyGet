@@ -140,7 +140,7 @@ Describe 'pipeline-based package installation and uninstallation' {
 			Find-Package -Provider 'ChocolateyGet' -Name $package | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls the locally installed package just installed, along with its dependencies' {
-			Get-Package -Provider 'ChocolateyGet' -Name $package | Uninstall-Package -RemoveDependencies | Should -HaveCount 2
+			Get-Package -Provider 'ChocolateyGet' -Name $package | Uninstall-Package -RemoveDependencies | Should -HaveCount 4
 		}
 	}
 	Context 'with additional parameters' {
