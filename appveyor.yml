@@ -22,6 +22,9 @@ test_script:
         Output = @{
           Verbosity = 'Detailed'
         }
+        TestResult = @{
+          Exit = $true
+        }
       })
 
 on_finish:
