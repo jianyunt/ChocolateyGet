@@ -5,7 +5,7 @@ BeforeAll {
 	Import-PackageProvider 'ChocolateyGet' -Force
 }
 
-Describe 'basic package search operations' {
+Describe 'Chocolatey V1 basic package search operations' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'curl'
@@ -38,7 +38,7 @@ Describe 'basic package search operations' {
 	}
 }
 
-Describe 'DSC-compliant package installation and uninstallation' {
+Describe 'Chocolatey V1 DSC-compliant package installation and uninstallation' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'curl'
@@ -112,7 +112,7 @@ Describe 'DSC-compliant package installation and uninstallation' {
 	}
 }
 
-Describe 'pipeline-based package installation and uninstallation' {
+Describe 'Chocolatey V1 pipeline-based package installation and uninstallation' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'curl'
@@ -157,7 +157,7 @@ Describe 'pipeline-based package installation and uninstallation' {
 	}
 }
 
-Describe 'multi-source support' {
+Describe 'Chocolatey V1 multi-source support' {
 	BeforeAll {
 		$altSource = 'LocalChocoSource'
 		$altLocation = $PSScriptRoot
@@ -189,7 +189,7 @@ Describe 'multi-source support' {
 	}
 }
 
-Describe 'version filters' {
+Describe 'Chocolatey V1 version filters' {
 	BeforeAll {
 		$package = 'ninja'
 		# Keep at least one version back, to test the 'latest' feature
