@@ -23,7 +23,7 @@ test_script:
           Verbosity = 'Detailed'
         }
         TestResult = @{
-          Exit = $true
+          Enabled = $true
         }
       })
 
