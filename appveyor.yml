@@ -14,7 +14,18 @@ build_script:
       Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
 
 test_script:
-  - ps: Invoke-Pester -CI
+  - ps: |
+      Invoke-Pester -Configuration (New-PesterConfiguration -Hashtable @{
+        Run = @{
+          Exit = $true
+        }
+        Output = @{
+          Verbosity = 'Detailed'
+        }
+        TestResult = @{
+          Enabled = $true
+        }
+      })
 
 on_finish:
   - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\testResults.xml))

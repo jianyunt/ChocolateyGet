@@ -5,18 +5,24 @@ BeforeAll {
 	Import-PackageProvider 'ChocolateyGet' -Force
 }
 
-Describe 'basic package search operations' {
+Describe 'Chocolatey V2 test validity' {
+	BeforeAll {
+		$package = 'chocolatey'
+		$version = '2.0.0'
+		# Upgrade to Chocolatey v2 to test the API changes
+		choco upgrade $package --yes
+	}
+	It 'confirms version of Chocolatey is at least 2.0.0' {
+		Get-Package -Provider 'ChocolateyGet' | Where-Object {$_.Name -eq $package -And $_.Version -ge $version} | Should -Not -BeNullOrEmpty
+	}
+}
+
+Describe 'Chocolatey V2 basic package search operations' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'curl'
 		}
 
-		It 'gets a list of latest installed packages' {
-			Get-Package -Provider 'ChocolateyGet' | Where-Object {$_.Name -contains 'chocolatey'} | Should -Not -BeNullOrEmpty
-		}
-		It 'searches for the latest version of a package' {
-			Find-Package -Provider 'ChocolateyGet' -Name $package | Where-Object {$_.Name -contains $package}  | Should -Not -BeNullOrEmpty
-		}
 		It 'searches for all versions of a package' {
 			Find-Package -Provider 'ChocolateyGet' -Name $package -AllVersions | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
@@ -38,7 +44,7 @@ Describe 'basic package search operations' {
 	}
 }
 
-Describe 'DSC-compliant package installation and uninstallation' {
+Describe 'Chocolatey V2 DSC-compliant package installation and uninstallation' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'curl'
@@ -112,7 +118,7 @@ Describe 'DSC-compliant package installation and uninstallation' {
 	}
 }
 
-Describe 'pipeline-based package installation and uninstallation' {
+Describe 'Chocolatey V2 pipeline-based package installation and uninstallation' {
 	Context 'without additional arguments' {
 		BeforeAll {
 			$package = 'curl'
@@ -127,14 +133,14 @@ Describe 'pipeline-based package installation and uninstallation' {
 	}
 	Context 'with dependencies' {
 		BeforeAll {
-			$package = 'keepass-plugin-winhello'
+			$package = 'notepadplusplus'
 		}
 
 		It 'searches for and silently installs the latest version of a package' {
 			Find-Package -Provider 'ChocolateyGet' -Name $package | Install-Package -Force | Where-Object {$_.Name -contains $package} | Should -Not -BeNullOrEmpty
 		}
 		It 'finds and silently uninstalls the locally installed package just installed, along with its dependencies' {
-			Get-Package -Provider 'ChocolateyGet' -Name $package | Uninstall-Package -RemoveDependencies | Should -HaveCount 5
+			Get-Package -Provider 'ChocolateyGet' -Name $package | Uninstall-Package -RemoveDependencies | Should -HaveCount 4
 		}
 	}
 	Context 'with additional parameters' {
@@ -157,7 +163,7 @@ Describe 'pipeline-based package installation and uninstallation' {
 	}
 }
 
-Describe 'multi-source support' {
+Describe 'Chocolatey V2 multi-source support' {
 	BeforeAll {
 		$altSource = 'LocalChocoSource'
 		$altLocation = $PSScriptRoot
@@ -189,7 +195,7 @@ Describe 'multi-source support' {
 	}
 }
 
-Describe 'version filters' {
+Describe 'Chocolatey V2 version filters' {
 	BeforeAll {
 		$package = 'ninja'
 		# Keep at least one version back, to test the 'latest' feature
